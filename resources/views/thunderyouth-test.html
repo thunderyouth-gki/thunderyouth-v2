@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thunder Youth - GKI Guntur</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Plus Jakarta Sans & Inter Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4A3B8C',
+                        secondary: '#FFB800',
+                        background: '#F8F9FA',
+                        surface: '#FFFFFF',
+                        text: '#1F2937',
+                        textlight: '#6B7280',
+                        accent: '#E5E7EB',
+                        brandlight: '#F0EEFD'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 20px -2px rgba(74, 59, 140, 0.05)',
+                        'card': '0 10px 30px -5px rgba(74, 59, 140, 0.08)',
+                        'glow': '0 0 25px rgba(74, 59, 140, 0.25)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Custom floating animation for SVG elements */
+        .float-animation {
+            animation: float 4s ease-in-out infinite;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(1deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        .wave-animation {
+            animation: wave 6s linear infinite;
+        }
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-15px); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-background text-text font-sans antialiased overflow-x-hidden flex flex-col min-h-screen">
+
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-md z-40 border-b border-accent shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="navigateTo('home')">
+                    <div class="font-heading font-extrabold text-2xl tracking-tighter text-primary flex items-center gap-2">
+                        <i class="fa-solid fa-bolt text-secondary"></i>
+                        <span>THUNDER<span class="text-secondary italic">YOUTH!</span></span>
+                    </div>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8" id="desktop-menu">
+                    <a href="#home" class="nav-link text-primary font-semibold transition" data-target="home">Home</a>
+                    <a href="#services" class="nav-link text-textlight font-medium hover:text-primary transition" data-target="services">Services</a>
+                    <a href="#events" class="nav-link text-textlight font-medium hover:text-primary transition" data-target="events">Events</a>
+                    <a href="#prayer" class="nav-link text-textlight font-medium hover:text-primary transition" data-target="prayer">Prayer Tree</a>
+                    
+                    <!-- Admin Tab (Only visible if Admin Role is active) -->
+                    <a href="#admin" id="nav-admin" class="nav-link text-red-600 font-semibold hover:text-red-700 transition hidden" data-target="admin">
+                        <i class="fa-solid fa-gauge mr-1"></i> Admin Panel
+                    </a>
+                    
+                    <!-- Login Button / User Profile -->
+                    <div id="user-menu" class="flex items-center gap-4 border-l border-accent pl-6">
+                        <button onclick="openAuthModal('login')" class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full font-medium transition shadow-soft flex items-center gap-2">
+                            <i class="fa-solid fa-user-circle"></i> Sign In
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center gap-3">
+                    <div id="mobile-user-avatar" class="hidden">
+                        <!-- Populated dynamically when logged in -->
+                    </div>
+                    <button onclick="toggleMobileMenu()" id="mobile-menu-btn" class="text-primary hover:text-secondary focus:outline-none p-2">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-accent absolute w-full left-0 shadow-lg z-50">
+            <div class="px-4 pt-2 pb-6 space-y-1">
+                <a href="#home" onclick="toggleMobileMenu()" class="block px-3 py-3 rounded-md text-base font-semibold text-primary bg-primary/5">Home</a>
+                <a href="#services" onclick="toggleMobileMenu()" class="block px-3 py-3 rounded-md text-base font-medium text-textlight hover:text-primary hover:bg-primary/5">Services</a>
+                <a href="#events" onclick="toggleMobileMenu()" class="block px-3 py-3 rounded-md text-base font-medium text-textlight hover:text-primary hover:bg-primary/5">Events</a>
+                <a href="#prayer" onclick="toggleMobileMenu()" class="block px-3 py-3 rounded-md text-base font-medium text-textlight hover:text-primary hover:bg-primary/5">Prayer Tree</a>
+                <a href="#admin" id="mobile-nav-admin" onclick="toggleMobileMenu()" class="block px-3 py-3 rounded-md text-base font-bold text-red-600 hover:bg-red-50 hidden"><i class="fa-solid fa-gauge mr-1"></i> Admin Panel</a>
+                
+                <div class="pt-4 pb-2 border-t border-accent mt-2" id="mobile-auth-section">
+                    <button onclick="openAuthModal('login'); toggleMobileMenu()" class="w-full bg-primary text-white px-4 py-3 rounded-xl font-medium shadow-soft">
+                        <i class="fa-solid fa-user-circle mr-2"></i> Sign In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="pt-20 flex-grow">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: HOME (UC01 / KF01 / KF04) -->
+        <!-- ========================================== -->
+        <div id="view-home" class="view-section fade-in">
+            <!-- Hero / Landing Section -->
+            <div class="relative bg-gradient-to-b from-primary/10 via-primary/5 to-background pt-12 pb-24 overflow-hidden">
+                <!-- Abstract Glows -->
+                <div class="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+                    <div class="absolute -top-24 -right-24 w-96 h-96 bg-secondary/20 rounded-full blur-3xl"></div>
+                    <div class="absolute top-48 -left-24 w-72 h-72 bg-primary/20 rounded-full blur-3xl"></div>
+                </div>
+
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center flex flex-col items-center">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-heading font-extrabold text-primary leading-tight mb-6 tracking-tight">
+                        One Ship,<br/>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">One Direction with God.</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-textlight max-w-2xl mx-auto mb-10 leading-relaxed">
+                        Thunder Youth adalah wadah persekutuan kreatif bagi para pemuda GKI Guntur untuk bertumbuh bersama, melayani dengan talenta, dan berbagi kasih Kristus.
+                    </p>
+                    
+                    <div id="hero-action-container">
+                        <button onclick="openAuthModal('register')" class="bg-primary hover:bg-primary/90 text-white px-10 py-4 rounded-full font-bold text-lg transition shadow-card hover:shadow-glow transform hover:-translate-y-1">
+                            Come Aboard
+                        </button>
+                    </div>
+                    
+                    <!-- Premium Kustom SVG Ship (Interactive & Guaranteed Loaded) -->
+                    <div class="mt-12 w-full max-w-md mx-auto flex justify-center">
+                        <div class="float-animation relative">
+                            <svg width="280" height="280" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Sky background glow -->
+                                <circle cx="100" cy="90" r="70" fill="#EAE6FA" opacity="0.6"/>
+                                <!-- Cloud 1 -->
+                                <path d="M40 70C40 64.4772 44.4772 60 50 60C51.6241 60 53.1673 60.3872 54.537 61.0772C56.5505 57.4819 60.3807 55 64.8 55C70.6277 55 75.4057 59.4316 75.9613 65.1118C76.9427 64.3926 78.1471 64 79.4444 64C82.5127 64 85 66.5218 85 69.6333C85 72.7449 82.5127 75.2667 79.4444 75.2667H50C44.4772 75.2667 40 70.7895 40 70Z" fill="white"/>
+                                <!-- Cloud 2 -->
+                                <path d="M125 55C125 49.4772 129.477 45 135 45C136.624 45 138.167 45.3872 139.537 46.0772C141.551 42.4819 145.381 40 149.8 40C155.628 40 160.406 44.4316 160.961 50.1118C161.943 49.3926 163.147 49 164.444 49C167.513 49 170 51.5218 170 54.6333C170 57.7449 167.513 60.2667 164.444 60.2667H135C129.477 60.2667 125 55.7895 125 55Z" fill="white"/>
+                                <!-- Sun/Glow -->
+                                <circle cx="100" cy="80" r="30" fill="#FFB800" opacity="0.8"/>
+                                <!-- Cross on main sail -->
+                                <path d="M100 45V105" stroke="#4A3B8C" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M85 65H115" stroke="#4A3B8C" stroke-width="4" stroke-linecap="round"/>
+                                <!-- Sails -->
+                                <path d="M100 45C118 45 130 65 130 85C110 85 100 75 100 45Z" fill="#F0EEFD" stroke="#4A3B8C" stroke-width="3" stroke-linejoin="round"/>
+                                <path d="M100 45C82 45 70 65 70 85C90 85 100 75 100 45Z" fill="#FFFFFF" stroke="#4A3B8C" stroke-width="3" stroke-linejoin="round"/>
+                                <!-- Ship Hull / Lambung Kapal -->
+                                <path d="M50 115L65 145H135L150 115C150 115 125 125 100 125C75 125 50 115 50 115Z" fill="#4A3B8C" stroke="#2D1F66" stroke-width="3" stroke-linejoin="round"/>
+                                <!-- Golden Accents -->
+                                <circle cx="75" cy="128" r="4" fill="#FFB800"/>
+                                <circle cx="100" cy="128" r="4" fill="#FFB800"/>
+                                <circle cx="125" cy="128" r="4" fill="#FFB800"/>
+                                <path d="M100 125V145" stroke="#FFB800" stroke-width="2"/>
+                                <!-- Waves -->
+                                <path class="wave-animation" d="M30 145C40 142 50 142 60 145C70 148 80 148 90 145C100 142 110 142 120 145C130 148 140 148 150 145C160 142 170 142 180 145" stroke="#3B82F6" stroke-width="3" stroke-linecap="round"/>
+                                <path class="wave-animation" d="M25 152C35 149 45 149 55 152C65 155 75 155 85 152C95 149 105 149 115 152C125 155 135 155 145 152C155 149 165 149 175 152" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Sunday Service Section (UC03 / UC04) -->
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 space-y-16 pb-20">
+                <div>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 mb-6">
+                        <div>
+                            <span class="text-secondary font-bold tracking-wider text-sm uppercase">Acara Hari Ini</span>
+                            <h2 class="font-heading font-bold text-2xl md:text-3xl text-primary">Today's Sunday Service</h2>
+                        </div>
+                        <div class="text-left sm:text-right text-textlight font-medium bg-white px-4 py-2 rounded-2xl border border-accent">
+                            <div class="text-lg text-primary font-bold"><i class="fa-regular fa-calendar-check mr-1 text-secondary"></i> 21 JUN</div>
+                            <div class="text-sm">09:30 AM (WIB)</div>
+                        </div>
+                    </div>
+
+                    <!-- Main active service block -->
+                    <div class="bg-white rounded-3xl shadow-soft border border-accent overflow-hidden flex flex-col md:flex-row">
+                        <!-- Image Container with absolute tag -->
+                        <div class="w-full md:w-5/12 h-64 md:h-auto relative">
+                            <!-- High Quality Unsplash Water Cup Image (Relevant to Melepas Dahaga) -->
+                            <img src="https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=800&q=80" alt="Sunday Service Communion" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-primary/20"></div>
+                            <div class="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full animate-pulse shadow-md flex items-center gap-1.5">
+                                <span class="w-2 h-2 bg-white rounded-full"></span> LIVE STREAMING
+                            </div>
+                        </div>
+                        
+                        <!-- Details Content (KF05 / KF06) -->
+                        <div class="p-6 md:p-8 w-full md:w-7/12 flex flex-col justify-between">
+                            <div>
+                                <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full w-max mb-3 inline-block">Sharing Sunday</span>
+                                <h3 class="font-heading font-bold text-2xl text-text mb-2">Melepas Dahaga</h3>
+                                <p class="text-textlight text-sm mb-6 leading-relaxed">
+                                    Ibadah rutin pemuda minggu ke-3. Mempelajari bagaimana kasih Kristus adalah sumber mata air hidup yang sejati bagi dahaga jiwa kita.
+                                </p>
+                                
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                                    <div class="flex items-center text-textlight text-sm">
+                                        <i class="fa-solid fa-microphone w-8 h-8 rounded-lg bg-brandlight text-primary flex items-center justify-center mr-3 flex-shrink-0"></i>
+                                        <div>
+                                            <p class="text-xs text-textlight">Pembicara</p>
+                                            <p class="font-semibold text-text">Bpk. Teguh Juliawan</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center text-textlight text-sm">
+                                        <i class="fa-solid fa-location-dot w-8 h-8 rounded-lg bg-brandlight text-primary flex items-center justify-center mr-3 flex-shrink-0"></i>
+                                        <div>
+                                            <p class="text-xs text-textlight">Lokasi</p>
+                                            <p class="font-semibold text-text">Ruang Pemuda Lt. 1</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Actions (Presence Button KF05) -->
+                            <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-accent">
+                                <a href="https://youtube.com" target="_blank" class="flex-1 bg-surface border border-accent text-text hover:bg-slate-50 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-book-open"></i> Unduh Warta
+                                </a>
+                                <button id="btn-main-presence" onclick="handlePresence()" class="flex-1 bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-semibold transition shadow-soft flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-location-crosshairs animate-pulse text-secondary"></i> Catat Kehadiran Saya
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Featured Events Subsection (KF04) -->
+                <div>
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <span class="text-secondary font-bold tracking-wider text-sm uppercase">Agenda Mendatang</span>
+                            <h2 class="font-heading font-bold text-2xl text-primary">Upcoming Events</h2>
+                        </div>
+                        <a href="#events" class="text-primary font-semibold hover:underline flex items-center gap-1 text-sm bg-brandlight px-3 py-1.5 rounded-full">
+                            Lihat Semua <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="home-featured-events">
+                        <!-- Card 1 -->
+                        <div class="bg-white rounded-3xl p-4 shadow-soft border border-accent flex flex-col justify-between hover:shadow-card hover:-translate-y-1 transition duration-300">
+                            <div class="flex items-center gap-4">
+                                <div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
+                                    <img src="https://images.unsplash.com/photo-1708312604109-16c0be9326cd?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-full h-full object-cover" alt="Badminton">
+                                </div>
+                                <div class="min-w-0">
+                                    <span class="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mb-1">Sports</span>
+                                    <h4 class="font-bold text-text mb-0.5 truncate">Badminton Club</h4>
+                                    <div class="text-xs text-textlight"><i class="fa-regular fa-calendar mr-1"></i> 09 Jun 2026</div>
+                                </div>
+                            </div>
+                            <button onclick="navigateTo('events')" class="mt-4 w-full bg-brandlight hover:bg-primary hover:text-white text-primary text-xs font-semibold py-2 rounded-xl transition">
+                                Lihat Detail
+                            </button>
+                        </div>
+                        <!-- Card 2 -->
+                        <div class="bg-white rounded-3xl p-4 shadow-soft border border-accent flex flex-col justify-between hover:shadow-card hover:-translate-y-1 transition duration-300">
+                            <div class="flex items-center gap-4">
+                                <div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
+                                    <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=400&q=80" class="w-full h-full object-cover" alt="Seminar">
+                                </div>
+                                <div class="min-w-0">
+                                    <span class="bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mb-1">Seminar</span>
+                                    <h4 class="font-bold text-text mb-0.5 truncate">Seminar: Kasih Aba-Aba</h4>
+                                    <div class="text-xs text-textlight"><i class="fa-regular fa-calendar mr-1"></i> 13 Jun 2026</div>
+                                </div>
+                            </div>
+                            <button onclick="navigateTo('events')" class="mt-4 w-full bg-brandlight hover:bg-primary hover:text-white text-primary text-xs font-semibold py-2 rounded-xl transition">
+                                Lihat Detail
+                            </button>
+                        </div>
+                        <!-- Card 3 -->
+                        <div class="bg-white rounded-3xl p-4 shadow-soft border border-accent flex flex-col justify-between hover:shadow-card hover:-translate-y-1 transition duration-300">
+                            <div class="flex items-center gap-4">
+                                <div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
+                                    <img src="https://images.unsplash.com/photo-1714252562758-a30752d9d098?q=80&w=1273&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-full h-full object-cover" alt="Fellowship">
+                                </div>
+                                <div class="min-w-0">
+                                    <span class="bg-violet-50 text-violet-700 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block mb-1">Fellowship</span>
+                                    <h4 class="font-bold text-text mb-0.5 truncate">Now You See Me</h4>
+                                    <div class="text-xs text-textlight"><i class="fa-regular fa-calendar mr-1"></i> 20 Jun 2026</div>
+                                </div>
+                            </div>
+                            <button onclick="navigateTo('events')" class="mt-4 w-full bg-brandlight hover:bg-primary hover:text-white text-primary text-xs font-semibold py-2 rounded-xl transition">
+                                Lihat Detail
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: SERVICES (KF11) -->
+        <!-- ========================================== -->
+        <div id="view-services" class="view-section hidden fade-in">
+            <!-- Header Services -->
+            <div class="bg-primary pt-12 pb-24 px-4 sm:px-6 lg:px-8 text-white relative">
+                <div class="absolute inset-0 bg-gradient-to-r from-primary to-purple-900 opacity-60"></div>
+                <div class="max-w-6xl mx-auto relative z-10">
+                    <span class="bg-secondary text-primary text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">Jadwal Kebaktian</span>
+                    <h1 class="text-3xl md:text-4xl font-heading font-bold text-white mt-3 mb-4">Youth Services</h1>
+                    <p class="text-white/80 max-w-2xl text-sm md:text-base leading-relaxed">
+                        Ibadah dan kebaktian rutin Komisi Pemuda GKI Guntur. Temukan kedamaian dan hadirat Tuhan bersama komunitas pemuda lainnya.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 space-y-12 pb-20">
+                <!-- Next Service Highlight -->
+                <div class="bg-white rounded-3xl shadow-card border border-accent overflow-hidden">
+                    <div class="p-6 md:p-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="font-heading font-bold text-xl text-primary">Ibadah Pemuda Terdekat</h2>
+                            <span class="bg-red-50 text-red-600 text-xs font-semibold px-2.5 py-1 rounded-full"><i class="fa-solid fa-clock mr-1"></i> Minggu Depan</span>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-6">
+                            <div class="w-full md:w-1/3 h-48 md:h-auto rounded-2xl overflow-hidden relative">
+                                <img src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Communion cup">
+                            </div>
+                            <div class="w-full md:w-2/3 flex flex-col justify-between">
+                                <div>
+                                    <span class="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-full inline-block mb-3">Minggu Ke-4</span>
+                                    <h3 class="font-heading font-bold text-2xl text-text mb-2">Berakar dan Bertumbuh</h3>
+                                    <p class="text-textlight text-sm mb-4 leading-relaxed">
+                                        Membahas pentingnya dasar firman yang kokoh agar kehidupan rohani kita tidak goyah oleh badai tantangan dunia modern saat ini.
+                                    </p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mb-4 border-t border-accent pt-4">
+                                    <div>
+                                        <p class="text-xs text-textlight">Pembicara</p>
+                                        <p class="text-sm font-semibold text-text">Pdt. Samuel Krispradipta</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-textlight">Waktu</p>
+                                        <p class="text-sm font-semibold text-text">28 Juni 2026 - 09:30</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Past Services (Database simulation placeholder) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-6">
+                        <h2 class="font-heading font-bold text-2xl text-primary">Past Services (Arsip Kebaktian)</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="services-grid-list">
+                        <!-- Service 1 -->
+                        <div class="bg-white rounded-3xl p-6 shadow-soft border border-accent flex flex-col justify-between hover:shadow-card transition">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">Ibadah Selesai</span>
+                                    <span class="text-xs text-textlight font-medium">14 Juni 2026</span>
+                                </div>
+                                <h3 class="font-bold text-lg text-text mb-2">Menjadi Terang</h3>
+                                <p class="text-xs text-textlight mb-4 line-clamp-2">Bagaimana peran pemuda membawa damai sejahtera dan pengaruh positif di lingkungan kampus dan pekerjaan.</p>
+                            </div>
+                            <div class="border-t border-accent pt-4 mt-4 flex justify-between items-center text-xs">
+                                <span class="font-medium text-primary">Pdt. Rahmat Santoso</span>
+                                <button class="text-textlight hover:text-primary transition font-semibold flex items-center gap-1">
+                                    <i class="fa-regular fa-circle-play text-sm text-secondary"></i> Tonton Rekaman
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Service 2 -->
+                        <div class="bg-white rounded-3xl p-6 shadow-soft border border-accent flex flex-col justify-between hover:shadow-card transition">
+                            <div>
+                                <div class="flex justify-between items-start mb-4">
+                                    <span class="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">Ibadah Selesai</span>
+                                    <span class="text-xs text-textlight font-medium">07 Juni 2026</span>
+                                </div>
+                                <h3 class="font-bold text-lg text-text mb-2">Kasih yang Memulihkan</h3>
+                                <p class="text-xs text-textlight mb-4 line-clamp-2">Merenungkan kasih tanpa syarat Kristus yang sanggup memulihkan setiap hati yang terluka dan kecewa.</p>
+                            </div>
+                            <div class="border-t border-accent pt-4 mt-4 flex justify-between items-center text-xs">
+                                <span class="font-medium text-primary">Pnt. Mariana Hartono</span>
+                                <button class="text-textlight hover:text-primary transition font-semibold flex items-center gap-1">
+                                    <i class="fa-regular fa-circle-play text-sm text-secondary"></i> Tonton Rekaman
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Connection Information Alert (KF11 / UC09) -->
+                <div class="bg-purple-50 border-l-4 border-primary p-5 rounded-2xl flex gap-3">
+                    <i class="fa-solid fa-database text-primary text-xl mt-0.5 flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-bold text-primary text-sm mb-1">Status Sinkronisasi Database (KF11)</h4>
+                        <p class="text-xs text-primary/80 leading-relaxed">
+                            Informasi keagamaan dan jadwal ibadah ini ditarik secara dinamis dari tabel <code class="bg-white/60 px-1 rounded font-bold">kebaktian</code> yang berelasi dengan entitas <code class="bg-white/60 px-1 rounded font-bold">kegiatan</code> di sistem PostgreSQL/MySQL Anda via Eloquent ORM di Laravel.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: EVENTS (KF11 / KF07) -->
+        <!-- ========================================== -->
+        <div id="view-events" class="view-section hidden fade-in">
+            <!-- Header Events -->
+            <div class="bg-surface border-b border-accent pt-10 pb-16">
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <span class="bg-secondary/20 text-yellow-800 text-xs font-bold px-3 py-1.5 rounded-full inline-block mb-3 uppercase tracking-wider">Persekutuan & Komunitas</span>
+                    <h1 class="text-3xl md:text-4xl font-heading font-extrabold text-primary mb-4">Upcoming Events & Activities</h1>
+                    <p class="text-textlight max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+                        Daftarkan dirimu dan ikuti ragam komunitas, seminar interaktif, dan olahraga bersama rekan-rekan pemuda GKI Guntur.
+                    </p>
+                </div>
+            </div>
+
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20 space-y-8 pb-20">
+                <!-- Interactive Filter Component (KF11) -->
+                <div class="bg-white rounded-3xl p-3 shadow-soft border border-accent flex flex-wrap gap-2 overflow-x-auto no-scrollbar">
+                    <button onclick="filterEvents('all')" class="event-filter-btn px-6 py-2.5 rounded-2xl bg-primary text-white text-sm font-semibold transition" data-filter="all">
+                        Semua Kategori
+                    </button>
+                    <button onclick="filterEvents('Sports')" class="event-filter-btn px-6 py-2.5 rounded-2xl bg-slate-50 text-textlight hover:text-primary text-sm font-medium transition" data-filter="Sports">
+                        <i class="fa-solid fa-volleyball mr-1 text-emerald-500"></i> Olahraga (Sports)
+                    </button>
+                    <button onclick="filterEvents('Seminar')" class="event-filter-btn px-6 py-2.5 rounded-2xl bg-slate-50 text-textlight hover:text-primary text-sm font-medium transition" data-filter="Seminar">
+                        <i class="fa-solid fa-graduation-cap mr-1 text-amber-500"></i> Seminar
+                    </button>
+                    <button onclick="filterEvents('Fellowship')" class="event-filter-btn px-6 py-2.5 rounded-2xl bg-slate-50 text-textlight hover:text-primary text-sm font-medium transition" data-filter="Fellowship">
+                        <i class="fa-solid fa-people-group mr-1 text-violet-500"></i> Persekutuan (Fellowship)
+                    </button>
+                </div>
+
+                <!-- Dynamic Events Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="events-grid-list-all">
+                    <!-- Event 1 (Sports) -->
+                    <div class="bg-white rounded-3xl shadow-soft border border-accent overflow-hidden flex flex-col justify-between group hover:shadow-card hover:-translate-y-1 transition duration-300 event-card" data-category="Sports">
+                        <div>
+                            <div class="h-48 relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1708312604109-16c0be9326cd?q=80&w=1074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Badminton">
+                                <span class="absolute top-4 left-4 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">Sports</span>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-heading font-bold text-lg text-text mb-3">Thunder Club: Badminton</h3>
+                                <div class="space-y-2 text-xs text-textlight mb-4">
+                                    <div class="flex items-center"><i class="fa-regular fa-calendar w-5 text-primary"></i> 09 Jun 2026</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-clock w-5 text-primary"></i> 15:00 - 18:00 WIB</div>
+                                    <div class="flex items-center"><i class="fa-solid fa-location-dot w-5 text-primary"></i> Gor Lodaya</div>
+                                    <div class="flex items-center"><i class="fa-solid fa-receipt w-5 text-primary"></i> Rp 15.000 / Bulan (Biaya Partisipasi)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 border-t border-accent bg-slate-50/50">
+                            <button onclick="registerForEvent(this, 'Badminton Club')" class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-user-plus text-xs"></i> Gabung Sekarang
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Event 2 (Seminar) -->
+                    <div class="bg-white rounded-3xl shadow-soft border border-accent overflow-hidden flex flex-col justify-between group hover:shadow-card hover:-translate-y-1 transition duration-300 event-card" data-category="Seminar">
+                        <div>
+                            <div class="h-48 relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Seminar">
+                                <span class="absolute top-4 left-4 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">Seminar</span>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-heading font-bold text-lg text-text mb-3">Seminar: Kasih Aba-Aba</h3>
+                                <div class="space-y-2 text-xs text-textlight mb-4">
+                                    <div class="flex items-center"><i class="fa-regular fa-calendar w-5 text-primary"></i> 13 Jun 2026</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-clock w-5 text-primary"></i> 15:00 - 18:00 WIB</div>
+                                    <div class="flex items-center"><i class="fa-solid fa-location-dot w-5 text-primary"></i> Ruang Pemuda Lt.1, GKI Guntur</div>
+                                    <div class="flex items-center"><i class="fa-solid fa-microphone w-5 text-primary"></i> Pdt. Samuel Krispradipta</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 border-t border-accent bg-slate-50/50">
+                            <button onclick="registerForEvent(this, 'Seminar: Kasih Aba-Aba')" class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-user-plus text-xs"></i> Gabung Sekarang
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Event 3 (Fellowship) -->
+                    <div class="bg-white rounded-3xl shadow-soft border border-accent overflow-hidden flex flex-col justify-between group hover:shadow-card hover:-translate-y-1 transition duration-300 event-card" data-category="Fellowship">
+                        <div>
+                            <div class="h-48 relative overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1714252562758-a30752d9d098?q=80&w=1273&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" alt="Fellowship">
+                                <span class="absolute top-4 left-4 bg-violet-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">Fellowship</span>
+                            </div>
+                            <div class="p-5">
+                                <h3 class="font-heading font-bold text-lg text-text mb-3">Fellowship: Now You See Me</h3>
+                                <div class="space-y-2 text-xs text-textlight mb-4">
+                                    <div class="flex items-center"><i class="fa-regular fa-calendar w-5 text-primary"></i> 20 Jun 2026</div>
+                                    <div class="flex items-center"><i class="fa-regular fa-clock w-5 text-primary"></i> 15:00 - 18:00 WIB</div>
+                                    <div class="flex items-center"><i class="fa-solid fa-location-dot w-5 text-primary"></i> Ruang Pemuda Lt. 1, GKI Guntur</div>
+                                    <div class="flex items-center"><i class="fa-solid fa-microphone w-5 text-primary"></i> Pdt. Samuel Krispradipta</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-5 border-t border-accent bg-slate-50/50">
+                            <button onclick="registerForEvent(this, 'Fellowship: Now You See Me')" class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-user-plus text-xs"></i> Gabung Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Database Mapping Info Box (KF11 & KF07) -->
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-2xl flex gap-3">
+                    <i class="fa-solid fa-circle-nodes text-blue-500 text-xl mt-0.5 flex-shrink-0"></i>
+                    <div>
+                        <h4 class="font-bold text-blue-800 text-sm mb-1">Struktur Relasi Tabel & Pendaftaran (KF07 & KF11)</h4>
+                        <p class="text-xs text-blue-700 leading-relaxed">
+                            Filter kategori di atas memisahkan baris data berdasarkan relasi sub-jenis ke tabel anak <code class="bg-white/60 px-1 rounded font-bold">persekutuan</code> dan <code class="bg-white/60 px-1 rounded font-bold">lainnya</code> dari tabel utama <code class="bg-white/60 px-1 rounded font-bold">kegiatan</code>. Tombol "Gabung Sekarang" menyimulasikan insert transaksi pendaftaran ke tabel <code class="bg-white/60 px-1 rounded font-bold">pendaftaran</code> menggunakan email akun yang sedang aktif.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: PRAYER TREE (KF08 / UC06) -->
+        <!-- ========================================== -->
+        <div id="view-prayer" class="view-section hidden fade-in">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
+                <div class="text-center mb-10">
+                    <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-600 text-2xl shadow-soft">
+                        <i class="fa-solid fa-hands-praying"></i>
+                    </div>
+                    <h1 class="text-3xl font-heading font-extrabold text-primary mb-3">Prayer Tree</h1>
+                    <p class="text-textlight text-sm max-w-lg mx-auto">
+                        "Sebab di mana dua atau tiga orang berkumpul dalam nama-Ku, di situ Aku ada di tengah-tengah mereka." - Matius 18:20
+                    </p>
+                </div>
+
+                <!-- Interactive Prayer Tree Post Form (KF08) -->
+                <div class="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-accent mb-8">
+                    <h2 class="font-bold text-lg text-text mb-4">Bagikan Pokok Doamu</h2>
+                    <form id="prayer-tree-form" onsubmit="submitPrayerRequest(event)" class="space-y-4">
+                        <div>
+                            <textarea id="prayer-content" rows="4" required class="w-full p-4 border border-accent rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition resize-none bg-background text-sm" placeholder="Tulis pokok doamu di sini secara jujur... Kami akan bersama-sama mendukungmu dalam doa."></textarea>
+                        </div>
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <label class="flex items-center gap-2.5 cursor-pointer text-sm text-textlight hover:text-text select-none">
+                                <input type="checkbox" id="prayer-anonymous" class="w-4.5 h-4.5 rounded border-accent text-primary focus:ring-primary">
+                                Kirim secara Anonim (Sembunyikan Identitas)
+                            </label>
+                            <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-bold transition shadow-soft flex items-center justify-center gap-2 text-sm">
+                                <i class="fa-solid fa-paper-plane text-xs"></i> Gantung Doa di Pohon
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Live Community Prayers list (Mocking Database table) -->
+                <div>
+                    <h3 class="font-heading font-bold text-xl text-primary mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-leaf text-emerald-500"></i> Pokok Doa Komunitas Terkini
+                    </h3>
+                    <div class="space-y-4" id="prayer-list-container">
+                        <!-- Mock Prayer item 1 -->
+                        <div class="bg-white rounded-2xl p-5 shadow-soft border border-accent">
+                            <div class="flex justify-between items-start gap-4 mb-3">
+                                <div>
+                                    <h4 class="font-bold text-sm text-primary">Steven (Jemaat Pemuda)</h4>
+                                    <p class="text-[10px] text-textlight">Kategori: Kesehatan & Studi</p>
+                                </div>
+                                <span class="bg-purple-100 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full">Baru</span>
+                            </div>
+                            <p class="text-sm text-textlight leading-relaxed">
+                                Mohon dukungan doanya dari pengurus dan rekan-rekan untuk persiapan ujian sidang akhir skripsi saya minggu depan agar dilancarkan.
+                            </p>
+                        </div>
+                        <!-- Mock Prayer item 2 -->
+                        <div class="bg-white rounded-2xl p-5 shadow-soft border border-accent">
+                            <div class="flex justify-between items-start gap-4 mb-3">
+                                <div>
+                                    <h4 class="font-bold text-sm text-text">Anonim</h4>
+                                    <p class="text-[10px] text-textlight">Kategori: Pekerjaan & Keluarga</p>
+                                </div>
+                                <span class="text-[10px] text-textlight">2 jam yang lalu</span>
+                            </div>
+                            <p class="text-sm text-textlight leading-relaxed">
+                                Mohon doanya agar papa saya segera pulih dari masa penyembuhan pasca operasi jantung, serta kelancaran mencari kerja baru.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: ADMIN DASHBOARD (KF09 / KF10 / KF12) -->
+        <!-- ========================================== -->
+        <div id="view-admin" class="view-section hidden fade-in">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                        <span class="text-red-600 font-bold tracking-wider text-xs uppercase"><i class="fa-solid fa-lock"></i> Pengurus Only</span>
+                        <h1 class="text-3xl font-heading font-extrabold text-primary">Admin Control Center</h1>
+                    </div>
+                    <button onclick="openAddEventModal()" class="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-xl font-bold transition text-sm flex items-center gap-2 shadow-soft">
+                        <i class="fa-solid fa-plus text-secondary"></i> Tambah Kegiatan Baru
+                    </button>
+                </div>
+
+                <!-- Admin Navigation Subtabs -->
+                <div class="bg-white rounded-t-3xl border-b border-accent flex overflow-x-auto no-scrollbar shadow-soft">
+                    <button onclick="switchAdminTab('events')" id="tab-btn-events" class="admin-tab-btn px-6 py-4 font-bold text-primary border-b-2 border-primary text-sm whitespace-nowrap transition">
+                        <i class="fa-solid fa-calendar-days mr-2"></i> Manajemen Kegiatan
+                    </button>
+                    <button onclick="switchAdminTab('attendance')" id="tab-btn-attendance" class="admin-tab-btn px-6 py-4 font-medium text-textlight hover:text-primary text-sm whitespace-nowrap transition">
+                        <i class="fa-solid fa-clipboard-user mr-2"></i> Log Presensi Jemaat
+                    </button>
+                    <button onclick="switchAdminTab('prayers')" id="tab-btn-prayers" class="admin-tab-btn px-6 py-4 font-medium text-textlight hover:text-primary text-sm whitespace-nowrap transition">
+                        <i class="fa-solid fa-hands-praying mr-2"></i> Rekap Prayer Tree
+                    </button>
+                </div>
+                
+                <!-- Tab Panel 1: Manajemen Kegiatan -->
+                <div id="admin-panel-events" class="bg-white rounded-b-3xl shadow-card border border-t-0 border-accent overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-textlight font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">ID</th>
+                                    <th class="px-6 py-4">Nama Kegiatan</th>
+                                    <th class="px-6 py-4">Tanggal / Waktu</th>
+                                    <th class="px-6 py-4">Kategori</th>
+                                    <th class="px-6 py-4">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-accent" id="admin-events-tbody">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab Panel 2: Log Presensi (KF06 / KF05) -->
+                <div id="admin-panel-attendance" class="bg-white rounded-b-3xl shadow-card border border-t-0 border-accent overflow-hidden hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-textlight font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">Tanggal Scan</th>
+                                    <th class="px-6 py-4">Nama Jemaat</th>
+                                    <th class="px-6 py-4">Email</th>
+                                    <th class="px-6 py-4">Metode Presensi</th>
+                                    <th class="px-6 py-4">Status Lokasi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-accent" id="admin-attendance-tbody">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab Panel 3: Rekap Prayer Tree (KF12) -->
+                <div id="admin-panel-prayers" class="bg-white rounded-b-3xl shadow-card border border-t-0 border-accent overflow-hidden hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-textlight font-bold">
+                                <tr>
+                                    <th class="px-6 py-4">Pengirim</th>
+                                    <th class="px-6 py-4">Isi Pokok Doa</th>
+                                    <th class="px-6 py-4">Kerahasiaan</th>
+                                    <th class="px-6 py-4">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-accent" id="admin-prayers-tbody">
+                                <!-- Populated dynamically by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-accent mt-auto">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <h3 class="font-heading font-extrabold text-primary mb-1">Our Church</h3>
+                    <p class="text-textlight text-sm">Jl. Guntur No.13, Bandung</p>
+                </div>
+                <div>
+                    <h3 class="font-heading font-bold text-text mb-3">Connect With Us</h3>
+                    <div class="flex gap-3">
+                        <a href="https://instagram.com" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 border border-accent flex items-center justify-center text-textlight hover:bg-primary hover:text-white transition"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://whatsapp.com" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 border border-accent flex items-center justify-center text-textlight hover:bg-primary hover:text-white transition"><i class="fa-brands fa-whatsapp"></i></a>
+                        <a href="https://youtube.com" target="_blank" class="w-10 h-10 rounded-full bg-slate-50 border border-accent flex items-center justify-center text-textlight hover:bg-primary hover:text-white transition"><i class="fa-brands fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center text-xs text-textlight mt-10 border-t border-accent pt-6">
+                &copy; 2026 Thunder Youth GKI Guntur. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (UC02 / KF02 / KF03) -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md mx-4 rounded-3xl shadow-glow overflow-hidden transform scale-95 transition-transform duration-300 relative">
+            
+            <!-- Close Button -->
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-textlight hover:text-text bg-slate-100 hover:bg-slate-200 w-8 h-8 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-times text-sm"></i>
+            </button>
+
+            <!-- Login Card View -->
+            <div id="view-login" class="p-8">
+                <div class="mb-6 text-center">
+                    <div class="w-14 h-14 bg-brandlight rounded-2xl flex items-center justify-center mx-auto mb-3 text-primary text-xl">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    </div>
+                    <h2 class="text-2xl font-heading font-extrabold text-primary">Welcome Back</h2>
+                    <p class="text-xs text-textlight mt-1">Masuk untuk mencatat kehadiran & berpartisipasi</p>
+                </div>
+                
+                <form class="space-y-4" onsubmit="handleLoginSubmit(event)">
+                    <div>
+                        <label class="block text-xs font-semibold text-text mb-1 uppercase tracking-wider">Email Jemaat</label>
+                        <input type="email" id="login-email" placeholder="you@gmail.com" required class="w-full px-4 py-2.5 rounded-xl border border-accent bg-background focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-text mb-1 uppercase tracking-wider">Password</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required class="w-full px-4 py-2.5 rounded-xl border border-accent bg-background focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition text-sm">
+                    </div>
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-xl font-bold transition shadow-soft mt-2 text-sm">
+                        Sign In
+                    </button>
+                </form>
+                
+                <div class="mt-6 text-center text-xs text-textlight">
+                    Belum memiliki akun? <button onclick="switchAuthView('register')" class="text-primary font-bold hover:underline">Daftarkan Sekarang</button>
+                </div>
+            </div>
+
+            <!-- Register / Sign Up View (KF02 / UC02) -->
+            <div id="view-register" class="p-8 hidden max-h-[80vh] overflow-y-auto no-scrollbar">
+                <div class="mb-5 text-center">
+                    <h2 class="text-2xl font-heading font-extrabold text-primary">Daftar Akun Baru</h2>
+                    <p class="text-xs text-textlight mt-1">Gabung dalam keluarga besar Komisi Pemuda GKI Guntur</p>
+                </div>
+                
+                <!-- Form Inputs matching Database schema exactly -->
+                <form class="space-y-3.5" onsubmit="handleRegisterSubmit(event)">
+                    <div>
+                        <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Nama Lengkap (Sesuai KTP)</label>
+                        <input type="text" id="reg-nama-lengkap" required class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Nama Panggilan</label>
+                            <input type="text" id="reg-nama-panggilan" required class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Gender</label>
+                            <select id="reg-gender" required class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Nomor WhatsApp</label>
+                        <input type="tel" id="reg-no-telp" placeholder="08xxxxxxxx" required class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Tanggal Lahir</label>
+                            <input type="date" id="reg-tanggal-lahir" required class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Status Membership</label>
+                            <select id="reg-membership" class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                                <option value="Jemaat">Jemaat GKI Guntur</option>
+                                <option value="Simpatisan">Simpatisan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-accent">
+                        <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Alamat Email</label>
+                        <input type="email" id="reg-email" placeholder="you@domain.com" required class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-text uppercase tracking-wider">Password</label>
+                        <input type="password" id="reg-password" required class="w-full px-3 py-2 rounded-lg border border-accent bg-background text-xs focus:outline-none focus:border-primary">
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold transition shadow-soft mt-4 text-xs">
+                        Buat Akun Jemaat (Simpan Ke DB)
+                    </button>
+                </form>
+                
+                <div class="mt-4 text-center text-xs text-textlight">
+                    Sudah punya akun? <button onclick="switchAuthView('login')" class="text-primary font-bold hover:underline">Masuk Di Sini</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal (For Pengurus / KF09) -->
+    <div id="add-event-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md mx-4 rounded-3xl shadow-glow overflow-hidden transform scale-95 transition-transform duration-300 relative">
+            <button onclick="closeAddEventModal()" class="absolute top-4 right-4 text-textlight hover:text-text bg-slate-100 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <div class="p-8">
+                <h2 class="text-xl font-heading font-extrabold text-primary mb-4">Tambah Kegiatan Baru</h2>
+                <form onsubmit="handleNewEventSubmit(event)" class="space-y-4 text-xs">
+                    <div>
+                        <label class="block font-semibold text-text mb-1">Nama Kegiatan</label>
+                        <input type="text" id="admin-add-nama" required class="w-full px-3 py-2 border border-accent rounded-lg bg-background">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-semibold text-text mb-1">Tanggal</label>
+                            <input type="date" id="admin-add-tanggal" required class="w-full px-3 py-2 border border-accent rounded-lg bg-background">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-text mb-1">Waktu Mulai</label>
+                            <input type="time" id="admin-add-waktu" required class="w-full px-3 py-2 border border-accent rounded-lg bg-background">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-text mb-1">Kategori Kegiatan</label>
+                        <select id="admin-add-kategori" class="w-full px-3 py-2 border border-accent rounded-lg bg-background">
+                            <option value="Sports">Sports (Olahraga)</option>
+                            <option value="Seminar">Seminar</option>
+                            <option value="Fellowship">Fellowship (Persekutuan)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-text mb-1">Tempat / Lokasi</label>
+                        <input type="text" id="admin-add-tempat" required class="w-full px-3 py-2 border border-accent rounded-lg bg-background">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-text mb-1">Detail Deskripsi</label>
+                        <textarea id="admin-add-deskripsi" rows="3" required class="w-full px-3 py-2 border border-accent rounded-lg bg-background resize-none"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-2.5 rounded-xl font-bold shadow-soft">Simpan Kegiatan</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEMO CONTROLLER (Sangat Membantu untuk Evaluasi Skenario - Sekarang dengan fitur Hide/Show) -->
+    <div id="demo-controller-container" class="fixed bottom-4 left-4 z-45 transition-all duration-300 ease-in-out">
+        <!-- Minimized Floating Button (Tampil saat ditutup) -->
+        <button id="demo-minimized-btn" onclick="toggleDemoController(false)" class="bg-primary hover:bg-primary/90 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center border-2 border-white/20 transition transform hover:scale-105 active:scale-95 hidden">
+            <i class="fa-solid fa-flask text-lg text-secondary animate-pulse"></i>
+        </button>
+
+        <!-- Full Panel Sandbox -->
+        <div id="demo-full-panel" class="bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border-2 border-primary/20 max-w-xs text-xs">
+            <div class="flex items-center justify-between border-b border-accent pb-2 mb-3">
+                <span class="font-bold text-primary flex items-center gap-1.5"><i class="fa-solid fa-flask"></i> Sandbox Demo</span>
+                <div class="flex items-center gap-1.5">
+                    <span class="bg-primary/10 text-primary font-bold px-2 py-0.5 rounded text-[9px]">Interactive</span>
+                    <button onclick="toggleDemoController(true)" class="text-textlight hover:text-red-500 transition p-1" title="Sembunyikan Panel">
+                        <i class="fa-solid fa-minus text-sm"></i>
+                    </button>
+                </div>
+            </div>
+            <p class="text-textlight mb-3 leading-relaxed">Simulasikan state jemaat / pengurus sesuai skenario use case dokumen PDF Anda:</p>
+            
+            <div class="space-y-2">
+                <div>
+                    <label class="block font-bold mb-1">1. Pilih Role Aktor:</label>
+                    <div class="grid grid-cols-3 gap-1">
+                        <button onclick="setDemoRole('visitor')" id="role-btn-visitor" class="demo-role-btn py-1.5 rounded bg-primary text-white font-bold transition">Visitor</button>
+                        <button onclick="setDemoRole('jemaat')" id="role-btn-jemaat" class="demo-role-btn py-1.5 rounded bg-slate-100 hover:bg-slate-200 transition">Jemaat</button>
+                        <button onclick="setDemoRole('admin')" id="role-btn-admin" class="demo-role-btn py-1.5 rounded bg-slate-100 hover:bg-slate-200 transition">Pengurus</button>
+                    </div>
+                </div>
+                
+                <div class="border-t border-accent pt-2">
+                    <label class="block font-bold mb-1">2. Skenario Presensi Otomatis (KF06):</label>
+                    <button onclick="simulateQRScan()" class="w-full bg-secondary text-primary font-extrabold py-1.5 rounded shadow-soft hover:bg-yellow-400 transition flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-qrcode"></i> Scan QR/NFC Simulator
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic (JavaScript) -->
+    <script>
+        // App State
+        let currentUser = null; // { email, nama_lengkap, role }
+        let currentRole = 'visitor'; // 'visitor', 'jemaat', 'admin'
+        
+        // Mock Databases
+        let dbActivities = [
+            { id: 'E-001', nama: 'Thunder Club: Badminton', tanggal: '2026-06-09', waktu: '15:00', kategori: 'Sports', tempat: 'Gor Lodaya', deskripsi: 'Olahraga rutin bulanan pemuda.' },
+            { id: 'E-002', nama: 'Seminar: Kasih Aba-Aba', tanggal: '2026-06-13', waktu: '15:00', kategori: 'Seminar', tempat: 'Ruang Pemuda Lt.1, GKI Guntur', deskripsi: 'Seminar interaktif seputar pranikah.' },
+            { id: 'E-003', nama: 'Fellowship: Now You See Me', tanggal: '2026-06-20', waktu: '15:00', kategori: 'Fellowship', tempat: 'Ruang Pemuda Lt.1, GKI Guntur', deskripsi: 'Malam keakraban pemuda.' }
+        ];
+
+        let dbAttendance = [
+            { timestamp: '21 Jun 2026 - 09:12', jemaat: 'Ronaldo Simanjuntak', email: 'ronaldo@gmail.com', metode: 'Tombol Presensi', status_lokasi: 'Dalam Jangkauan' },
+            { timestamp: '21 Jun 2026 - 09:20', jemaat: 'Jessica Tan', email: 'jessica@gmail.com', metode: 'QR Code / NFC', status_lokasi: 'Tervalidasi' }
+        ];
+
+        let dbPrayers = [
+            { pengirim: 'Steven', isi: 'Mohon doanya ujian sidang skripsi saya minggu depan lancar.', tipe: 'Publik' },
+            { pengirim: 'Anonim', isi: 'Papa saya sedang masa penyembuhan pasca operasi jantung.', tipe: 'Rahasia' }
+        ];
+
+        // ON LOAD INITIALIZATION
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.replace('#', '') || 'home';
+            navigateTo(hash);
+            renderAdminEvents();
+            renderAdminAttendance();
+            renderAdminPrayers();
+
+            // Auto-minimize Sandbox di layar mobile (lebar < 768px) demi kerapihan layout
+            if (window.innerWidth < 768) {
+                toggleDemoController(true);
+            }
+        });
+
+        // Hide/Show Sandbox Demo Controller
+        function toggleDemoController(minimize) {
+            const fullPanel = document.getElementById('demo-full-panel');
+            const minBtn = document.getElementById('demo-minimized-btn');
+            
+            if (minimize) {
+                fullPanel.classList.add('hidden');
+                minBtn.classList.remove('hidden');
+            } else {
+                fullPanel.classList.remove('hidden');
+                minBtn.classList.add('hidden');
+            }
+        }
+
+        window.addEventListener('hashchange', () => {
+            const hash = window.location.hash.replace('#', '') || 'home';
+            navigateTo(hash);
+        });
+
+        // SPA Navigation Route handler
+        function navigateTo(targetId) {
+            // Hide all sections
+            document.querySelectorAll('.view-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            
+            // Show target
+            const activeSection = document.getElementById(`view-${targetId}`);
+            if (activeSection) {
+                activeSection.classList.remove('hidden');
+            }
+
+            // Update Header link styling
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('data-target') === targetId) {
+                    link.classList.remove('text-textlight', 'font-medium');
+                    link.classList.add('text-primary', 'font-semibold');
+                } else {
+                    link.classList.remove('text-primary', 'font-semibold');
+                    link.classList.add('text-textlight', 'font-medium');
+                }
+            });
+
+            window.scrollTo(0, 0);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- AUTHENTICATION FLOW (UC02 / KF02 / KF03) ---
+        function openAuthModal(view) {
+            const modal = document.getElementById('auth-modal');
+            const content = modal.querySelector('div');
+            switchAuthView(view);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeAuthModal() {
+            const modal = document.getElementById('auth-modal');
+            const content = modal.querySelector('div');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function switchAuthView(view) {
+            const viewLogin = document.getElementById('view-login');
+            const viewRegister = document.getElementById('view-register');
+            if (view === 'register') {
+                viewLogin.classList.add('hidden');
+                viewRegister.classList.remove('hidden');
+            } else {
+                viewRegister.classList.add('hidden');
+                viewLogin.classList.remove('hidden');
+            }
+        }
+
+        // Handle Registration simulation (KF02)
+        function handleRegisterSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('reg-email').value;
+            const nama = document.getElementById('reg-nama-lengkap').value;
+            
+            showNotification(`Sukses! Akun ${nama} berhasil disimpan ke database.`);
+            switchAuthView('login');
+            document.getElementById('login-email').value = email;
+        }
+
+        // Handle Login simulation (KF03)
+        function handleLoginSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            
+            // Default demo simulation based on role
+            let role = 'jemaat';
+            if (email.includes('admin') || email.includes('pengurus')) {
+                role = 'admin';
+            }
+            
+            simulateUserSession(email, role);
+            closeAuthModal();
+        }
+
+        function simulateUserSession(email, role) {
+            currentUser = {
+                email: email,
+                nama_lengkap: email.split('@')[0].toUpperCase(),
+                role: role
+            };
+            setDemoRole(role);
+        }
+
+        // --- SANDBOX STATE MANAGEMENT (Bantu Evaluator) ---
+        function setDemoRole(role) {
+            currentRole = role;
+            
+            // Adjust buttons on controller
+            document.querySelectorAll('.demo-role-btn').forEach(btn => {
+                btn.classList.remove('bg-primary', 'text-white', 'font-bold');
+                btn.classList.add('bg-slate-100', 'text-text');
+            });
+            document.getElementById(`role-btn-${role}`).classList.remove('bg-slate-100', 'text-text');
+            document.getElementById(`role-btn-${role}`).classList.add('bg-primary', 'text-white', 'font-bold');
+
+            // Header elements simulation
+            const userMenu = document.getElementById('user-menu');
+            const adminNav = document.getElementById('nav-admin');
+            const mobileAdminNav = document.getElementById('mobile-nav-admin');
+            const mobileAuthSection = document.getElementById('mobile-auth-section');
+
+            if (role === 'visitor') {
+                currentUser = null;
+                userMenu.innerHTML = `
+                    <button onclick="openAuthModal('login')" class="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-full font-medium transition shadow-soft flex items-center gap-2">
+                        <i class="fa-solid fa-user-circle"></i> Sign In
+                    </button>
+                `;
+                adminNav.classList.add('hidden');
+                mobileAdminNav.classList.add('hidden');
+                mobileAuthSection.classList.remove('hidden');
+                document.getElementById('hero-action-container').innerHTML = `
+                    <button onclick="openAuthModal('register')" class="bg-primary hover:bg-primary/90 text-white px-10 py-4 rounded-full font-bold text-lg transition shadow-card hover:shadow-glow transform hover:-translate-y-1">
+                        Come Aboard
+                    </button>
+                `;
+            } else {
+                // Member / Admin State
+                const shortName = role === 'admin' ? 'Admin Pengurus' : 'Jemaat Pemuda';
+                const avatarBg = role === 'admin' ? 'bg-red-600' : 'bg-primary';
+                
+                userMenu.innerHTML = `
+                    <div class="flex items-center gap-3 cursor-pointer group">
+                        <div class="text-right hidden md:block">
+                            <div class="text-sm font-bold text-text">${shortName}</div>
+                            <div class="text-[10px] text-textlight">${role.toUpperCase()}</div>
+                        </div>
+                        <div onclick="logOutDemo()" title="Log Out" class="w-10 h-10 rounded-full ${avatarBg} text-white flex items-center justify-center font-bold shadow-soft hover:opacity-90 transition">
+                            ${role === 'admin' ? 'AD' : 'JP'}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('hero-action-container').innerHTML = `
+                    <div class="bg-emerald-50 text-emerald-800 font-bold px-6 py-3 rounded-2xl border border-emerald-100 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> Welcome Aboard! Anda telah terautentikasi (KF03)
+                    </div>
+                `;
+
+                if (role === 'admin') {
+                    adminNav.classList.remove('hidden');
+                    mobileAdminNav.classList.remove('hidden');
+                } else {
+                    adminNav.classList.add('hidden');
+                    mobileAdminNav.classList.add('hidden');
+                }
+            }
+        }
+
+        function logOutDemo() {
+            setDemoRole('visitor');
+            showNotification("Berhasil keluar dari sistem.");
+        }
+
+        // --- PRESENCE / KEHADIRAN ACTIONS (KF05 / KF06) ---
+        function handlePresence() {
+            if (currentRole === 'visitor') {
+                openAuthModal('login');
+                showNotification("Mohon Sign In terlebih dahulu untuk mencatat presensi!");
+                return;
+            }
+
+            const btn = document.getElementById('btn-main-presence');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Memeriksa Lokasi GPS...';
+            btn.disabled = true;
+
+            // Simulating Geolocation validation (KF05)
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Kehadiran Tersimpan';
+                btn.className = "flex-1 bg-emerald-500 text-white py-3 rounded-xl font-semibold transition shadow-soft flex items-center justify-center gap-2 cursor-default";
+                
+                // Add to database trace
+                dbAttendance.unshift({
+                    timestamp: '21 Jun 2026 - ' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
+                    jemaat: currentRole === 'admin' ? 'Admin Pengurus' : 'Jemaat Pemuda',
+                    email: 'member@gmail.com',
+                    metode: 'Tombol Presensi (Lokasi Terpindai)',
+                    status_lokasi: 'Dalam Jangkauan'
+                });
+                renderAdminAttendance();
+                showNotification("Selamat! Kehadiran Anda berhasil diverifikasi & dicatat (KF05)");
+            }, 1500);
+        }
+
+        // Simulating QR code automatic attendance scan (KF06)
+        function simulateQRScan() {
+            if (currentRole === 'visitor') {
+                showNotification("Simulasikan masuk jemaat / pengurus dahulu untuk melakukan scanning!");
+                return;
+            }
+
+            showNotification("Menjalankan Scanner QR / NFC...");
+            setTimeout(() => {
+                navigateTo('home');
+                const btn = document.getElementById('btn-main-presence');
+                btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Kehadiran Otomatis (QR) Terdaftar';
+                btn.className = "flex-1 bg-emerald-500 text-white py-3 rounded-xl font-semibold transition shadow-soft flex items-center justify-center gap-2 cursor-default";
+                
+                dbAttendance.unshift({
+                    timestamp: '21 Jun 2026 - ' + new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
+                    jemaat: currentRole === 'admin' ? 'Admin Pengurus' : 'Jemaat Pemuda',
+                    email: 'member@gmail.com',
+                    metode: 'QR Code / NFC Auto-Scan',
+                    status_lokasi: 'Tervalidasi Otomatis'
+                });
+                renderAdminAttendance();
+                showNotification("Sukses! Kehadiran otomatis dicatat melalui QR/NFC (KF06)");
+            }, 1000);
+        }
+
+        // --- REGISTRATION FOR EVENTS (KF07) ---
+        function registerForEvent(btnElement, eventName) {
+            if (currentRole === 'visitor') {
+                openAuthModal('login');
+                showNotification("Silakan Sign In untuk mendaftar kegiatan!");
+                return;
+            }
+
+            btnElement.innerHTML = '<i class="fa-solid fa-check mr-1"></i> Anda Telah Terdaftar';
+            btnElement.className = "w-full bg-emerald-50 border border-emerald-200 text-emerald-600 py-2.5 rounded-xl font-bold text-sm transition flex items-center justify-center gap-1.5 cursor-default";
+            btnElement.onclick = null;
+
+            showNotification(`Berhasil! Anda terdaftar pada kegiatan: ${eventName} (KF07)`);
+        }
+
+        // --- FILTER ACTIVITIES (KF11) ---
+        function filterEvents(category) {
+            // Adjust active filter buttons
+            document.querySelectorAll('.event-filter-btn').forEach(btn => {
+                if (btn.getAttribute('data-filter') === category) {
+                    btn.classList.remove('bg-slate-50', 'text-textlight');
+                    btn.classList.add('bg-primary', 'text-white');
+                } else {
+                    btn.classList.remove('bg-primary', 'text-white');
+                    btn.classList.add('bg-slate-50', 'text-textlight');
+                }
+            });
+
+            // Filtering DOM items
+            document.querySelectorAll('.event-card').forEach(card => {
+                if (category === 'all' || card.getAttribute('data-category') === category) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // --- PRAYER TREE ACTIONS (KF08 / KF12) ---
+        function submitPrayerRequest(e) {
+            e.preventDefault();
+            const content = document.getElementById('prayer-content').value;
+            const isAnonymous = document.getElementById('prayer-anonymous').checked;
+            
+            const senderName = isAnonymous ? 'Anonim' : (currentRole === 'admin' ? 'Admin Pengurus' : 'Jemaat Pemuda');
+            const type = isAnonymous ? 'Rahasia' : 'Publik';
+
+            // Insert to local database array
+            dbPrayers.unshift({
+                pengirim: senderName,
+                isi: content,
+                tipe: type
+            });
+
+            // Clear input
+            document.getElementById('prayer-content').value = '';
+            document.getElementById('prayer-anonymous').checked = false;
+
+            // Render updated feeds
+            renderPrayerTreeList();
+            renderAdminPrayers();
+            showNotification("Pokok doa berhasil digantung di pohon doa (KF08)");
+        }
+
+        function renderPrayerTreeList() {
+            const container = document.getElementById('prayer-list-container');
+            container.innerHTML = '';
+            dbPrayers.forEach(prayer => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl p-5 shadow-soft border border-accent';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start gap-4 mb-3">
+                        <div>
+                            <h4 class="font-bold text-sm text-primary">${prayer.pengirim}</h4>
+                            <p class="text-[10px] text-textlight">Kategori: Persekutuan & Saling Mendukung</p>
+                        </div>
+                        <span class="bg-purple-100 text-primary text-[9px] font-bold px-2 py-0.5 rounded-full">${prayer.tipe}</span>
+                    </div>
+                    <p class="text-sm text-textlight leading-relaxed">${prayer.isi}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- ADMIN DASHBOARD TAB CONTROLLERS (KF09 / KF10 / KF12) ---
+        function switchAdminTab(tabName) {
+            // Toggle panels
+            document.getElementById('admin-panel-events').classList.add('hidden');
+            document.getElementById('admin-panel-attendance').classList.add('hidden');
+            document.getElementById('admin-panel-prayers').classList.add('hidden');
+            document.getElementById(`admin-panel-${tabName}`).classList.remove('hidden');
+
+            // Toggle active styles on buttons
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('text-primary', 'border-b-2', 'border-primary', 'font-bold');
+                btn.classList.add('text-textlight', 'font-medium');
+            });
+            document.getElementById(`tab-btn-${tabName}`).classList.remove('text-textlight', 'font-medium');
+            document.getElementById(`tab-btn-${tabName}`).classList.add('text-primary', 'border-b-2', 'border-primary', 'font-bold');
+        }
+
+        // Render dynamic table lists
+        function renderAdminEvents() {
+            const tbody = document.getElementById('admin-events-tbody');
+            tbody.innerHTML = '';
+            dbActivities.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-accent";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-semibold text-primary">${item.id}</td>
+                    <td class="px-6 py-4 font-bold text-text">${item.nama}</td>
+                    <td class="px-6 py-4 text-textlight">${item.tanggal} (${item.waktu})</td>
+                    <td class="px-6 py-4"><span class="bg-brandlight text-primary text-xs font-bold px-2.5 py-1 rounded-full">${item.kategori}</span></td>
+                    <td class="px-6 py-4 space-x-2">
+                        <button onclick="editEventDemo('${item.id}')" class="text-slate-500 hover:text-primary transition" title="Modifikasi"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteEventDemo('${item.id}')" class="text-slate-400 hover:text-red-500 transition" title="Hapus"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAdminAttendance() {
+            const tbody = document.getElementById('admin-attendance-tbody');
+            tbody.innerHTML = '';
+            dbAttendance.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-accent";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 text-textlight">${item.timestamp}</td>
+                    <td class="px-6 py-4 font-bold text-text">${item.jemaat}</td>
+                    <td class="px-6 py-4 text-textlight">${item.email}</td>
+                    <td class="px-6 py-4 font-medium"><i class="fa-solid fa-bolt text-secondary mr-1"></i> ${item.metode}</td>
+                    <td class="px-6 py-4"><span class="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full">${item.status_lokasi}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderAdminPrayers() {
+            const tbody = document.getElementById('admin-prayers-tbody');
+            tbody.innerHTML = '';
+            dbPrayers.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 border-b border-accent text-xs";
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-bold text-primary">${item.pengirim}</td>
+                    <td class="px-6 py-4 text-textlight">${item.isi}</td>
+                    <td class="px-6 py-4"><span class="${item.tipe === 'Rahasia' ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'} font-bold px-2.5 py-1 rounded-full">${item.tipe}</span></td>
+                    <td class="px-6 py-4">
+                        <button onclick="showNotification('Tindakan didukung')" class="text-primary hover:underline font-bold">Dukung Doa</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Admin Create Event Modal actions (KF09)
+        function openAddEventModal() {
+            const modal = document.getElementById('add-event-modal');
+            const content = modal.querySelector('div');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeAddEventModal() {
+            const modal = document.getElementById('add-event-modal');
+            const content = modal.querySelector('div');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        function handleNewEventSubmit(e) {
+            e.preventDefault();
+            const nama = document.getElementById('admin-add-nama').value;
+            const tgl = document.getElementById('admin-add-tanggal').value;
+            const wkt = document.getElementById('admin-add-waktu').value;
+            const kat = document.getElementById('admin-add-kategori').value;
+            const tmpt = document.getElementById('admin-add-tempat').value;
+            const desc = document.getElementById('admin-add-deskripsi').value;
+
+            const newId = 'E-00' + (dbActivities.length + 1);
+            dbActivities.unshift({
+                id: newId,
+                nama: nama,
+                tanggal: tgl,
+                waktu: wkt,
+                kategori: kat,
+                tempat: tmpt,
+                deskripsi: desc
+            });
+
+            // Re-render
+            renderAdminEvents();
+            closeAddEventModal();
+            showNotification(`Sukses menambahkan kegiatan: ${nama} (KF09)`);
+        }
+
+        // Admin Edit Demo Action (KF10)
+        function editEventDemo(id) {
+            const item = dbActivities.find(x => x.id === id);
+            if(item) {
+                const newTitle = prompt("Ubah Nama Kegiatan (Modifikasi KF10):", item.nama);
+                if (newTitle) {
+                    item.nama = newTitle;
+                    renderAdminEvents();
+                    showNotification(`Kegiatan ${id} berhasil diupdate (KF10)`);
+                }
+            }
+        }
+
+        // Admin Delete Demo Action
+        function deleteEventDemo(id) {
+            if(confirm(`Yakin ingin menghapus kegiatan ${id}?`)) {
+                dbActivities = dbActivities.filter(x => x.id !== id);
+                renderAdminEvents();
+                showNotification(`Kegiatan ${id} berhasil dihapus.`);
+            }
+        }
+
+        // --- GLOBAL TOAST NOTIFICATION ---
+        function showNotification(message) {
+            const toast = document.createElement('div');
+            toast.className = 'fixed bottom-5 right-5 bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-glow z-50 fade-in text-xs font-semibold flex items-center gap-2 border border-slate-700';
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i> ${message}`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
