@@ -167,82 +167,89 @@ new #[Title('Security settings')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('partials.settings-heading')
-
-    <flux:heading class="sr-only">{{ __('Security settings') }}</flux:heading>
-
     <x-pages::settings.layout :heading="__('Update password')" :subheading="__('Ensure your account is using a long, random password to stay secure')">
         <form method="POST" wire:submit="updatePassword" class="mt-6 space-y-6">
-            <flux:input
-                wire:model="current_password"
-                :label="__('Current password')"
-                type="password"
-                required
-                autocomplete="current-password"
-                viewable
-            />
-            <flux:input
-                wire:model="password"
-                :label="__('New password')"
-                type="password"
-                required
-                autocomplete="new-password"
-                passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
-                viewable
-            />
-            <flux:input
-                wire:model="password_confirmation"
-                :label="__('Confirm password')"
-                type="password"
-                required
-                autocomplete="new-password"
-                passwordrules="{{ \Illuminate\Validation\Rules\Password::defaults()->toPasswordRulesString() }}"
-                viewable
-            />
+            <div>
+                <label class="block text-xs font-semibold text-text mb-1 uppercase tracking-wider">{{ __('Current password') }}</label>
+                <div class="relative" x-data="{ show: false }">
+                    <input :type="show ? 'text' : 'password'" wire:model="current_password" required autocomplete="current-password" placeholder="{{ __('Current password') }}" class="w-full px-4 py-2.5 rounded-xl border border-accent bg-background focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition text-sm">
+                    <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 px-4 flex items-center text-textlight hover:text-text transition focus:outline-none">
+                        <i class="fa-solid fa-eye text-sm" x-show="!show"></i>
+                        <i class="fa-solid fa-eye-slash text-sm" x-show="show" x-cloak></i>
+                    </button>
+                </div>
+                @error('current_password') <span class="mt-1 text-[10px] text-red-500 font-semibold">{{ $message }}</span> @enderror
+            </div>
 
-            <div class="flex items-center gap-4">
-                <flux:button variant="primary" type="submit" data-test="update-password-button">
-                    {{ __('Save') }}
-                </flux:button>
+            <div>
+                <label class="block text-xs font-semibold text-text mb-1 uppercase tracking-wider">{{ __('New password') }}</label>
+                <div class="relative" x-data="{ show: false }">
+                    <input :type="show ? 'text' : 'password'" wire:model="password" required autocomplete="new-password" placeholder="{{ __('New password') }}" class="w-full px-4 py-2.5 rounded-xl border border-accent bg-background focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition text-sm">
+                    <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 px-4 flex items-center text-textlight hover:text-text transition focus:outline-none">
+                        <i class="fa-solid fa-eye text-sm" x-show="!show"></i>
+                        <i class="fa-solid fa-eye-slash text-sm" x-show="show" x-cloak></i>
+                    </button>
+                </div>
+                @error('password') <span class="mt-1 text-[10px] text-red-500 font-semibold">{{ $message }}</span> @enderror
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-text mb-1 uppercase tracking-wider">{{ __('Confirm password') }}</label>
+                <div class="relative" x-data="{ show: false }">
+                    <input :type="show ? 'text' : 'password'" wire:model="password_confirmation" required autocomplete="new-password" placeholder="{{ __('Confirm password') }}" class="w-full px-4 py-2.5 rounded-xl border border-accent bg-background focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition text-sm">
+                    <button type="button" @click="show = !show" class="absolute inset-y-0 right-0 px-4 flex items-center text-textlight hover:text-text transition focus:outline-none">
+                        <i class="fa-solid fa-eye text-sm" x-show="!show"></i>
+                        <i class="fa-solid fa-eye-slash text-sm" x-show="show" x-cloak></i>
+                    </button>
+                </div>
+                @error('password_confirmation') <span class="mt-1 text-[10px] text-red-500 font-semibold">{{ $message }}</span> @enderror
+            </div>
+
+            <div class="pt-2 flex items-center justify-end">
+                <button type="submit" data-test="update-password-button" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold transition shadow-soft text-sm flex items-center gap-2">
+                    <i class="fa-regular fa-floppy-disk text-xs"></i> {{ __('Save Changes') }}
+                </button>
             </div>
         </form>
 
         @if ($canManageTwoFactor)
             <section class="mt-12">
-                <flux:heading>{{ __('Two-factor authentication') }}</flux:heading>
-                <flux:subheading>{{ __('Manage your two-factor authentication settings') }}</flux:subheading>
+                <h2 class="text-lg font-bold text-text">{{ __('Two-factor authentication') }}</h2>
+                <p class="text-sm text-textlight mt-1">{{ __('Manage your two-factor authentication settings') }}</p>
 
                 <div class="flex flex-col w-full mx-auto space-y-6 text-sm" wire:cloak>
                     @if ($twoFactorEnabled)
                         <div class="space-y-4">
-                            <flux:text>
+                            <p class="text-sm text-text">
                                 {{ __('You will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.') }}
-                            </flux:text>
+                            </p>
 
                             <div class="flex justify-start">
-                                <flux:button
-                                    variant="danger"
+                                <button
+                                    type="button"
+                                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-soft text-sm"
                                     wire:click="disable"
                                 >
                                     {{ __('Disable 2FA') }}
-                                </flux:button>
+                                </button>
                             </div>
 
                             <livewire:pages::settings.two-factor.recovery-codes :$requiresConfirmation />
                         </div>
                     @else
-                        <div class="space-y-4">
-                            <flux:text variant="subtle">
+                        <div class="mt-4">
+                            <p class="text-sm text-textlight mb-5">
                                 {{ __('When you enable two-factor authentication, you will be prompted for a secure pin during login. This pin can be retrieved from a TOTP-supported application on your phone.') }}
-                            </flux:text>
+                            </p>
 
                             <flux:modal.trigger name="two-factor-setup-modal">
-                                <flux:button
-                                    variant="primary"
+                                <button
+                                    type="button"
+                                    class="bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-soft text-sm"
                                     wire:click="$dispatch('start-two-factor-setup')"
                                 >
                                     {{ __('Enable 2FA') }}
-                                </flux:button>
+                                </button>
                             </flux:modal.trigger>
 
                             <livewire:pages::settings.two-factor-setup-modal :requires-confirmation="$requiresConfirmation" />
@@ -254,8 +261,8 @@ new #[Title('Security settings')] class extends Component {
 
         @if ($canManagePasskeys)
             <section class="mt-12">
-                <flux:heading>{{ __('Passkeys') }}</flux:heading>
-                <flux:subheading>{{ __('Manage your passkeys for passwordless sign-in') }}</flux:subheading>
+                <h2 class="text-lg font-bold text-text">{{ __('Passkeys') }}</h2>
+                <p class="text-sm text-textlight mt-1">{{ __('Manage your passkeys for passwordless sign-in') }}</p>
 
                 <div class="mt-6 flex flex-col w-full mx-auto space-y-6 text-sm" wire:cloak>
                     <div class="border rounded-lg border-zinc-200 dark:border-zinc-700 overflow-hidden">
@@ -297,7 +304,7 @@ new #[Title('Security settings')] class extends Component {
                                     <flux:icon.key class="size-7 text-zinc-400 dark:text-zinc-500" />
                                 </div>
                                 <p class="font-medium">{{ __('No passkeys yet') }}</p>
-                                <flux:text class="mt-1">{{ __('Add a passkey to sign in without a password') }}</flux:text>
+                                <p class="text-sm text-textlight mt-1">{{ __('Add a passkey to sign in without a password') }}</p>
                             </div>
                         @endforelse
                     </div>
@@ -316,25 +323,27 @@ new #[Title('Security settings')] class extends Component {
     >
         <div class="space-y-6">
             <div class="space-y-2">
-                <flux:heading size="lg">{{ __('Remove passkey') }}</flux:heading>
-                <flux:text>
+                <h2 class="text-lg font-bold text-text">{{ __('Remove passkey') }}</h2>
+                <p class="text-sm text-text">
                     {{ __('Are you sure you want to remove the passkey ":name"? You will no longer be able to use it to sign in.', ['name' => $deletingPasskeyName]) }}
-                </flux:text>
+                </p>
             </div>
 
             <div class="flex gap-3 justify-end">
-                <flux:button
-                    variant="outline"
+                <button
+                    type="button"
+                    class="bg-surface border border-accent hover:border-primary text-textlight hover:text-text font-bold py-2.5 px-6 rounded-xl transition shadow-soft text-sm"
                     wire:click="closeDeleteModal"
                 >
                     {{ __('Cancel') }}
-                </flux:button>
-                <flux:button
-                    variant="danger"
+                </button>
+                <button
+                    type="button"
+                    class="bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-6 rounded-xl transition shadow-soft text-sm"
                     wire:click="deletePasskey"
                 >
                     {{ __('Remove passkey') }}
-                </flux:button>
+                </button>
             </div>
         </div>
     </flux:modal>

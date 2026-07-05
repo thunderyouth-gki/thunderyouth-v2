@@ -8,15 +8,17 @@ new #[Title('Appearance settings')] class extends Component {
 }; ?>
 
 <section class="w-full">
-    @include('partials.settings-heading')
-
-    <flux:heading class="sr-only">{{ __('Appearance settings') }}</flux:heading>
-
     <x-pages::settings.layout :heading="__('Appearance')" :subheading="__('Update the appearance settings for your account')">
-        <flux:radio.group x-data variant="segmented" x-model="$flux.appearance">
-            <flux:radio value="light" icon="sun">{{ __('Light') }}</flux:radio>
-            <flux:radio value="dark" icon="moon">{{ __('Dark') }}</flux:radio>
-            <flux:radio value="system" icon="computer-desktop">{{ __('System') }}</flux:radio>
-        </flux:radio.group>
+        <div x-data="{ appearance: localStorage.getItem('appearance') || 'light' }" class="flex flex-col sm:flex-row gap-4">
+            <button type="button" @click="appearance = 'light'; localStorage.setItem('appearance', 'light'); document.documentElement.classList.remove('dark')" :class="appearance === 'light' ? 'bg-primary text-white border-primary shadow-soft' : 'bg-surface text-textlight border-accent hover:border-primary'" class="flex-1 py-3 px-4 border rounded-xl font-bold flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-sun"></i> {{ __('Light') }}
+            </button>
+            <button type="button" @click="appearance = 'dark'; localStorage.setItem('appearance', 'dark'); document.documentElement.classList.add('dark')" :class="appearance === 'dark' ? 'bg-primary text-white border-primary shadow-soft' : 'bg-surface text-textlight border-accent hover:border-primary'" class="flex-1 py-3 px-4 border rounded-xl font-bold flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-moon"></i> {{ __('Dark') }}
+            </button>
+            <button type="button" @click="appearance = 'system'; localStorage.setItem('appearance', 'system'); if(window.matchMedia('(prefers-color-scheme: dark)').matches) { document.documentElement.classList.add('dark') } else { document.documentElement.classList.remove('dark') }" :class="appearance === 'system' ? 'bg-primary text-white border-primary shadow-soft' : 'bg-surface text-textlight border-accent hover:border-primary'" class="flex-1 py-3 px-4 border rounded-xl font-bold flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-computer"></i> {{ __('System') }}
+            </button>
+        </div>
     </x-pages::settings.layout>
 </section>
