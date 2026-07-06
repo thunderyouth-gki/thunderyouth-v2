@@ -9,22 +9,23 @@ class RoleManager extends Component
 {
     use \Livewire\WithPagination;
 
-    public $search = '';
-    public $sortField = 'id';
-    public $sortDirection = 'asc';
-    public $perPage = 10;
+    public string $search = '';
+    public string $sortField = 'id';
+    public string $sortDirection = 'asc';
+    public int $perPage = 10;
 
     // Modal state
-    public $roleId = null;
-    public $name = '';
-    public $selectedPermissions = [];
+    public ?int $roleId = null;
+    public string $name = '';
+    /** @var array<int, string> */
+    public array $selectedPermissions = [];
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function sortBy($field)
+    public function sortBy(string $field): void
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -34,7 +35,7 @@ class RoleManager extends Component
         }
     }
 
-    public function createRole()
+    public function createRole(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('roles.create');
 
@@ -50,10 +51,11 @@ class RoleManager extends Component
         $this->dispatch('notify', message: 'Role created successfully!');
     }
 
-    public function editRole($id)
+    public function editRole(int $id): void
     {
         \Illuminate\Support\Facades\Gate::authorize('roles.edit');
 
+        /** @var Role $role */
         $role = Role::findOrFail($id);
         
         if ($role->name === 'Root') {
@@ -61,14 +63,14 @@ class RoleManager extends Component
             return;
         }
 
-        $this->roleId = $role->id;
+        $this->roleId = (int) $role->id;
         $this->name = $role->name;
         $this->selectedPermissions = $role->permissions->pluck('name')->toArray();
 
         \Flux::modal('role-modal')->show();
     }
 
-    public function updateRole()
+    public function updateRole(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('roles.edit');
 
@@ -76,6 +78,7 @@ class RoleManager extends Component
             'name' => 'required|string|max:255|unique:roles,name,' . $this->roleId,
         ]);
 
+        /** @var Role $role */
         $role = Role::findOrFail($this->roleId);
         
         if ($role->name === 'Root') {
@@ -92,7 +95,7 @@ class RoleManager extends Component
         $this->dispatch('notify', message: 'Role updated successfully!');
     }
 
-    public function confirmDelete($id)
+    public function confirmDelete(int $id): void
     {
         \Illuminate\Support\Facades\Gate::authorize('roles.delete');
 
@@ -100,10 +103,11 @@ class RoleManager extends Component
         \Flux::modal('delete-role-modal')->show();
     }
 
-    public function deleteRole()
+    public function deleteRole(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('roles.delete');
 
+        /** @var Role $role */
         $role = Role::findOrFail($this->roleId);
         if ($role->name === 'Root') {
             $this->dispatch('notify', message: 'Cannot delete the Root role.', type: 'error');
@@ -116,19 +120,19 @@ class RoleManager extends Component
         $this->dispatch('notify', message: 'Role deleted successfully!');
     }
 
-    public function openNewRoleModal()
+    public function openNewRoleModal(): void
     {
         $this->reset(['roleId', 'name', 'selectedPermissions']);
         \Flux::modal('role-modal')->show();
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $roles = Role::with('permissions')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
             })
-            ->orderBy($this->sortField, $this->sortDirection)
+            ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.role-manager', [

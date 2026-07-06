@@ -34,10 +34,10 @@ class AppServiceProvider extends ServiceProvider
         // Add under construction macro for routes
         \Illuminate\Support\Facades\Route::macro('underConstruction', function ($uri, $view) {
             if (app()->environment('local')) {
-                return $this->view($uri, $view);
+                return \Illuminate\Support\Facades\Route::view($uri, $view);
             }
             
-            return $this->any($uri, function () {
+            return \Illuminate\Support\Facades\Route::any($uri, function () {
                 abort(503, 'This page is currently under construction.');
             });
         });

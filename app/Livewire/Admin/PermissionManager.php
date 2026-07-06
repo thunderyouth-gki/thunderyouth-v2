@@ -18,12 +18,12 @@ class PermissionManager extends Component
     public ?int $permissionId = null;
     public string $name = '';
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function sortBy($field)
+    public function sortBy(string $field): void
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -33,7 +33,7 @@ class PermissionManager extends Component
         }
     }
 
-    public function createPermission()
+    public function createPermission(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('permissions.create');
 
@@ -48,18 +48,19 @@ class PermissionManager extends Component
         $this->dispatch('notify', message: 'Permission created successfully!');
     }
 
-    public function editPermission($id)
+    public function editPermission(int $id): void
     {
         \Illuminate\Support\Facades\Gate::authorize('permissions.edit');
 
+        /** @var Permission $permission */
         $permission = Permission::findOrFail($id);
-        $this->permissionId = $permission->id;
+        $this->permissionId = (int) $permission->id;
         $this->name = $permission->name;
 
         \Flux::modal('permission-modal')->show();
     }
 
-    public function updatePermission()
+    public function updatePermission(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('permissions.edit');
 
@@ -67,6 +68,7 @@ class PermissionManager extends Component
             'name' => 'required|string|max:255|unique:permissions,name,' . $this->permissionId,
         ]);
 
+        /** @var Permission $permission */
         $permission = Permission::findOrFail($this->permissionId);
         $permission->name = $this->name;
         $permission->save();
@@ -75,7 +77,7 @@ class PermissionManager extends Component
         $this->dispatch('notify', message: 'Permission updated successfully!');
     }
 
-    public function confirmDelete($id)
+    public function confirmDelete(int $id): void
     {
         \Illuminate\Support\Facades\Gate::authorize('permissions.delete');
 
@@ -83,10 +85,11 @@ class PermissionManager extends Component
         \Flux::modal('delete-permission-modal')->show();
     }
 
-    public function deletePermission()
+    public function deletePermission(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('permissions.delete');
 
+        /** @var Permission $permission */
         $permission = Permission::findOrFail($this->permissionId);
         $permission->delete();
 
@@ -94,19 +97,19 @@ class PermissionManager extends Component
         $this->dispatch('notify', message: 'Permission deleted successfully!');
     }
 
-    public function openNewPermissionModal()
+    public function openNewPermissionModal(): void
     {
         $this->reset(['permissionId', 'name']);
         \Flux::modal('permission-modal')->show();
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $permissions = Permission::with('roles')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%');
             })
-            ->orderBy($this->sortField, $this->sortDirection)
+            ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.permission-manager', [

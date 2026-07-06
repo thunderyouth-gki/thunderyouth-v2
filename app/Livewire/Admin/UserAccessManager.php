@@ -9,34 +9,35 @@ class UserAccessManager extends Component
 {
     use \Livewire\WithPagination;
 
-    public $search = '';
-    public $sortField = 'id';
-    public $sortDirection = 'asc';
-    public $perPage = 10;
+    public string $search = '';
+    public string $sortField = 'id';
+    public string $sortDirection = 'asc';
+    public int $perPage = 10;
 
     // Modal state
-    public $manageUserId = null;
-    public $deleteUserId = null;
-    public $selectedRole = '';
-    public $selectedPermissions = [];
+    public ?int $manageUserId = null;
+    public ?int $deleteUserId = null;
+    public string $selectedRole = '';
+    /** @var array<int, string> */
+    public array $selectedPermissions = [];
 
     // New User state
-    public $newName = '';
-    public $newEmail = '';
-    public $newPassword = '';
+    public string $newName = '';
+    public string $newEmail = '';
+    public string $newPassword = '';
 
     // Edit User state
-    public $editUserId = null;
-    public $editName = '';
-    public $editEmail = '';
-    public $editPassword = '';
+    public ?int $editUserId = null;
+    public string $editName = '';
+    public string $editEmail = '';
+    public string $editPassword = '';
 
-    public function updatingSearch()
+    public function updatingSearch(): void
     {
         $this->resetPage();
     }
 
-    public function sortBy($field)
+    public function sortBy(string $field): void
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -46,17 +47,20 @@ class UserAccessManager extends Component
         }
     }
 
-    public function openManageModal($userId)
+    public function openManageModal(int $userId): void
     {
         $this->manageUserId = $userId;
+        /** @var User $user */
         $user = User::findOrFail($userId);
-        $this->manageUserId = $user->id;
-        $this->selectedRole = $user->roles->first()?->name ?? '';
+        $this->manageUserId = (int) $user->id;
+        /** @var \Spatie\Permission\Models\Role|null $firstRole */
+        $firstRole = $user->roles->first();
+        $this->selectedRole = $firstRole ? $firstRole->name : '';
         $this->selectedPermissions = $user->getDirectPermissions()->pluck('name')->toArray();
         \Flux::modal('manage-user-modal')->show();
     }
 
-    public function saveAccess()
+    public function saveAccess(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.edit');
 
@@ -66,6 +70,7 @@ class UserAccessManager extends Component
             return;
         }
 
+        /** @var User $user */
         $user = User::findOrFail($this->manageUserId);
         
         if ($user->hasRole('Root')) {
@@ -91,7 +96,7 @@ class UserAccessManager extends Component
         $this->dispatch('notify', message: 'User access updated successfully!');
     }
 
-    public function openNewUserModal()
+    public function openNewUserModal(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.create');
 
@@ -99,7 +104,7 @@ class UserAccessManager extends Component
         \Flux::modal('new-user-modal')->show();
     }
 
-    public function createUser()
+    public function createUser(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.create');
 
@@ -123,10 +128,11 @@ class UserAccessManager extends Component
         $this->dispatch('notify', message: 'New user created successfully!');
     }
 
-    public function openEditUserModal($userId)
+    public function openEditUserModal(int $userId): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.edit');
 
+        /** @var User $user */
         $user = User::findOrFail($userId);
         
         if ($user->hasRole('Root') && !auth()->user()->hasRole('Root')) {
@@ -142,7 +148,7 @@ class UserAccessManager extends Component
         \Flux::modal('edit-user-modal')->show();
     }
 
-    public function updateUser()
+    public function updateUser(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.edit');
 
@@ -152,6 +158,7 @@ class UserAccessManager extends Component
             'editPassword' => 'nullable|string|min:8',
         ]);
 
+        /** @var User $user */
         $user = User::findOrFail($this->editUserId);
         
         if ($user->hasRole('Root') && !auth()->user()->hasRole('Root')) {
@@ -173,7 +180,7 @@ class UserAccessManager extends Component
         $this->dispatch('notify', message: 'User profile updated successfully!');
     }
 
-    public function toggleActiveStatus($userId)
+    public function toggleActiveStatus(int $userId): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.edit');
 
@@ -182,6 +189,7 @@ class UserAccessManager extends Component
             return;
         }
 
+        /** @var User $user */
         $user = User::findOrFail($userId);
         
         if ($user->hasRole('Root')) {
@@ -196,7 +204,7 @@ class UserAccessManager extends Component
         $this->dispatch('notify', message: "User successfully {$status}.");
     }
 
-    public function confirmDelete($userId)
+    public function confirmDelete(int $userId): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.delete');
 
@@ -205,6 +213,7 @@ class UserAccessManager extends Component
             return;
         }
 
+        /** @var User $user */
         $user = User::findOrFail($userId);
         
         if ($user->hasRole('Root')) {
@@ -216,12 +225,13 @@ class UserAccessManager extends Component
         \Flux::modal('delete-user-modal')->show();
     }
 
-    public function deleteUser()
+    public function deleteUser(): void
     {
         \Illuminate\Support\Facades\Gate::authorize('users.delete');
 
         if (!$this->deleteUserId) return;
 
+        /** @var User $user */
         $user = User::findOrFail($this->deleteUserId);
         
         if ($user->hasRole('Root')) {
@@ -236,14 +246,14 @@ class UserAccessManager extends Component
         $this->dispatch('notify', message: 'User deleted successfully.');
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         $users = User::with('roles', 'permissions')
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%');
             })
-            ->orderBy($this->sortField, $this->sortDirection)
+            ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.user-access-manager', [
