@@ -7,7 +7,7 @@ use App\Models\Service;
 
 class PublicController extends Controller
 {
-    public function home()
+    public function home(): \Illuminate\View\View
     {
         $nearestService = Service::where('status', 'published')
             ->whereDate('service_date', '>=', now()->toDateString())
@@ -17,7 +17,7 @@ class PublicController extends Controller
         return view('home', compact('nearestService'));
     }
 
-    public function services()
+    public function services(): \Illuminate\View\View
     {
         $nearestService = Service::where('status', 'published')
             ->whereDate('service_date', '>=', now()->toDateString())

@@ -4,6 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property \Illuminate\Support\Carbon $service_date
+ * @property bool $is_today
+ * @property string|null $parsed_start_time
+ * @property string|null $parsed_end_time
+ */
 class Service extends Model
 {
     protected $fillable = [
@@ -41,14 +47,20 @@ class Service extends Model
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<bool, never>
+     */
     protected function isToday(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::get(fn () => $this->service_date->isToday());
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: fn () => $this->service_date->isToday());
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<string|null, never>
+     */
     protected function parsedStartTime(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
             if (!$this->start_time) return null;
             preg_match('/(\d{1,2})[:.](\d{2})/', $this->start_time, $matches);
             if (count($matches) >= 3) {
@@ -58,9 +70,12 @@ class Service extends Model
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<string|null, never>
+     */
     protected function parsedEndTime(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
             if (!$this->end_time) return null;
             preg_match('/(\d{1,2})[:.](\d{2})/', $this->end_time, $matches);
             if (count($matches) >= 3) {
@@ -70,9 +85,12 @@ class Service extends Model
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<bool, never>
+     */
     protected function isLive(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
             if (!$this->is_today) return false;
             $start = $this->parsed_start_time;
             $end = $this->parsed_end_time;
@@ -86,9 +104,12 @@ class Service extends Model
         });
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Casts\Attribute<bool, never>
+     */
     protected function isFinished(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
             if (now()->startOfDay()->isAfter($this->service_date)) {
                 return true;
             }
