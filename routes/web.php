@@ -12,3 +12,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 require __DIR__.'/settings.php';
+
+Route::middleware(['auth', 'role:Root|Pengurus'])->prefix('admin')->name('admin.')->group(function () {
+    Route::view('/', 'admin.dashboard')->name('dashboard');
+    Route::get('/roles', \App\Livewire\Admin\RoleManager::class)->name('roles');
+    Route::get('/permissions', \App\Livewire\Admin\PermissionManager::class)->name('permissions');
+    Route::get('/users', \App\Livewire\Admin\UserAccessManager::class)->name('users');
+    
+    Route::livewire('/profile', 'pages::admin.profile')->name('profile');
+    Route::livewire('/security', 'pages::admin.security')
+        ->middleware(['password.confirm'])
+        ->name('security');
+    Route::livewire('/appearance', 'pages::admin.appearance')->name('appearance');
+});
