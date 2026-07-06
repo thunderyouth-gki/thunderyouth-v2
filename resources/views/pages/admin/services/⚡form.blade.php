@@ -30,6 +30,7 @@ new #[Layout('components.layouts.admin')] class extends Component
         'service_type' => '',
         'custom_service_type' => '',
         'theme' => '',
+        'description' => '',
         'speaker' => '',
         'elder' => '',
         'bible_reading' => '',
@@ -123,6 +124,7 @@ new #[Layout('components.layouts.admin')] class extends Component
             'form.custom_service_type' => 'required_if:form.service_type,other|nullable|string',
             'banner_image' => 'nullable|image|max:2048', // max 2MB
             'form.theme' => 'nullable|string|max:255',
+            'form.description' => 'nullable|string',
             'form.speaker' => 'nullable|string|max:255',
             'form.start_time' => 'required|string|max:255',
             'form.end_time' => 'nullable|string|max:255',
@@ -281,6 +283,10 @@ new #[Layout('components.layouts.admin')] class extends Component
                     <flux:input wire:model="form.theme" placeholder="Contoh: Tetap Berdiri Teguh" :disabled="!$editMode['general_info']" />
                 </flux:field>
                 <flux:input wire:model="form.bible_reading" label="Bacaan Alkitab Utama" placeholder="Contoh: Matius 13:31-33" :disabled="!$editMode['general_info']" />
+                
+                <div class="col-span-1 md:col-span-2">
+                    <flux:textarea wire:model="form.description" label="Deskripsi Kebaktian" placeholder="Tambahkan deskripsi atau ringkasan terkait ibadah ini..." :disabled="!$editMode['general_info']" rows="3" />
+                </div>
                 
                 <flux:field>
                     <flux:label>Pembicara / Pengkhotbah <span class="text-red-500 cursor-help" title="Harus diisi agar jadwal dapat dipublikasikan">*</span></flux:label>

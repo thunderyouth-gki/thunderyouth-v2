@@ -12,6 +12,7 @@ class Service extends Model
         'banner_image',
         'custom_service_type',
         'theme',
+        'description',
         'speaker',
         'elder',
         'bible_reading',
