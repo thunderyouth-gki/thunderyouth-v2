@@ -30,6 +30,17 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
             return $user->hasRole('Root') ? true : null;
         });
+
+        // Add under construction macro for routes
+        \Illuminate\Support\Facades\Route::macro('underConstruction', function ($uri, $view) {
+            if (app()->environment('local')) {
+                return $this->view($uri, $view);
+            }
+            
+            return $this->any($uri, function () {
+                abort(503, 'This page is currently under construction.');
+            });
+        });
     }
 
     /**

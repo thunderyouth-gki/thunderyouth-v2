@@ -2,13 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home')->name('home');
-Route::view('/services', 'services')->name('services');
-Route::view('/events', 'events')->name('events');
-Route::view('/prayer-tree', 'prayer')->name('prayer');
+Route::underConstruction('/', 'home')->name('home');
+Route::underConstruction('/services', 'services')->name('services');
+Route::underConstruction('/events', 'events')->name('events');
+Route::underConstruction('/prayer-tree', 'prayer')->name('prayer');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    Route::underConstruction('dashboard', 'dashboard')->name('dashboard');
 });
 
 require __DIR__.'/settings.php';
