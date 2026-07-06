@@ -9,14 +9,14 @@ class PermissionManager extends Component
 {
     use \Livewire\WithPagination;
 
-    public $search = '';
-    public $sortField = 'id';
-    public $sortDirection = 'asc';
-    public $perPage = 10;
+    public string $search = '';
+    public string $sortField = 'id';
+    public string $sortDirection = 'asc';
+    public int $perPage = 10;
 
     // Modal state
-    public $permissionId = null;
-    public $name = '';
+    public ?int $permissionId = null;
+    public string $name = '';
 
     public function updatingSearch()
     {

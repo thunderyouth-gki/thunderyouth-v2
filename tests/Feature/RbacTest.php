@@ -72,7 +72,7 @@ it('restricts admin access to Root and Pengurus only', function () {
     $pengurus = User::factory()->create()->assignRole('Pengurus');
     $root = User::factory()->create()->assignRole('Root');
 
-    actingAs($jemaat)->get('/admin/roles')->assertForbidden();
-    actingAs($pengurus)->get('/admin/roles')->assertSuccessful();
-    actingAs($root)->get('/admin/roles')->assertSuccessful();
+    actingAs($jemaat)->get('/admin')->assertForbidden();
+    actingAs($pengurus)->get('/admin')->assertSuccessful();
+    actingAs($root)->get('/admin')->assertSuccessful();
 });
