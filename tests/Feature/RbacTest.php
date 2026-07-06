@@ -1,17 +1,18 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
+
+use function Pest\Laravel\actingAs;
 use function Pest\Laravel\artisan;
 use function Pest\Laravel\post;
-use function Pest\Laravel\actingAs;
-
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+    app()[PermissionRegistrar::class]->forgetCachedPermissions();
     Role::findOrCreate('Root');
     Role::findOrCreate('Pengurus');
     Role::findOrCreate('Jemaat');
@@ -25,7 +26,7 @@ it('can securely setup root account via command', function () {
         ->assertExitCode(0);
 
     $user = User::where('email', 'root@test.com')->first();
-    
+
     expect($user)->not->toBeNull()
         ->and($user->hasRole('Root'))->toBeTrue();
 });
@@ -53,7 +54,7 @@ it('prevents root user from being deleted', function () {
     $user->assignRole('Root');
 
     expect($user->isRoot())->toBeTrue();
-    expect(fn () => $user->delete())->toThrow(\Exception::class, 'The Root account cannot be deleted.');
+    expect(fn () => $user->delete())->toThrow(Exception::class, 'The Root account cannot be deleted.');
 
     expect(User::find($user->id))->not->toBeNull();
 });

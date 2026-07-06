@@ -2,20 +2,27 @@
 
 namespace App\Livewire\Admin;
 
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
 use Spatie\Permission\Models\Permission;
 
 class PermissionManager extends Component
 {
-    use \Livewire\WithPagination;
+    use WithPagination;
 
     public string $search = '';
+
     public string $sortField = 'id';
+
     public string $sortDirection = 'asc';
+
     public int $perPage = 10;
 
     // Modal state
     public ?int $permissionId = null;
+
     public string $name = '';
 
     public function updatingSearch(): void
@@ -35,7 +42,7 @@ class PermissionManager extends Component
 
     public function createPermission(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('permissions.create');
+        Gate::authorize('permissions.create');
 
         $this->validate([
             'name' => 'required|string|max:255|unique:permissions,name',
@@ -50,7 +57,7 @@ class PermissionManager extends Component
 
     public function editPermission(int $id): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('permissions.edit');
+        Gate::authorize('permissions.edit');
 
         /** @var Permission $permission */
         $permission = Permission::findOrFail($id);
@@ -62,10 +69,10 @@ class PermissionManager extends Component
 
     public function updatePermission(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('permissions.edit');
+        Gate::authorize('permissions.edit');
 
         $this->validate([
-            'name' => 'required|string|max:255|unique:permissions,name,' . $this->permissionId,
+            'name' => 'required|string|max:255|unique:permissions,name,'.$this->permissionId,
         ]);
 
         /** @var Permission $permission */
@@ -79,7 +86,7 @@ class PermissionManager extends Component
 
     public function confirmDelete(int $id): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('permissions.delete');
+        Gate::authorize('permissions.delete');
 
         $this->permissionId = $id;
         \Flux::modal('delete-permission-modal')->show();
@@ -87,7 +94,7 @@ class PermissionManager extends Component
 
     public function deletePermission(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('permissions.delete');
+        Gate::authorize('permissions.delete');
 
         /** @var Permission $permission */
         $permission = Permission::findOrFail($this->permissionId);
@@ -103,11 +110,11 @@ class PermissionManager extends Component
         \Flux::modal('permission-modal')->show();
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $permissions = Permission::with('roles')
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%');
             })
             ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
