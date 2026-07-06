@@ -48,6 +48,46 @@
                 </button>
             </div>
         </form>
+        
+        <div x-data="{
+            loading: false,
+            error: null,
+            async loginWithPasskey() {
+                if (!window.Passkeys) {
+                    this.error = 'Passkeys are not loaded yet. Please try again.';
+                    return;
+                }
+                this.loading = true;
+                this.error = null;
+                try {
+                    const response = await window.Passkeys.verify();
+                    if (response && response.redirect) {
+                        window.location.href = response.redirect;
+                    } else {
+                        window.location.href = '{{ route('dashboard') }}';
+                    }
+                } catch (e) {
+                    console.error('Passkey login error:', e);
+                    this.error = e.message || 'Could not authenticate with Passkey.';
+                } finally {
+                    this.loading = false;
+                }
+            }
+        }" class="mt-4">
+            <div class="relative my-4">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-accent"></div>
+                </div>
+                <div class="relative flex justify-center text-xs">
+                    <span class="px-2 bg-surface text-textlight">{{ __('Or continue with') }}</span>
+                </div>
+            </div>
+            
+            <button type="button" @click="loginWithPasskey" :disabled="loading" class="w-full bg-surface text-primary border-2 border-brandlight hover:bg-brandlight py-3 rounded-xl font-bold transition shadow-soft text-sm flex justify-center items-center gap-2 disabled:opacity-50">
+                <i class="fa-solid fa-fingerprint text-lg"></i> <span x-text="loading ? '{{ __('Authenticating...') }}' : '{{ __('Sign in with Passkey') }}'"></span>
+            </button>
+            <p x-show="error" x-text="error" class="text-[10px] text-red-500 font-semibold mt-2 text-center" x-cloak></p>
+        </div>
 
         <div class="mt-6 text-center text-xs text-textlight">
             {{ __('Don\'t have an account?') }} <a href="{{ route('register') }}" class="text-primary font-bold hover:underline" wire:navigate>{{ __('Sign up') }}</a>

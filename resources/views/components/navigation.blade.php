@@ -21,6 +21,13 @@
                     <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->is('admin*') ? 'text-yellow-600 dark:text-yellow-400 font-bold' : 'text-yellow-600 dark:text-yellow-500 font-semibold hover:text-yellow-700 dark:hover:text-yellow-400' }} transition">
                         <i class="fa-solid fa-gauge mr-1"></i> Admin Panel
                     </a>
+                @else
+                    @auth
+                        <!-- Dashboard Tab (Jemaat) -->
+                        <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-blue-600 dark:text-blue-500 font-semibold hover:text-blue-700 dark:hover:text-blue-400' }} transition">
+                            <i class="fa-solid fa-home mr-1"></i> Dashboard
+                        </a>
+                    @endauth
                 @endhasanyrole
                 
                 <!-- Login Button / User Profile -->
@@ -79,6 +86,10 @@
             
             @hasanyrole('Root|Pengurus')
                 <a href="{{ route('admin.dashboard') }}" class="block px-3 py-3 rounded-md text-base font-bold {{ request()->is('admin*') ? 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-500/10' : 'text-yellow-600 dark:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-500/10' }} transition"><i class="fa-solid fa-gauge mr-1"></i> Admin Panel</a>
+            @else
+                @auth
+                    <a href="{{ route('dashboard') }}" class="block px-3 py-3 rounded-md text-base font-bold {{ request()->routeIs('dashboard') ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10' : 'text-blue-600 dark:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-500/10' }} transition"><i class="fa-solid fa-table-columns mr-1"></i> Dashboard</a>
+                @endauth
             @endhasanyrole
             
             <div class="pt-4 pb-2 border-t border-accent mt-2">

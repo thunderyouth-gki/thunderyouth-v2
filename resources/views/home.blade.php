@@ -25,7 +25,7 @@
                     @endguest
                     @auth
                         <div class="bg-emerald-50 text-emerald-800 font-bold px-6 py-3 rounded-2xl border border-emerald-100 flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check text-emerald-500"></i> Welcome Aboard! Anda telah terautentikasi (KF03)
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i> Welcome Aboard, {{ auth()->user()->name }}!
                         </div>
                     @endauth
                 </div>

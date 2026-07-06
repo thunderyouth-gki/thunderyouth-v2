@@ -69,6 +69,20 @@
                 </button>
             </form>
             
+            <div class="relative my-4">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-accent"></div>
+                </div>
+                <div class="relative flex justify-center text-xs">
+                    <span class="px-2 bg-surface text-textlight">Atau login dengan</span>
+                </div>
+            </div>
+            
+            <button type="button" @click="loginWithPasskey" :disabled="isLoading" class="w-full bg-surface text-primary border-2 border-brandlight hover:bg-brandlight py-3 rounded-xl font-bold transition shadow-soft text-sm flex justify-center items-center gap-2 disabled:opacity-50">
+                <i class="fa-solid fa-fingerprint text-lg"></i> <span x-text="isLoading ? 'Memproses...' : 'Sign in with Passkey'"></span>
+            </button>
+            
+            
             <div class="mt-6 text-center text-xs text-textlight">
                 Belum memiliki akun? <button @click="view = 'register'" class="text-primary font-bold hover:underline focus:outline-none">Daftarkan Sekarang</button>
             </div>
@@ -185,6 +199,11 @@
                     });
 
                     if (response.ok) {
+                        const data = await response.clone().json().catch(() => null);
+                        if (data && data.two_factor) {
+                            window.location.href = '/two-factor-challenge';
+                            return;
+                        }
                         window.location.reload(); // Reload to update auth state globally
                     } else {
                         const data = await response.json();
@@ -225,6 +244,27 @@
                     }
                 } catch (error) {
                     this.errorMessage = 'An error occurred connecting to the server.';
+                } finally {
+                    this.isLoading = false;
+                }
+            },
+            async loginWithPasskey() {
+                if (!window.Passkeys) {
+                    this.errorMessage = 'Passkeys are not loaded yet. Please try again.';
+                    return;
+                }
+                this.isLoading = true;
+                this.errorMessage = '';
+                try {
+                    const response = await window.Passkeys.verify();
+                    if (response && response.redirect) {
+                        window.location.href = response.redirect;
+                    } else {
+                        window.location.reload();
+                    }
+                } catch (e) {
+                    console.error('Passkey login error:', e);
+                    this.errorMessage = e.message || 'Could not authenticate with Passkey.';
                 } finally {
                     this.isLoading = false;
                 }
