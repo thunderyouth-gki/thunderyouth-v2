@@ -94,6 +94,20 @@
             from { opacity: 0; transform: translateY(12px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        .slide-in-right {
+            animation: slideInRight 0.4s ease-out forwards;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .timer-bar {
+            animation: timerBar 3.5s linear forwards;
+        }
+        @keyframes timerBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
         /* Custom floating animation for SVG elements */
         .float-animation {
             animation: float 4s ease-in-out infinite;
@@ -160,31 +174,12 @@
     <x-demo-controller />
 
     <!-- Global Toast Notification -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+    <x-toast-notification />
 
     @livewireScripts
     @fluxScripts
     <script>
         // Alpine is recommended for these interactions. We will use it if needed, or stick to Vanilla JS for simple things.
-        
-        // --- GLOBAL TOAST NOTIFICATION ---
-        window.showNotification = function(message, type = 'success') {
-            const toast = document.createElement('div');
-            const icon = type === 'success' ? '<i class="fa-solid fa-circle-check text-emerald-400 text-sm"></i>' : '<i class="fa-solid fa-circle-exclamation text-red-400 text-sm"></i>';
-            toast.className = 'bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-glow fade-in text-xs font-semibold flex items-center gap-2 border border-slate-700';
-            toast.innerHTML = `${icon} ${message}`;
-            document.getElementById('toast-container').appendChild(toast);
-            
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-
-        window.addEventListener('notify', event => {
-            showNotification(event.detail.message, event.detail.type || 'success');
-        });
     </script>
 </body>
 </html>

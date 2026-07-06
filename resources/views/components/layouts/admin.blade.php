@@ -73,6 +73,28 @@
             --color-accent: 51 65 85;
             --color-brandlight: 30 27 75;
         }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in-right {
+            animation: slideInRight 0.4s ease-out forwards;
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .timer-bar {
+            animation: timerBar 3.5s linear forwards;
+        }
+        @keyframes timerBar {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
     </style>
     
     @livewireStyles
@@ -187,5 +209,8 @@
 
     @livewireScripts
     @fluxScripts
+
+    <!-- Global Toast Notification -->
+    <x-toast-notification />
 </body>
 </html>

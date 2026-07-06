@@ -1,6 +1,63 @@
 <!-- DEMO CONTROLLER (Sangat Membantu untuk Evaluasi Skenario) -->
 <div x-data="{ 
         minimize: true,
+        x: 16,
+        y: window.innerHeight - 64,
+        dragging: false,
+        moved: false,
+        startX: 0,
+        startY: 0,
+        startMouseX: 0,
+        startMouseY: 0,
+        
+        startDrag(e) {
+            this.dragging = true;
+            this.moved = false;
+            this.startMouseX = e.clientX || (e.touches && e.touches[0].clientX);
+            this.startMouseY = e.clientY || (e.touches && e.touches[0].clientY);
+            this.startX = this.x;
+            this.startY = this.y;
+        },
+        doDrag(e) {
+            if (!this.dragging) return;
+            const currentMouseX = e.clientX || (e.touches && e.touches[0].clientX);
+            const currentMouseY = e.clientY || (e.touches && e.touches[0].clientY);
+            const dx = currentMouseX - this.startMouseX;
+            const dy = currentMouseY - this.startMouseY;
+            
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+                this.moved = true;
+            }
+            
+            if (this.moved) {
+                this.x = this.startX + dx;
+                this.y = this.startY + dy;
+                
+                // Clamp during drag
+                if (this.y < 96) this.y = 96; // 80px header + 16px margin
+                if (this.y > window.innerHeight - 64) this.y = window.innerHeight - 64;
+            }
+        },
+        endDrag() {
+            if (!this.dragging) return;
+            this.dragging = false;
+            if (this.moved) {
+                const screenWidth = window.innerWidth;
+                if (this.x > screenWidth / 2) {
+                    this.x = screenWidth - 80; 
+                } else {
+                    this.x = 16; 
+                }
+                
+                if (this.y < 96) this.y = 96;
+                if (this.y > window.innerHeight - 64) this.y = window.innerHeight - 64;
+            }
+        },
+        handleClick() {
+            if (!this.moved) {
+                this.minimize = false;
+            }
+        },
         simulateScan() {
             if ({{ auth()->guest() ? 'true' : 'false' }}) {
                 showNotification('Silakan Sign In terlebih dahulu untuk melakukan scanning!', 'error');
@@ -12,15 +69,25 @@
             }, 1000);
         }
     }" 
-    class="fixed bottom-4 left-4 z-45 transition-all duration-300 ease-in-out">
+    @mousemove.window="doDrag"
+    @mouseup.window="endDrag"
+    @touchmove.window="doDrag"
+    @touchend.window="endDrag"
+    :style="`left: ${x}px; top: ${y}px; transition: ${dragging ? 'none' : 'all 0.3s ease-out'}`"
+    class="fixed z-45">
     
     <!-- Minimized Floating Button -->
-    <button x-show="minimize" @click="minimize = false" class="bg-primary hover:bg-primary/90 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center border-2 border-white/20 transition transform hover:scale-105 active:scale-95" style="display: none;">
+    <button x-show="minimize" @mousedown="startDrag" @touchstart="startDrag" @click="handleClick" class="bg-primary hover:bg-primary/90 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center border-2 border-white/20 transition transform hover:scale-105 active:scale-95 cursor-move" style="display: none;">
         <i class="fa-solid fa-flask text-lg text-secondary animate-pulse"></i>
     </button>
 
     <!-- Full Panel Sandbox -->
-    <div x-show="!minimize" class="bg-surface/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border-2 border-primary/20 max-w-xs text-xs">
+    <div x-show="!minimize" 
+         :class="{
+             '-translate-x-[calc(100%-48px)]': x > window.innerWidth / 2,
+             '-translate-y-[calc(100%-48px)]': y > window.innerHeight / 2
+         }" 
+         class="bg-surface/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl border-2 border-primary/20 w-72 max-w-[calc(100vw-32px)] text-xs">
         <div class="flex items-center justify-between border-b border-accent pb-2 mb-3">
             <span class="font-bold text-primary flex items-center gap-1.5"><i class="fa-solid fa-flask"></i> Sandbox Demo</span>
             <div class="flex items-center gap-1.5">
