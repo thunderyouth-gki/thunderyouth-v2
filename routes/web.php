@@ -22,6 +22,10 @@ Route::middleware(['auth', 'role:Root|Pengurus'])->prefix('admin')->name('admin.
     Route::get('/permissions', PermissionManager::class)->name('permissions')->middleware('permission:permissions.view');
     Route::get('/users', UserAccessManager::class)->name('users')->middleware('permission:users.view');
 
+    // Services
+    Route::livewire('/services', 'pages::admin.services.index')->name('services.index');
+    Route::livewire('/services/create', 'pages::admin.services.form')->name('services.create');
+    Route::livewire('/services/{service}/edit', 'pages::admin.services.form')->name('services.edit');
     Route::livewire('/profile', 'pages::admin.profile')->name('profile');
     Route::livewire('/security', 'pages::admin.security')
         ->middleware(['password.confirm'])

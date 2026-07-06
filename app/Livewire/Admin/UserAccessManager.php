@@ -3,33 +3,50 @@
 namespace App\Livewire\Admin;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class UserAccessManager extends Component
 {
-    use \Livewire\WithPagination;
+    use WithPagination;
 
     public string $search = '';
+
     public string $sortField = 'id';
+
     public string $sortDirection = 'asc';
+
     public int $perPage = 10;
 
     // Modal state
     public ?int $manageUserId = null;
+
     public ?int $deleteUserId = null;
+
     public string $selectedRole = '';
+
     /** @var array<int, string> */
     public array $selectedPermissions = [];
 
     // New User state
     public string $newName = '';
+
     public string $newEmail = '';
+
     public string $newPassword = '';
 
     // Edit User state
     public ?int $editUserId = null;
+
     public string $editName = '';
+
     public string $editEmail = '';
+
     public string $editPassword = '';
 
     public function updatingSearch(): void
@@ -53,7 +70,7 @@ class UserAccessManager extends Component
         /** @var User $user */
         $user = User::findOrFail($userId);
         $this->manageUserId = (int) $user->id;
-        /** @var \Spatie\Permission\Models\Role|null $firstRole */
+        /** @var Role|null $firstRole */
         $firstRole = $user->roles->first();
         $this->selectedRole = $firstRole ? $firstRole->name : '';
         $this->selectedPermissions = $user->getDirectPermissions()->pluck('name')->toArray();
@@ -62,20 +79,22 @@ class UserAccessManager extends Component
 
     public function saveAccess(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+        Gate::authorize('users.edit');
 
         if ($this->manageUserId == auth()->id()) {
             \Flux::modal('manage-user-modal')->close();
             $this->dispatch('notify', message: 'You cannot change your own access levels.', type: 'error');
+
             return;
         }
 
         /** @var User $user */
         $user = User::findOrFail($this->manageUserId);
-        
+
         if ($user->hasRole('Root')) {
             \Flux::modal('manage-user-modal')->close();
             $this->dispatch('notify', message: 'Cannot modify Root user access.');
+
             return;
         }
 
@@ -83,22 +102,23 @@ class UserAccessManager extends Component
             if ($this->selectedRole === 'Root') {
                 \Flux::modal('manage-user-modal')->close();
                 $this->dispatch('notify', message: 'Cannot assign Root role.');
+
                 return;
             }
             $user->syncRoles([$this->selectedRole]);
         } else {
             $user->syncRoles([]);
         }
-        
+
         $user->syncPermissions($this->selectedPermissions);
-        
+
         \Flux::modal('manage-user-modal')->close();
         $this->dispatch('notify', message: 'User access updated successfully!');
     }
 
     public function openNewUserModal(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.create');
+        Gate::authorize('users.create');
 
         $this->reset(['newName', 'newEmail', 'newPassword']);
         \Flux::modal('new-user-modal')->show();
@@ -106,7 +126,7 @@ class UserAccessManager extends Component
 
     public function createUser(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.create');
+        Gate::authorize('users.create');
 
         $this->validate([
             'newName' => 'required|string|max:255',
@@ -117,7 +137,7 @@ class UserAccessManager extends Component
         $user = User::create([
             'name' => $this->newName,
             'email' => $this->newEmail,
-            'password' => \Illuminate\Support\Facades\Hash::make($this->newPassword),
+            'password' => Hash::make($this->newPassword),
         ]);
 
         // Default new users created here to Pengurus, since admins are creating them
@@ -130,13 +150,14 @@ class UserAccessManager extends Component
 
     public function openEditUserModal(int $userId): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+        Gate::authorize('users.edit');
 
         /** @var User $user */
         $user = User::findOrFail($userId);
-        
-        if ($user->hasRole('Root') && !auth()->user()->hasRole('Root')) {
+
+        if ($user->hasRole('Root') && ! auth()->user()->hasRole('Root')) {
             $this->dispatch('notify', message: 'Only Root can edit the Root account.');
+
             return;
         }
 
@@ -144,35 +165,36 @@ class UserAccessManager extends Component
         $this->editName = $user->name;
         $this->editEmail = $user->email;
         $this->editPassword = ''; // Leave blank to not change
-        
+
         \Flux::modal('edit-user-modal')->show();
     }
 
     public function updateUser(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+        Gate::authorize('users.edit');
 
         $this->validate([
             'editName' => 'required|string|max:255',
-            'editEmail' => 'required|email|unique:users,email,' . $this->editUserId,
+            'editEmail' => 'required|email|unique:users,email,'.$this->editUserId,
             'editPassword' => 'nullable|string|min:8',
         ]);
 
         /** @var User $user */
         $user = User::findOrFail($this->editUserId);
-        
-        if ($user->hasRole('Root') && !auth()->user()->hasRole('Root')) {
+
+        if ($user->hasRole('Root') && ! auth()->user()->hasRole('Root')) {
             $this->dispatch('notify', message: 'Only Root can edit the Root account.');
+
             return;
         }
 
         $user->name = $this->editName;
         $user->email = $this->editEmail;
-        
-        if (!empty($this->editPassword)) {
-            $user->password = \Illuminate\Support\Facades\Hash::make($this->editPassword);
+
+        if (! empty($this->editPassword)) {
+            $user->password = Hash::make($this->editPassword);
         }
-        
+
         $user->save();
 
         $this->reset(['editUserId', 'editName', 'editEmail', 'editPassword']);
@@ -182,22 +204,24 @@ class UserAccessManager extends Component
 
     public function toggleActiveStatus(int $userId): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+        Gate::authorize('users.edit');
 
         if ($userId == auth()->id()) {
             $this->dispatch('notify', message: 'You cannot deactivate your own account.', type: 'error');
+
             return;
         }
 
         /** @var User $user */
         $user = User::findOrFail($userId);
-        
+
         if ($user->hasRole('Root')) {
             $this->dispatch('notify', message: 'Cannot deactivate the Root user.');
+
             return;
         }
 
-        $user->is_active = !$user->is_active;
+        $user->is_active = ! $user->is_active;
         $user->save();
 
         $status = $user->is_active ? 'activated' : 'deactivated';
@@ -206,60 +230,65 @@ class UserAccessManager extends Component
 
     public function confirmDelete(int $userId): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.delete');
+        Gate::authorize('users.delete');
 
         if ($userId == auth()->id()) {
             $this->dispatch('notify', message: 'You cannot delete your own account.', type: 'error');
+
             return;
         }
 
         /** @var User $user */
         $user = User::findOrFail($userId);
-        
+
         if ($user->hasRole('Root')) {
             $this->dispatch('notify', message: 'Cannot delete the Root user.');
+
             return;
         }
-        
+
         $this->deleteUserId = $userId;
         \Flux::modal('delete-user-modal')->show();
     }
 
     public function deleteUser(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('users.delete');
+        Gate::authorize('users.delete');
 
-        if (!$this->deleteUserId) return;
+        if (! $this->deleteUserId) {
+            return;
+        }
 
         /** @var User $user */
         $user = User::findOrFail($this->deleteUserId);
-        
+
         if ($user->hasRole('Root')) {
             $this->dispatch('notify', message: 'Cannot delete the Root user.');
+
             return;
         }
 
         $user->delete();
-        
+
         $this->deleteUserId = null;
         \Flux::modal('delete-user-modal')->close();
         $this->dispatch('notify', message: 'User deleted successfully.');
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $users = User::with('roles', 'permissions')
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('email', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('email', 'like', '%'.$this->search.'%');
             })
             ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.user-access-manager', [
             'users' => $users,
-            'allRoles' => \Spatie\Permission\Models\Role::where('name', '!=', 'Root')->get(),
-            'allPermissions' => \Spatie\Permission\Models\Permission::all(),
+            'allRoles' => Role::where('name', '!=', 'Root')->get(),
+            'allPermissions' => Permission::all(),
         ])->layout('components.layouts.admin');
     }
 }

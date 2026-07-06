@@ -2,21 +2,30 @@
 
 namespace App\Livewire\Admin;
 
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
+use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class RoleManager extends Component
 {
-    use \Livewire\WithPagination;
+    use WithPagination;
 
     public string $search = '';
+
     public string $sortField = 'id';
+
     public string $sortDirection = 'asc';
+
     public int $perPage = 10;
 
     // Modal state
     public ?int $roleId = null;
+
     public string $name = '';
+
     /** @var array<int, string> */
     public array $selectedPermissions = [];
 
@@ -37,7 +46,7 @@ class RoleManager extends Component
 
     public function createRole(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('roles.create');
+        Gate::authorize('roles.create');
 
         $this->validate([
             'name' => 'required|string|max:255|unique:roles,name',
@@ -53,13 +62,14 @@ class RoleManager extends Component
 
     public function editRole(int $id): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('roles.edit');
+        Gate::authorize('roles.edit');
 
         /** @var Role $role */
         $role = Role::findOrFail($id);
-        
+
         if ($role->name === 'Root') {
             $this->dispatch('notify', message: 'Cannot edit the Root role.', type: 'error');
+
             return;
         }
 
@@ -72,23 +82,24 @@ class RoleManager extends Component
 
     public function updateRole(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('roles.edit');
+        Gate::authorize('roles.edit');
 
         $this->validate([
-            'name' => 'required|string|max:255|unique:roles,name,' . $this->roleId,
+            'name' => 'required|string|max:255|unique:roles,name,'.$this->roleId,
         ]);
 
         /** @var Role $role */
         $role = Role::findOrFail($this->roleId);
-        
+
         if ($role->name === 'Root') {
             $this->dispatch('notify', message: 'Cannot modify the Root role.', type: 'error');
+
             return;
         }
 
         $role->name = $this->name;
         $role->save();
-        
+
         $role->syncPermissions($this->selectedPermissions);
 
         \Flux::modal('role-modal')->close();
@@ -97,7 +108,7 @@ class RoleManager extends Component
 
     public function confirmDelete(int $id): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('roles.delete');
+        Gate::authorize('roles.delete');
 
         $this->roleId = $id;
         \Flux::modal('delete-role-modal')->show();
@@ -105,12 +116,13 @@ class RoleManager extends Component
 
     public function deleteRole(): void
     {
-        \Illuminate\Support\Facades\Gate::authorize('roles.delete');
+        Gate::authorize('roles.delete');
 
         /** @var Role $role */
         $role = Role::findOrFail($this->roleId);
         if ($role->name === 'Root') {
             $this->dispatch('notify', message: 'Cannot delete the Root role.', type: 'error');
+
             return;
         }
 
@@ -126,18 +138,18 @@ class RoleManager extends Component
         \Flux::modal('role-modal')->show();
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         $roles = Role::with('permissions')
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%');
             })
             ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         return view('livewire.admin.role-manager', [
             'roles' => $roles,
-            'allPermissions' => \Spatie\Permission\Models\Permission::all(),
+            'allPermissions' => Permission::all(),
         ])->layout('components.layouts.admin');
     }
 }

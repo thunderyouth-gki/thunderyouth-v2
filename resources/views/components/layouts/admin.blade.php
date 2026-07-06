@@ -72,7 +72,9 @@
             --color-textlight: 148 163 184;
             --color-accent: 51 65 85;
             --color-brandlight: 30 27 75;
+            color-scheme: dark;
         }
+
 
         .fade-in {
             animation: fadeIn 0.4s ease-out forwards;
@@ -99,7 +101,7 @@
     
     @livewireStyles
 </head>
-<body class="bg-background text-text font-sans antialiased h-screen overflow-hidden flex">
+<body class="bg-background text-text font-sans antialiased h-screen overflow-hidden flex dark:[color-scheme:dark]">
     
     <!-- Sidebar -->
     <aside class="w-64 bg-surface border-r border-accent flex-shrink-0 flex flex-col h-full hidden md:flex transition-all duration-300 relative z-20 shadow-sm">
@@ -116,6 +118,11 @@
             <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mb-2 px-2">Overview</div>
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
                 <i class="fa-solid fa-gauge w-5 text-center"></i> Dashboard
+            </a>
+            
+            <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mt-6 mb-2 px-2">Church Management</div>
+            <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.services.*') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <i class="fa-solid fa-calendar-days w-5 text-center"></i> Services
             </a>
             
             @canany(['users.view', 'roles.view', 'permissions.view'])

@@ -5,10 +5,10 @@ namespace App\Console\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
+
+use function Laravel\Prompts\info;
 use function Laravel\Prompts\password;
 use function Laravel\Prompts\text;
-use function Laravel\Prompts\info;
 
 class SetupRootCommand extends Command
 {
@@ -35,6 +35,7 @@ class SetupRootCommand extends Command
 
         if (User::role('Root')->exists()) {
             \Laravel\Prompts\error('A Root account already exists. Only one Root account is permitted.');
+
             return self::FAILURE;
         }
 
@@ -76,6 +77,7 @@ class SetupRootCommand extends Command
         $user->assignRole('Root');
 
         info('Root account has been successfully setup and assigned the Root role.');
+
         return self::SUCCESS;
     }
 }

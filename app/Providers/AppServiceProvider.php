@@ -5,6 +5,8 @@ namespace App\Providers;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 
@@ -27,17 +29,17 @@ class AppServiceProvider extends ServiceProvider
 
         // Implicitly grant "Root" role all permissions
         // This works in the app by using gate-related functions like auth()->user->can() and @can()
-        \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
+        Gate::before(function ($user, $ability) {
             return $user->hasRole('Root') ? true : null;
         });
 
         // Add under construction macro for routes
-        \Illuminate\Support\Facades\Route::macro('underConstruction', function ($uri, $view) {
+        Route::macro('underConstruction', function ($uri, $view) {
             if (app()->environment('local')) {
-                return \Illuminate\Support\Facades\Route::view($uri, $view);
+                return Route::view($uri, $view);
             }
-            
-            return \Illuminate\Support\Facades\Route::any($uri, function () {
+
+            return Route::any($uri, function () {
                 abort(503, 'This page is currently under construction.');
             });
         });
