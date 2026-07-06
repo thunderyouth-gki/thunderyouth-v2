@@ -118,16 +118,27 @@
                 <i class="fa-solid fa-gauge w-5 text-center"></i> Dashboard
             </a>
             
-            <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mt-6 mb-2 px-2">Access Control</div>
-            <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.users') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
-                <i class="fa-solid fa-users w-5 text-center"></i> User Access
-            </a>
-            <a href="{{ route('admin.roles') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.roles') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
-                <i class="fa-solid fa-user-shield w-5 text-center"></i> Roles
-            </a>
-            <a href="{{ route('admin.permissions') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.permissions') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
-                <i class="fa-solid fa-key w-5 text-center"></i> Permissions
-            </a>
+            @canany(['users.view', 'roles.view', 'permissions.view'])
+                <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mt-6 mb-2 px-2">Access Control</div>
+            @endcanany
+            
+            @can('users.view')
+                <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.users') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                    <i class="fa-solid fa-users w-5 text-center"></i> User Access
+                </a>
+            @endcan
+            
+            @can('roles.view')
+                <a href="{{ route('admin.roles') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.roles') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                    <i class="fa-solid fa-user-shield w-5 text-center"></i> Roles
+                </a>
+            @endcan
+            
+            @can('permissions.view')
+                <a href="{{ route('admin.permissions') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.permissions') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                    <i class="fa-solid fa-key w-5 text-center"></i> Permissions
+                </a>
+            @endcan
         </nav>
         
         <!-- Bottom User Info -->

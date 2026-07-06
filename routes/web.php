@@ -15,9 +15,9 @@ require __DIR__.'/settings.php';
 
 Route::middleware(['auth', 'role:Root|Pengurus'])->prefix('admin')->name('admin.')->group(function () {
     Route::view('/', 'admin.dashboard')->name('dashboard');
-    Route::get('/roles', \App\Livewire\Admin\RoleManager::class)->name('roles');
-    Route::get('/permissions', \App\Livewire\Admin\PermissionManager::class)->name('permissions');
-    Route::get('/users', \App\Livewire\Admin\UserAccessManager::class)->name('users');
+    Route::get('/roles', \App\Livewire\Admin\RoleManager::class)->name('roles')->middleware('permission:roles.view');
+    Route::get('/permissions', \App\Livewire\Admin\PermissionManager::class)->name('permissions')->middleware('permission:permissions.view');
+    Route::get('/users', \App\Livewire\Admin\UserAccessManager::class)->name('users')->middleware('permission:users.view');
     
     Route::livewire('/profile', 'pages::admin.profile')->name('profile');
     Route::livewire('/security', 'pages::admin.security')

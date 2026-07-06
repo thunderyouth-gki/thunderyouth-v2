@@ -35,6 +35,8 @@ class PermissionManager extends Component
 
     public function createPermission()
     {
+        \Illuminate\Support\Facades\Gate::authorize('permissions.create');
+
         $this->validate([
             'name' => 'required|string|max:255|unique:permissions,name',
         ]);
@@ -48,6 +50,8 @@ class PermissionManager extends Component
 
     public function editPermission($id)
     {
+        \Illuminate\Support\Facades\Gate::authorize('permissions.edit');
+
         $permission = Permission::findOrFail($id);
         $this->permissionId = $permission->id;
         $this->name = $permission->name;
@@ -57,6 +61,8 @@ class PermissionManager extends Component
 
     public function updatePermission()
     {
+        \Illuminate\Support\Facades\Gate::authorize('permissions.edit');
+
         $this->validate([
             'name' => 'required|string|max:255|unique:permissions,name,' . $this->permissionId,
         ]);
@@ -71,12 +77,16 @@ class PermissionManager extends Component
 
     public function confirmDelete($id)
     {
+        \Illuminate\Support\Facades\Gate::authorize('permissions.delete');
+
         $this->permissionId = $id;
         \Flux::modal('delete-permission-modal')->show();
     }
 
     public function deletePermission()
     {
+        \Illuminate\Support\Facades\Gate::authorize('permissions.delete');
+
         $permission = Permission::findOrFail($this->permissionId);
         $permission->delete();
 

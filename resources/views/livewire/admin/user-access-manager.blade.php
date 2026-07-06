@@ -4,7 +4,9 @@
             <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">User Access Management</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">Manage roles and permissions assigned to specific users.</p>
         </div>
-        <flux:button wire:click="openNewUserModal" class="bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 text-white border-transparent transition-all shadow-soft cursor-pointer">New User</flux:button>
+        @can('users.create')
+            <flux:button wire:click="openNewUserModal" class="bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 text-white border-transparent transition-all shadow-soft cursor-pointer">New User</flux:button>
+        @endcan
     </div>
 
     <!-- Filters and Search -->
@@ -85,11 +87,18 @@
                                     <flux:dropdown>
                                         <flux:button size="sm" variant="filled" class="bg-amber-500 hover:bg-amber-600 text-white border-transparent cursor-pointer">Actions <i class="fa-solid fa-chevron-down ml-1 text-xs"></i></flux:button>
                                         <flux:navmenu>
-                                            <flux:navmenu.item wire:click="openEditUserModal({{ $user->id }})">Edit Profile</flux:navmenu.item>
+                                            @can('users.edit')
+                                                <flux:navmenu.item wire:click="openEditUserModal({{ $user->id }})">Edit Profile</flux:navmenu.item>
+                                            @endcan
+                                            
                                             @if(!$user->hasRole('Root'))
-                                                <flux:navmenu.item wire:click="openManageModal({{ $user->id }})">Manage Access</flux:navmenu.item>
-                                                <flux:navmenu.item wire:click="toggleActiveStatus({{ $user->id }})">{{ $user->is_active ? 'Deactivate' : 'Activate' }} User</flux:navmenu.item>
-                                                <flux:navmenu.item wire:click="confirmDelete({{ $user->id }})" class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/50">Delete User</flux:navmenu.item>
+                                                @can('users.edit')
+                                                    <flux:navmenu.item wire:click="openManageModal({{ $user->id }})">Manage Access</flux:navmenu.item>
+                                                    <flux:navmenu.item wire:click="toggleActiveStatus({{ $user->id }})">{{ $user->is_active ? 'Deactivate' : 'Activate' }} User</flux:navmenu.item>
+                                                @endcan
+                                                @can('users.delete')
+                                                    <flux:navmenu.item wire:click="confirmDelete({{ $user->id }})" class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/50">Delete User</flux:navmenu.item>
+                                                @endcan
                                             @endif
                                         </flux:navmenu>
                                     </flux:dropdown>

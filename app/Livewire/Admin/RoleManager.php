@@ -36,6 +36,8 @@ class RoleManager extends Component
 
     public function createRole()
     {
+        \Illuminate\Support\Facades\Gate::authorize('roles.create');
+
         $this->validate([
             'name' => 'required|string|max:255|unique:roles,name',
         ]);
@@ -50,6 +52,8 @@ class RoleManager extends Component
 
     public function editRole($id)
     {
+        \Illuminate\Support\Facades\Gate::authorize('roles.edit');
+
         $role = Role::findOrFail($id);
         
         if ($role->name === 'Root') {
@@ -66,6 +70,8 @@ class RoleManager extends Component
 
     public function updateRole()
     {
+        \Illuminate\Support\Facades\Gate::authorize('roles.edit');
+
         $this->validate([
             'name' => 'required|string|max:255|unique:roles,name,' . $this->roleId,
         ]);
@@ -88,12 +94,16 @@ class RoleManager extends Component
 
     public function confirmDelete($id)
     {
+        \Illuminate\Support\Facades\Gate::authorize('roles.delete');
+
         $this->roleId = $id;
         \Flux::modal('delete-role-modal')->show();
     }
 
     public function deleteRole()
     {
+        \Illuminate\Support\Facades\Gate::authorize('roles.delete');
+
         $role = Role::findOrFail($this->roleId);
         if ($role->name === 'Root') {
             $this->dispatch('notify', message: 'Cannot delete the Root role.', type: 'error');

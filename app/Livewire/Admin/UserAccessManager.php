@@ -58,6 +58,14 @@ class UserAccessManager extends Component
 
     public function saveAccess()
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+
+        if ($this->manageUserId == auth()->id()) {
+            \Flux::modal('manage-user-modal')->close();
+            $this->dispatch('notify', message: 'You cannot change your own access levels.', type: 'error');
+            return;
+        }
+
         $user = User::findOrFail($this->manageUserId);
         
         if ($user->hasRole('Root')) {
@@ -67,6 +75,11 @@ class UserAccessManager extends Component
         }
 
         if ($this->selectedRole) {
+            if ($this->selectedRole === 'Root') {
+                \Flux::modal('manage-user-modal')->close();
+                $this->dispatch('notify', message: 'Cannot assign Root role.');
+                return;
+            }
             $user->syncRoles([$this->selectedRole]);
         } else {
             $user->syncRoles([]);
@@ -80,12 +93,16 @@ class UserAccessManager extends Component
 
     public function openNewUserModal()
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.create');
+
         $this->reset(['newName', 'newEmail', 'newPassword']);
         \Flux::modal('new-user-modal')->show();
     }
 
     public function createUser()
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.create');
+
         $this->validate([
             'newName' => 'required|string|max:255',
             'newEmail' => 'required|email|unique:users,email',
@@ -108,6 +125,8 @@ class UserAccessManager extends Component
 
     public function openEditUserModal($userId)
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+
         $user = User::findOrFail($userId);
         
         if ($user->hasRole('Root') && !auth()->user()->hasRole('Root')) {
@@ -125,6 +144,8 @@ class UserAccessManager extends Component
 
     public function updateUser()
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+
         $this->validate([
             'editName' => 'required|string|max:255',
             'editEmail' => 'required|email|unique:users,email,' . $this->editUserId,
@@ -154,6 +175,13 @@ class UserAccessManager extends Component
 
     public function toggleActiveStatus($userId)
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.edit');
+
+        if ($userId == auth()->id()) {
+            $this->dispatch('notify', message: 'You cannot deactivate your own account.', type: 'error');
+            return;
+        }
+
         $user = User::findOrFail($userId);
         
         if ($user->hasRole('Root')) {
@@ -170,6 +198,13 @@ class UserAccessManager extends Component
 
     public function confirmDelete($userId)
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.delete');
+
+        if ($userId == auth()->id()) {
+            $this->dispatch('notify', message: 'You cannot delete your own account.', type: 'error');
+            return;
+        }
+
         $user = User::findOrFail($userId);
         
         if ($user->hasRole('Root')) {
@@ -183,6 +218,8 @@ class UserAccessManager extends Component
 
     public function deleteUser()
     {
+        \Illuminate\Support\Facades\Gate::authorize('users.delete');
+
         if (!$this->deleteUserId) return;
 
         $user = User::findOrFail($this->deleteUserId);
