@@ -16,13 +16,12 @@
                 <a href="{{ route('events') }}" class="nav-link {{ request()->routeIs('events') ? 'text-primary font-semibold' : 'text-textlight font-medium' }} hover:text-primary transition">Events</a>
                 <a href="{{ route('prayer') }}" class="nav-link {{ request()->routeIs('prayer') ? 'text-primary font-semibold' : 'text-textlight font-medium' }} hover:text-primary transition">Prayer Tree</a>
                 
-                @auth
+                @hasanyrole('Root|Pengurus')
                     <!-- Admin Tab -->
-                    <!-- In a real app, check role or permissions -->
-                    <a href="#" class="nav-link text-yellow-600 dark:text-yellow-500 font-semibold hover:text-yellow-700 dark:hover:text-yellow-400 transition">
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->is('admin*') ? 'text-yellow-600 dark:text-yellow-400 font-bold' : 'text-yellow-600 dark:text-yellow-500 font-semibold hover:text-yellow-700 dark:hover:text-yellow-400' }} transition">
                         <i class="fa-solid fa-gauge mr-1"></i> Admin Panel
                     </a>
-                @endauth
+                @endhasanyrole
                 
                 <!-- Login Button / User Profile -->
                 <div class="flex items-center gap-4 border-l border-accent pl-6">
@@ -36,7 +35,7 @@
                         <div class="flex items-center gap-3 cursor-pointer group" x-data="{ userMenuOpen: false }" @click.away="userMenuOpen = false">
                             <div class="text-right hidden md:block" @click="userMenuOpen = !userMenuOpen">
                                 <div class="text-sm font-bold text-text">{{ auth()->user()->name }}</div>
-                                <div class="text-[10px] text-textlight">JEMAAT</div>
+                                <div class="text-[10px] text-textlight uppercase">{{ auth()->user()->roles->first()?->name ?? 'Jemaat' }}</div>
                             </div>
                             <div class="relative">
                                 <div @click="userMenuOpen = !userMenuOpen" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-soft hover:opacity-90 transition">
@@ -78,9 +77,9 @@
             <a href="{{ route('events') }}" class="block px-3 py-3 rounded-md text-base {{ request()->routeIs('events') ? 'font-semibold text-primary bg-primary/5' : 'font-medium text-textlight hover:text-primary hover:bg-primary/5' }}">Events</a>
             <a href="{{ route('prayer') }}" class="block px-3 py-3 rounded-md text-base {{ request()->routeIs('prayer') ? 'font-semibold text-primary bg-primary/5' : 'font-medium text-textlight hover:text-primary hover:bg-primary/5' }}">Prayer Tree</a>
             
-            @auth
-                <a href="#" class="block px-3 py-3 rounded-md text-base font-bold text-yellow-600 dark:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-500/10 transition"><i class="fa-solid fa-gauge mr-1"></i> Admin Panel</a>
-            @endauth
+            @hasanyrole('Root|Pengurus')
+                <a href="{{ route('admin.dashboard') }}" class="block px-3 py-3 rounded-md text-base font-bold {{ request()->is('admin*') ? 'text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-500/10' : 'text-yellow-600 dark:text-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-500/10' }} transition"><i class="fa-solid fa-gauge mr-1"></i> Admin Panel</a>
+            @endhasanyrole
             
             <div class="pt-4 pb-2 border-t border-accent mt-2">
                 @guest

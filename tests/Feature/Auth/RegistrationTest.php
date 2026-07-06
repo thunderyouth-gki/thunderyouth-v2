@@ -4,6 +4,7 @@ use Laravel\Fortify\Features;
 
 beforeEach(function () {
     $this->skipUnlessFortifyHas(Features::registration());
+    \Spatie\Permission\Models\Role::findOrCreate('Jemaat');
 });
 
 test('registration screen can be rendered', function () {

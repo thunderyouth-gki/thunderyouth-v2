@@ -17,9 +17,8 @@
     <script>
         // Initialize dark mode before page render to prevent flicker
         function applyTheme() {
-            const isLoggedIn = @json(auth()->check());
-            // Default is always 'light' for guests. Authenticated users use their saved preference or default to 'light'
-            const appearance = isLoggedIn ? (localStorage.getItem('appearance') || 'light') : 'light';
+            // Read from our app-specific storage key to avoid localhost conflicts
+            const appearance = localStorage.getItem('ty_appearance') || 'light';
             
             if (appearance === 'dark' || (appearance === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
@@ -125,6 +124,34 @@
     <main class="pt-20 flex-grow">
         {{ $slot }}
     </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface border-t border-accent py-12 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('home') }}" class="font-heading font-extrabold text-2xl tracking-tighter text-primary flex items-center gap-2">
+                        <img src="{{ asset('storage/thunder-logo.png') }}" alt="Thunder Youth Logo" class="w-8 h-8 object-contain">
+                        <span>THUNDER<span class="text-secondary italic">YOUTH!</span></span>
+                    </a>
+                </div>
+                <div class="text-textlight text-sm text-center md:text-left">
+                    &copy; {{ date('Y') }} Thunder Youth GKI Guntur. All rights reserved.
+                </div>
+                <div class="flex gap-4">
+                    <a href="#" class="w-10 h-10 rounded-full bg-brandlight text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-300">
+                        <i class="fa-brands fa-instagram"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-brandlight text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-300">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="w-10 h-10 rounded-full bg-brandlight text-primary flex items-center justify-center hover:bg-primary hover:text-white transition-colors duration-300">
+                        <i class="fa-brands fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <!-- Auth Modal Blade Component -->
     <x-auth-modal />
