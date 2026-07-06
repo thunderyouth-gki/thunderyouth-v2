@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use Laravel\Fortify\Fortify;
 
 class FortifyServiceProvider extends ServiceProvider
@@ -38,6 +41,20 @@ class FortifyServiceProvider extends ServiceProvider
     {
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::createUsersUsing(CreateNewUser::class);
+
+        Fortify::authenticateUsing(function (Request $request) {
+            $user = User::where(Fortify::username(), $request->{Fortify::username()})->first();
+
+            if ($user && Hash::check($request->password, $user->password)) {
+                if (! $user->is_active) {
+                    throw ValidationException::withMessages([
+                        Fortify::username() => 'Your account has been deactivated. Please contact your administrator.',
+                    ]);
+                }
+
+                return $user;
+            }
+        });
     }
 
     /**
