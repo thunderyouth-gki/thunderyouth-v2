@@ -8,6 +8,8 @@ use Tests\TestCase;
 
 class PublicControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_home_page_loads(): void
     {
         $response = $this->get('/');
