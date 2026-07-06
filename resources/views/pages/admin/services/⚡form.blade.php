@@ -76,6 +76,7 @@ new #[Layout('components.layouts.admin')] class extends Component
         if ($service && $service->exists) {
             $this->service = $service;
             
+            $defaultForm = $this->form;
             $this->form = array_merge($this->form, $service->toArray());
             
             // Format date for input type="date"
@@ -84,9 +85,9 @@ new #[Layout('components.layouts.admin')] class extends Component
             }
             
             // Ensure JSON structures are initialized even if null in DB
-            $this->form['liturgy_verses'] = $service->liturgy_verses ?? $this->form['liturgy_verses'];
-            $this->form['liturgy_songs'] = $service->liturgy_songs ?? $this->form['liturgy_songs'];
-            $this->form['duties'] = $service->duties ?? $this->form['duties'];
+            $this->form['liturgy_verses'] = $service->liturgy_verses ?? $defaultForm['liturgy_verses'];
+            $this->form['liturgy_songs'] = $service->liturgy_songs ?? $defaultForm['liturgy_songs'];
+            $this->form['duties'] = $service->duties ?? $defaultForm['duties'];
             
             // Set all sections to false (not in edit mode) if editing an existing record
             $this->editMode = [
@@ -96,8 +97,12 @@ new #[Layout('components.layouts.admin')] class extends Component
                 'report' => false,
             ];
         } else {
-            // Default to next Sunday if new
-            $this->form['service_date'] = Carbon::parse('next sunday')->format('Y-m-d');
+            // Default to next available Sunday if new
+            $date = Carbon::parse('next sunday');
+            while (Service::whereDate('service_date', $date->toDateString())->exists()) {
+                $date->addWeek();
+            }
+            $this->form['service_date'] = $date->format('Y-m-d');
         }
     }
     
@@ -118,20 +123,38 @@ new #[Layout('components.layouts.admin')] class extends Component
 
     public function save($status = 'draft', $redirect = true)
     {
-        $this->validate([
-            'form.service_date' => 'required|date',
+        $rules = [
+            'form.service_date' => 'required|date|unique:services,service_date,' . ($this->service ? $this->service->id : 'NULL') . ',id',
             'form.service_type' => 'required|string',
             'form.custom_service_type' => 'required_if:form.service_type,other|nullable|string',
             'banner_image' => 'nullable|image|max:2048', // max 2MB
-            'form.theme' => 'nullable|string|max:255',
             'form.description' => 'nullable|string',
-            'form.speaker' => 'nullable|string|max:255',
-            'form.start_time' => 'required|string|max:255',
-            'form.end_time' => 'nullable|string|max:255',
-            'form.place' => 'required|string|max:255',
             'form.attendance_male' => 'nullable|integer|min:0',
             'form.attendance_female' => 'nullable|integer|min:0',
             'form.offering_amount' => 'nullable|numeric|min:0',
+        ];
+
+        if ($status === 'published') {
+            $rules['form.theme'] = 'required|string|max:255';
+            $rules['form.speaker'] = 'required|string|max:255';
+            $rules['form.start_time'] = 'required|string|max:255';
+            $rules['form.end_time'] = 'required|string|max:255';
+            $rules['form.place'] = 'required|string|max:255';
+        } else {
+            $rules['form.theme'] = 'nullable|string|max:255';
+            $rules['form.speaker'] = 'nullable|string|max:255';
+            $rules['form.start_time'] = 'nullable|string|max:255';
+            $rules['form.end_time'] = 'nullable|string|max:255';
+            $rules['form.place'] = 'nullable|string|max:255';
+        }
+
+        $this->validate($rules, [
+            'form.service_date.unique' => 'Sudah ada jadwal kebaktian di tanggal ini. Mohon pilih tanggal lain.',
+            'form.theme.required' => 'Tema ibadah harus diisi jika jadwal berstatus dipublikasikan.',
+            'form.speaker.required' => 'Nama pembicara harus diisi jika jadwal berstatus dipublikasikan.',
+            'form.start_time.required' => 'Waktu mulai harus diisi jika jadwal berstatus dipublikasikan.',
+            'form.end_time.required' => 'Waktu selesai harus diisi jika jadwal berstatus dipublikasikan.',
+            'form.place.required' => 'Tempat ibadah harus diisi jika jadwal berstatus dipublikasikan.',
         ]);
         
         $this->form['status'] = $status;
@@ -161,7 +184,7 @@ new #[Layout('components.layouts.admin')] class extends Component
     {
         if ($this->editMode[$section]) {
             // We are turning edit mode OFF, which means we want to SAVE
-            $this->save('draft', false);
+            $this->save($this->form['status'], false);
         }
         
         $this->editMode[$section] = !$this->editMode[$section];
@@ -175,6 +198,7 @@ new #[Layout('components.layouts.admin')] class extends Component
             $this->form['service_date'],
             $this->form['speaker'],
             $this->form['start_time'],
+            $this->form['end_time'],
             $this->form['place'],
         ];
         
@@ -217,16 +241,28 @@ new #[Layout('components.layouts.admin')] class extends Component
                     <flux:button variant="danger" class="border border-red-700">Hapus Jadwal</flux:button>
                 </flux:modal.trigger>
                 
-                <span class="{{ !$this->canBePublished() ? 'cursor-not-allowed inline-block' : '' }}">
+                @if($service->status === 'published')
                     <flux:button 
-                        wire:click="save('published')" 
+                        wire:click="save('draft')" 
+                        wire:confirm="Yakin ingin menyembunyikan jadwal ini? Jadwal akan ditarik dari halaman publik."
                         variant="primary"
-                        class="!bg-emerald-600 hover:!bg-emerald-700 !text-white dark:!bg-emerald-500 dark:hover:!bg-emerald-600 !border-emerald-700 {{ !$this->canBePublished() ? '!opacity-20 pointer-events-none' : '' }}"
-                        :disabled="!$this->canBePublished()"
+                        class="!bg-amber-500 hover:!bg-amber-600 !text-white dark:!bg-amber-600 dark:hover:!bg-amber-700 !border-amber-600"
                     >
-                        Publikasikan
+                        Sembunyikan
                     </flux:button>
-                </span>
+                @else
+                    <span class="{{ !$this->canBePublished() ? 'cursor-not-allowed inline-block' : '' }}">
+                        <flux:button 
+                            wire:click="save('published')" 
+                            wire:confirm="Yakin ingin mempublikasikan jadwal ini? Jadwal akan tampil di halaman publik."
+                            variant="primary"
+                            class="!bg-emerald-600 hover:!bg-emerald-700 !text-white dark:!bg-emerald-500 dark:hover:!bg-emerald-600 !border-emerald-700 {{ !$this->canBePublished() ? '!opacity-20 pointer-events-none' : '' }}"
+                            :disabled="!$this->canBePublished()"
+                        >
+                            Publikasikan
+                        </flux:button>
+                    </span>
+                @endif
             @endif
         </div>
     </div>
@@ -282,7 +318,7 @@ new #[Layout('components.layouts.admin')] class extends Component
                     <flux:label>Tema Ibadah <span class="text-red-500 cursor-help" title="Harus diisi agar jadwal dapat dipublikasikan">*</span></flux:label>
                     <flux:input wire:model="form.theme" placeholder="Contoh: Tetap Berdiri Teguh" :disabled="!$editMode['general_info']" />
                 </flux:field>
-                <flux:input wire:model="form.bible_reading" label="Bacaan Alkitab Utama" placeholder="Contoh: Matius 13:31-33" :disabled="!$editMode['general_info']" />
+                <flux:input wire:model="form.bible_reading" label="Bacaan Alkitab" placeholder="Contoh: Matius 13:31-33" :disabled="!$editMode['general_info']" />
                 
                 <div class="col-span-1 md:col-span-2">
                     <flux:textarea wire:model="form.description" label="Deskripsi Kebaktian" placeholder="Tambahkan deskripsi atau ringkasan terkait ibadah ini..." :disabled="!$editMode['general_info']" rows="3" />
@@ -292,18 +328,21 @@ new #[Layout('components.layouts.admin')] class extends Component
                     <flux:label>Pembicara / Pengkhotbah <span class="text-red-500 cursor-help" title="Harus diisi agar jadwal dapat dipublikasikan">*</span></flux:label>
                     <flux:input wire:model="form.speaker" placeholder="Nama pengkhotbah..." :disabled="!$editMode['general_info']" />
                 </flux:field>
-                <flux:input wire:model="form.elder" label="Penatua Bertugas" placeholder="Nama penatua..." :disabled="!$editMode['general_info']" />
+                <flux:input wire:model="form.elder" label="Penatua" placeholder="Nama penatua..." :disabled="!$editMode['general_info']" />
                 
                 <div class="grid grid-cols-2 gap-4">
                     <flux:field>
                         <flux:label>Waktu Mulai <span class="text-red-500 cursor-help" title="Harus diisi agar jadwal dapat dipublikasikan">*</span></flux:label>
-                        <flux:input wire:model="form.start_time" type="time" required :disabled="!$editMode['general_info']" />
+                        <flux:input wire:model="form.start_time" type="time" :disabled="!$editMode['general_info']" />
                     </flux:field>
-                    <flux:input wire:model="form.end_time" type="time" label="Waktu Selesai" :disabled="!$editMode['general_info']" />
+                    <flux:field>
+                        <flux:label>Waktu Selesai <span class="text-red-500 cursor-help" title="Harus diisi agar jadwal dapat dipublikasikan">*</span></flux:label>
+                        <flux:input wire:model="form.end_time" type="time" :disabled="!$editMode['general_info']" />
+                    </flux:field>
                 </div>
                 <flux:field>
                     <flux:label>Tempat <span class="text-red-500 cursor-help" title="Harus diisi agar jadwal dapat dipublikasikan">*</span></flux:label>
-                    <flux:input wire:model="form.place" required :disabled="!$editMode['general_info']" />
+                    <flux:input wire:model="form.place" :disabled="!$editMode['general_info']" />
                 </flux:field>
             </div>
         </flux:card>

@@ -87,33 +87,73 @@
             }">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 mb-6">
                     <div>
-                        <span class="text-secondary font-bold tracking-wider text-sm uppercase">Acara Hari Ini</span>
-                        <h2 class="font-heading font-bold text-2xl md:text-3xl text-primary">Today's Sunday Service</h2>
+                        <span class="text-secondary font-bold tracking-wider text-sm uppercase">
+                            @if($nearestService && $nearestService->is_today) Acara Hari Ini @else Agenda Terdekat @endif
+                        </span>
+                        <h2 class="font-heading font-bold text-2xl md:text-3xl text-primary">
+                            @if($nearestService && $nearestService->is_today)
+                                Today's Sunday Service
+                            @else
+                                Upcoming Sunday Service
+                            @endif
+                        </h2>
                     </div>
+                    @if($nearestService)
                     <div class="text-left sm:text-right text-textlight font-medium bg-surface px-4 py-2 rounded-2xl border border-accent">
-                        <div class="text-lg text-primary font-bold"><i class="fa-regular fa-calendar-check mr-1 text-secondary"></i> {{ now()->format('d M') }}</div>
-                        <div class="text-sm">09:30 AM (WIB)</div>
+                        <div class="text-lg text-primary font-bold"><i class="fa-regular fa-calendar-check mr-1 text-secondary"></i> {{ $nearestService->service_date->format('d M Y') }}</div>
+                        <div class="text-sm">{{ $nearestService->start_time }} (WIB)</div>
                     </div>
+                    @endif
                 </div>
 
+                @if($nearestService)
                 <!-- Main active service block -->
                 <div class="bg-surface rounded-3xl shadow-soft border border-accent overflow-hidden flex flex-col md:flex-row">
                     <!-- Image Container with absolute tag -->
-                    <div class="w-full md:w-5/12 h-64 md:h-auto relative">
-                        <img src="https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=800&q=80" alt="Sunday Service Communion" class="w-full h-full object-cover">
-                        <div class="absolute inset-0 bg-primary/20"></div>
-                        <div class="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full animate-pulse shadow-md flex items-center gap-1.5">
-                            <span class="w-2 h-2 bg-surface rounded-full"></span> LIVE STREAMING
-                        </div>
+                    <div class="w-full md:w-5/12 min-h-[14rem] relative flex-shrink-0 flex items-stretch border-b md:border-b-0 md:border-r border-accent">
+                        @if($nearestService->banner_image)
+                            <img src="{{ asset('storage/'.$nearestService->banner_image) }}" alt="Service Banner" class="w-full h-full object-cover absolute inset-0">
+                            <div class="absolute inset-0 bg-primary/20"></div>
+                        @else
+                            <div class="w-full flex-grow bg-[#fae046] p-6 flex flex-col justify-center relative min-h-[240px]">
+                                <img src="{{ asset('storage/tyouth-logo.png') }}" class="absolute top-4 right-4 h-7 z-10" alt="Logo">
+                                <div class="relative z-20 w-[70%]">
+                                    <h4 class="font-bold text-[#46318e] text-xl md:text-2xl lg:text-3xl leading-snug drop-shadow-sm mb-2 line-clamp-3">{{ $nearestService->theme ?: 'Ibadah Pemuda' }}</h4>
+                                    <p class="font-bold text-[#46318e]/90 text-sm drop-shadow-sm line-clamp-2">{{ $nearestService->speaker ?: 'GKI Guntur' }}</p>
+                                </div>
+                                <img src="{{ asset('storage/jesus-love.png') }}" class="absolute -bottom-2 -right-2 h-36 object-contain z-10" alt="Jesus">
+                            </div>
+                        @endif
+                        
+                        @if($nearestService->is_live)
+                            <div class="absolute top-4 left-4 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full animate-pulse shadow-md flex items-center gap-1.5 z-30">
+                                <span class="w-2 h-2 bg-surface rounded-full"></span> NOW LIVE
+                            </div>
+                        @elseif($nearestService->is_finished && $nearestService->is_today)
+                            <div class="absolute top-4 left-4 bg-slate-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md flex items-center gap-1.5 z-30">
+                                <i class="fa-solid fa-check"></i> Ibadah Selesai
+                            </div>
+                        @endif
                     </div>
                     
                     <!-- Details Content -->
                     <div class="p-6 md:p-8 w-full md:w-7/12 flex flex-col justify-between">
                         <div>
-                            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full w-max mb-3 inline-block">Sharing Sunday</span>
-                            <h3 class="font-heading font-bold text-2xl text-text mb-2">Melepas Dahaga</h3>
+                            @php
+                                $typeLabels = [
+                                    'back_to_the_bible' => 'Back To The Bible',
+                                    'sharing_sunday' => 'Sharing Sunday',
+                                    'kebaktian_gabungan' => 'Kebaktian Gabungan',
+                                    'celebration_week' => 'Celebration Week',
+                                    'other' => $nearestService->custom_service_type ?? 'Lainnya',
+                                ];
+                            @endphp
+                            <span class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full w-max mb-3 inline-block">
+                                {{ $typeLabels[$nearestService->service_type] ?? 'Youth Service' }}
+                            </span>
+                            <h3 class="font-heading font-bold text-2xl text-text mb-2">{{ $nearestService->theme ?: 'Belum Ada Tema' }}</h3>
                             <p class="text-textlight text-sm mb-6 leading-relaxed">
-                                Ibadah rutin pemuda minggu ke-3. Mempelajari bagaimana kasih Kristus adalah sumber mata air hidup yang sejati bagi dahaga jiwa kita.
+                                {{ $nearestService->description ?: 'Mari hadir dan bergabung bersama dalam ibadah pemuda minggu ini.' }}
                             </p>
                             
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
@@ -121,14 +161,14 @@
                                     <i class="fa-solid fa-microphone w-8 h-8 rounded-lg bg-brandlight text-primary flex items-center justify-center mr-3 flex-shrink-0"></i>
                                     <div>
                                         <p class="text-xs text-textlight">Pembicara</p>
-                                        <p class="font-semibold text-text">Bpk. Teguh Juliawan</p>
+                                        <p class="font-semibold text-text">{{ $nearestService->speaker ?: '-' }}</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center text-textlight text-sm">
                                     <i class="fa-solid fa-location-dot w-8 h-8 rounded-lg bg-brandlight text-primary flex items-center justify-center mr-3 flex-shrink-0"></i>
                                     <div>
                                         <p class="text-xs text-textlight">Lokasi</p>
-                                        <p class="font-semibold text-text">Ruang Pemuda Lt. 1</p>
+                                        <p class="font-semibold text-text">{{ $nearestService->place ?: 'Ruang Pemuda Lt. 1' }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -136,7 +176,7 @@
                         
                         <!-- Actions -->
                         <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-accent">
-                            <a href="https://youtube.com" target="_blank" class="flex-1 bg-surface border border-accent text-text hover:bg-slate-50 dark:hover:bg-accent/50 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
+                            <a href="#" class="flex-1 bg-surface border border-accent text-text hover:bg-slate-50 dark:hover:bg-accent/50 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-book-open"></i> Unduh Warta
                             </a>
                             <button x-ref="btnMainPresence" @click="handlePresence" class="flex-1 bg-primary hover:bg-primary/80 text-white py-3 rounded-xl font-semibold transition shadow-soft hover:shadow-glow flex items-center justify-center gap-2">
@@ -145,6 +185,15 @@
                         </div>
                     </div>
                 </div>
+                @else
+                <div class="bg-surface rounded-3xl p-8 shadow-soft border border-accent text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-4">
+                        <i class="fa-regular fa-calendar-xmark text-2xl"></i>
+                    </div>
+                    <h3 class="font-bold text-xl text-text mb-2">Belum Ada Jadwal</h3>
+                    <p class="text-textlight text-sm">Jadwal ibadah pemuda terdekat belum dipublikasikan.</p>
+                </div>
+                @endif
             </div>
 
             <!-- Featured Events Subsection -->

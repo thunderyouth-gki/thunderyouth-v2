@@ -14,38 +14,82 @@
         
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 space-y-12 pb-20">
             <!-- Next Service Highlight -->
+            @if($nearestService)
             <div class="bg-surface rounded-3xl shadow-card border border-accent overflow-hidden">
                 <div class="p-6 md:p-8">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="font-heading font-bold text-xl text-primary">Ibadah Pemuda Terdekat</h2>
-                        <span class="bg-red-50 text-red-600 text-xs font-semibold px-2.5 py-1 rounded-full"><i class="fa-solid fa-clock mr-1"></i> Minggu Depan</span>
+                        @if($nearestService->is_live)
+                            <span class="bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full animate-pulse shadow-sm flex items-center gap-1.5">
+                                <span class="w-2 h-2 bg-surface rounded-full"></span> NOW LIVE
+                            </span>
+                        @elseif($nearestService->is_finished && $nearestService->is_today)
+                            <span class="bg-slate-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-sm flex items-center gap-1.5">
+                                <i class="fa-solid fa-check"></i> Selesai
+                            </span>
+                        @else
+                            <span class="bg-red-50 text-red-600 text-xs font-semibold px-2.5 py-1 rounded-full"><i class="fa-solid fa-clock mr-1"></i> Mendatang</span>
+                        @endif
                     </div>
-                    <div class="flex flex-col md:flex-row gap-6">
-                        <div class="w-full md:w-1/3 h-48 md:h-auto rounded-2xl overflow-hidden relative">
-                            <img src="https://images.unsplash.com/photo-1438232992991-995b7058bbb3?auto=format&fit=crop&w=600&q=80" class="w-full h-full object-cover" alt="Communion cup">
+                    <div class="flex flex-col md:flex-row gap-8 lg:gap-10">
+                        <div class="w-full md:w-5/12 lg:w-4/12 min-h-[12rem] lg:min-h-[14rem] rounded-2xl overflow-hidden relative flex-shrink-0 flex items-stretch shadow-sm border border-black/5">
+                            @if($nearestService->banner_image)
+                                <img src="{{ asset('storage/'.$nearestService->banner_image) }}" class="w-full h-full object-cover absolute inset-0" alt="Service Banner">
+                            @else
+                                <div class="w-full flex-grow bg-[#fae046] p-5 flex flex-col justify-center relative min-h-[220px]">
+                                    <img src="{{ asset('storage/tyouth-logo.png') }}" class="absolute top-3 right-3 sm:top-4 sm:right-4 h-6 sm:h-7" alt="Logo">
+                                    <div class="relative z-10 w-[65%] sm:w-[70%]">
+                                        <h4 class="font-bold text-[#46318e] text-lg sm:text-xl md:text-2xl leading-snug drop-shadow-sm mb-1 sm:mb-2 line-clamp-3">{{ $nearestService->theme ?: 'Ibadah Pemuda' }}</h4>
+                                        <p class="font-bold text-[#46318e]/90 text-xs sm:text-sm drop-shadow-sm line-clamp-2">{{ $nearestService->speaker ?: 'GKI Guntur' }}</p>
+                                    </div>
+                                    <img src="{{ asset('storage/jesus-love.png') }}" class="absolute -bottom-2 -right-2 h-28 sm:h-32 object-contain" alt="Jesus">
+                                </div>
+                            @endif
                         </div>
-                        <div class="w-full md:w-2/3 flex flex-col justify-between">
+                        <div class="w-full md:flex-1 flex flex-col justify-center py-2 md:py-4">
                             <div>
-                                <span class="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-full inline-block mb-3">Minggu Ke-4</span>
-                                <h3 class="font-heading font-bold text-2xl text-text mb-2">Berakar dan Bertumbuh</h3>
+                                @php
+                                    $typeLabels = [
+                                        'back_to_the_bible' => 'Back To The Bible',
+                                        'sharing_sunday' => 'Sharing Sunday',
+                                        'kebaktian_gabungan' => 'Kebaktian Gabungan',
+                                        'celebration_week' => 'Celebration Week',
+                                        'other' => $nearestService->custom_service_type ?? 'Lainnya',
+                                    ];
+                                @endphp
+                                <span class="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-full inline-block mb-3">{{ $typeLabels[$nearestService->service_type] ?? 'Youth Service' }}</span>
+                                <h3 class="font-heading font-bold text-2xl text-text mb-2">{{ $nearestService->theme ?: 'Belum Ada Tema' }}</h3>
                                 <p class="text-textlight text-sm mb-4 leading-relaxed">
-                                    Membahas pentingnya dasar firman yang kokoh agar kehidupan rohani kita tidak goyah oleh badai tantangan dunia modern saat ini.
+                                    {{ $nearestService->description ?: 'Mari hadir dan bergabung bersama dalam ibadah pemuda minggu ini.' }}
                                 </p>
                             </div>
-                            <div class="grid grid-cols-2 gap-4 mb-4 border-t border-accent pt-4">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4 border-t border-accent pt-4">
                                 <div>
-                                    <p class="text-xs text-textlight">Pembicara</p>
-                                    <p class="text-sm font-semibold text-text">Pdt. Samuel Krispradipta</p>
+                                    <p class="text-xs text-textlight mb-1">Pembicara</p>
+                                    <p class="text-sm font-semibold text-text">{{ $nearestService->speaker ?: '-' }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-xs text-textlight">Waktu</p>
-                                    <p class="text-sm font-semibold text-text">28 Juni 2026 - 09:30</p>
+                                    <p class="text-xs text-textlight mb-1">Tanggal</p>
+                                    <p class="text-sm font-semibold text-text">{{ $nearestService->service_date->format('d F Y') }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-textlight mb-1">Waktu</p>
+                                    <p class="text-sm font-semibold text-text">{{ $nearestService->start_time ? date('H:i', strtotime($nearestService->start_time)) : '-' }} {{ $nearestService->end_time ? ' - '.date('H:i', strtotime($nearestService->end_time)) : '' }}</p>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            @else
+            <div class="bg-surface rounded-3xl p-8 shadow-card border border-accent text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-4">
+                    <i class="fa-regular fa-calendar-xmark text-2xl"></i>
+                </div>
+                <h3 class="font-bold text-xl text-text mb-2">Belum Ada Jadwal</h3>
+                <p class="text-textlight text-sm">Jadwal ibadah pemuda terdekat belum dipublikasikan.</p>
+            </div>
+            @endif
 
             <!-- Past Services -->
             <div>
@@ -54,40 +98,32 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Service 1 -->
+                    @forelse($pastServices as $service)
                     <div class="bg-surface rounded-3xl p-6 shadow-soft border border-accent flex flex-col justify-between hover:shadow-card transition">
                         <div>
                             <div class="flex justify-between items-start mb-4">
                                 <span class="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">Ibadah Selesai</span>
-                                <span class="text-xs text-textlight font-medium">14 Juni 2026</span>
+                                <span class="text-xs text-textlight font-medium">{{ $service->service_date->format('d M Y') }}</span>
                             </div>
-                            <h3 class="font-bold text-lg text-text mb-2">Menjadi Terang</h3>
-                            <p class="text-xs text-textlight mb-4 line-clamp-2">Bagaimana peran pemuda membawa damai sejahtera dan pengaruh positif di lingkungan kampus dan pekerjaan.</p>
+                            <h3 class="font-bold text-lg text-text mb-2">{{ $service->theme ?: 'Ibadah Pemuda' }}</h3>
+                            <p class="text-xs text-textlight mb-4 line-clamp-2">{{ $service->description ?: '-' }}</p>
                         </div>
                         <div class="border-t border-accent pt-4 mt-4 flex justify-between items-center text-xs">
-                            <span class="font-medium text-primary">Pdt. Rahmat Santoso</span>
-                            <button class="text-textlight hover:text-primary transition font-semibold flex items-center gap-1">
-                                <i class="fa-regular fa-circle-play text-sm text-secondary"></i> Tonton Rekaman
-                            </button>
+                            <span class="font-medium text-primary">{{ $service->speaker ?: '-' }}</span>
+                            @auth
+                                <span class="bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full font-semibold flex items-center gap-1">
+                                    <i class="fa-solid fa-check text-xs"></i> Hadir
+                                </span>
+                            @else
+                                <span class="text-textlight text-xs italic">Login untuk konfirmasi kehadiran</span>
+                            @endauth
                         </div>
                     </div>
-                    <!-- Service 2 -->
-                    <div class="bg-surface rounded-3xl p-6 shadow-soft border border-accent flex flex-col justify-between hover:shadow-card transition">
-                        <div>
-                            <div class="flex justify-between items-start mb-4">
-                                <span class="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">Ibadah Selesai</span>
-                                <span class="text-xs text-textlight font-medium">07 Juni 2026</span>
-                            </div>
-                            <h3 class="font-bold text-lg text-text mb-2">Kasih yang Memulihkan</h3>
-                            <p class="text-xs text-textlight mb-4 line-clamp-2">Merenungkan kasih tanpa syarat Kristus yang sanggup memulihkan setiap hati yang terluka dan kecewa.</p>
-                        </div>
-                        <div class="border-t border-accent pt-4 mt-4 flex justify-between items-center text-xs">
-                            <span class="font-medium text-primary">Pnt. Mariana Hartono</span>
-                            <button class="text-textlight hover:text-primary transition font-semibold flex items-center gap-1">
-                                <i class="fa-regular fa-circle-play text-sm text-secondary"></i> Tonton Rekaman
-                            </button>
-                        </div>
+                    @empty
+                    <div class="col-span-1 md:col-span-2 bg-surface rounded-3xl p-6 shadow-soft border border-accent text-center text-textlight py-10">
+                        Belum ada kebaktian yang berlalu di bulan ini.
                     </div>
+                    @endforelse
                 </div>
             </div>
 

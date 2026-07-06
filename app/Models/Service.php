@@ -40,4 +40,65 @@ class Service extends Model
             'offering_amount' => 'decimal:2',
         ];
     }
+
+    protected function isToday(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::get(fn () => $this->service_date->isToday());
+    }
+
+    protected function parsedStartTime(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+            if (!$this->start_time) return null;
+            preg_match('/(\d{1,2})[:.](\d{2})/', $this->start_time, $matches);
+            if (count($matches) >= 3) {
+                return $matches[1] . ':' . $matches[2];
+            }
+            return null;
+        });
+    }
+
+    protected function parsedEndTime(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+            if (!$this->end_time) return null;
+            preg_match('/(\d{1,2})[:.](\d{2})/', $this->end_time, $matches);
+            if (count($matches) >= 3) {
+                return $matches[1] . ':' . $matches[2];
+            }
+            return null;
+        });
+    }
+
+    protected function isLive(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+            if (!$this->is_today) return false;
+            $start = $this->parsed_start_time;
+            $end = $this->parsed_end_time;
+            if (!$start || !$end) return false;
+
+            $now = now();
+            $startTime = \Illuminate\Support\Carbon::parse($this->service_date->format('Y-m-d') . ' ' . $start);
+            $endTime = \Illuminate\Support\Carbon::parse($this->service_date->format('Y-m-d') . ' ' . $end);
+
+            return $now->between($startTime, $endTime);
+        });
+    }
+
+    protected function isFinished(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::get(function () {
+            if (now()->startOfDay()->isAfter($this->service_date)) {
+                return true;
+            }
+            if ($this->is_today) {
+                $end = $this->parsed_end_time;
+                if (!$end) return false;
+                $endTime = \Illuminate\Support\Carbon::parse($this->service_date->format('Y-m-d') . ' ' . $end);
+                return now()->isAfter($endTime);
+            }
+            return false;
+        });
+    }
 }

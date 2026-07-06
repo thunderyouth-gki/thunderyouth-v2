@@ -3,10 +3,11 @@
 use App\Livewire\Admin\PermissionManager;
 use App\Livewire\Admin\RoleManager;
 use App\Livewire\Admin\UserAccessManager;
+use App\Http\Controllers\PublicController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home')->name('home');
-Route::view('/services', 'services')->name('services');
+Route::get('/', [PublicController::class, 'home'])->name('home');
+Route::get('/services', [PublicController::class, 'services'])->name('services');
 Route::view('/events', 'events')->name('events');
 Route::view('/prayer-tree', 'prayer')->name('prayer');
 
