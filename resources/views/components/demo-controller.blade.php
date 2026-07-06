@@ -78,11 +78,11 @@
     
     <!-- Minimized Floating Button -->
     <button x-show="minimize" @mousedown="startDrag" @touchstart="startDrag" @click="handleClick" class="bg-primary hover:bg-primary/90 text-white w-12 h-12 rounded-full shadow-2xl flex items-center justify-center border-2 border-white/20 transition transform hover:scale-105 active:scale-95 cursor-move" style="display: none;">
-        <i class="fa-solid fa-flask text-lg text-secondary animate-pulse"></i>
+        <i class="fa-solid fa-flask text-lg text-secondary"></i>
     </button>
 
     <!-- Full Panel Sandbox -->
-    <div x-show="!minimize" 
+    <div x-show="!minimize" style="display: none;"
          :class="{
              '-translate-x-[calc(100%-48px)]': x > window.innerWidth / 2,
              '-translate-y-[calc(100%-48px)]': y > window.innerHeight / 2
