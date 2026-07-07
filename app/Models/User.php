@@ -31,6 +31,9 @@ use Spatie\Permission\Traits\HasRoles;
  */
 #[Fillable(['name', 'email', 'password', 'is_active'])]
 #[Hidden(['password', 'two_factor_secret', 'two_factor_recovery_codes', 'remember_token'])]
+/**
+ * @property-read \App\Models\Member|null $member
+ */
 class User extends Authenticatable implements PasskeyUser
 {
     /** @use HasFactory<UserFactory> */
@@ -72,6 +75,9 @@ class User extends Authenticatable implements PasskeyUser
 
     /**
      * Get the associated member profile.
+     */
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne<\App\Models\Member, $this>
      */
     public function member(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
