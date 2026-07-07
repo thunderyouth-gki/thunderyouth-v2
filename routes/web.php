@@ -16,11 +16,15 @@ Route::get('/services', [PublicController::class, 'services'])->name('services')
 Route::view('/events', 'events')->name('events');
 Route::view('/prayer-tree', 'prayer')->name('prayer');
 
+// Guest Attendance Route
+Route::get('/guest/attendance', \App\Livewire\Jemaat\GuestAttendance::class)->name('guest.attendance');
+
+// Attendance Verification Routes (Both routes will check auth inside the controller)
+Route::get('/attendance/nfc/current', [AttendanceController::class, 'verifyViaNfc'])->name('attendance.nfc');
+Route::get('/attendance/qr/{service}', [AttendanceController::class, 'verifyViaQr'])->name('attendance.qr')->middleware('signed:relative');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::underConstruction('dashboard', 'dashboard')->name('dashboard');
-
-    // Attendance Verification Routes
-    Route::get('/attendance/nfc/current', [AttendanceController::class, 'verifyViaNfc'])->name('attendance.nfc');
 
     // Debug route to see what ValidateSignature sees
     Route::get('/debug-signature', function (Request $request) {
@@ -36,8 +40,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'is_identical' => $webGeneratedUrl === 'http://localhost:8000/attendance/qr/2?signature='.$request->query('signature'),
         ];
     });
-
-    Route::get('/attendance/qr/{service}', [AttendanceController::class, 'verifyViaQr'])->name('attendance.qr')->middleware('signed:relative');
 });
 
 require __DIR__.'/settings.php';

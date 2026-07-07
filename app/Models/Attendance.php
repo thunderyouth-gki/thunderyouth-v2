@@ -14,6 +14,7 @@ class Attendance extends Model
         'service_id',
         'member_id',
         'guest_name',
+        'device_id',
         'method',
         'check_in_time',
     ];
