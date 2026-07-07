@@ -25,7 +25,7 @@ class MarkAttendance extends Component
 
     public string $otp = '';
 
-    public function mount(?Service $service = null)
+    public function mount(?Service $service = null): void
     {
         if ($service) {
             $this->serviceId = $service->id;
@@ -42,7 +42,7 @@ class MarkAttendance extends Component
         }
     }
 
-    public function verifyCoordinates($latitude, $longitude)
+    public function verifyCoordinates(float $latitude, float $longitude): void
     {
         $this->isVerifying = true;
         $this->errorMessage = null;
@@ -75,7 +75,7 @@ class MarkAttendance extends Component
      * Calculate the great-circle distance between two points on the Earth.
      * Returns distance in meters.
      */
-    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    private function calculateDistance(float $lat1, float $lon1, float $lat2, float $lon2): float
     {
         $earthRadius = 6371000; // in meters
 
@@ -91,7 +91,7 @@ class MarkAttendance extends Component
         return $earthRadius * $c;
     }
 
-    public function submitOtp()
+    public function submitOtp(): void
     {
         $this->errorMessage = null;
 
@@ -116,7 +116,7 @@ class MarkAttendance extends Component
         }
     }
 
-    public function render()
+    public function render(): \Illuminate\View\View
     {
         return view('livewire.jemaat.mark-attendance');
     }

@@ -10,7 +10,7 @@ class AttendanceController extends Controller
     /**
      * Verify attendance via QR Code (Signed URL)
      */
-    public function verifyViaQr(Request $request, Service $service)
+    public function verifyViaQr(Request $request, Service $service): \Illuminate\View\View
     {
         // Route middleware 'signed:relative' already ensures the signature is valid.
 
@@ -33,7 +33,7 @@ class AttendanceController extends Controller
     /**
      * Verify attendance via NFC (Static URL -> GPS Validation)
      */
-    public function verifyViaNfc(Request $request)
+    public function verifyViaNfc(Request $request): \Illuminate\View\View
     {
         // NFC tags use a static URL that redirects here.
         // We find the active service and render the Livewire component
