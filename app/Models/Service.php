@@ -122,4 +122,20 @@ class Service extends Model
             return false;
         });
     }
+
+    /**
+     * Get the signed URL for QR code verification.
+     *
+     * @return string
+     */
+    public function qrVerificationUrl(): string
+    {
+        // Use relative URL for the signature so that host/port mismatches 
+        // between CLI (Tinker) and Web (Browser) are ignored.
+        $relativeUrl = \Illuminate\Support\Facades\URL::signedRoute('attendance.qr', [
+            'service' => $this->id
+        ], null, false);
+        
+        return url($relativeUrl);
+    }
 }
