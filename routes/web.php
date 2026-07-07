@@ -13,6 +13,26 @@ Route::view('/prayer-tree', 'prayer')->name('prayer');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::underConstruction('dashboard', 'dashboard')->name('dashboard');
+
+    // Attendance Verification Routes
+    Route::get('/attendance/nfc/current', [\App\Http\Controllers\AttendanceController::class, 'verifyViaNfc'])->name('attendance.nfc');
+    
+    // Debug route to see what ValidateSignature sees
+    Route::get('/debug-signature', function (\Illuminate\Http\Request $request) {
+        $service = \App\Models\Service::find(2); // assuming ID 2 is what they tested
+        if (!$service) {
+            $service = \App\Models\Service::latest()->first();
+        }
+        
+        $webGeneratedUrl = $service ? $service->qrVerificationUrl() : 'No service found';
+        
+        return [
+            'web_generated_url' => $webGeneratedUrl,
+            'is_identical' => $webGeneratedUrl === 'http://localhost:8000/attendance/qr/2?signature=' . $request->query('signature'),
+        ];
+    });
+
+    Route::get('/attendance/qr/{service}', [\App\Http\Controllers\AttendanceController::class, 'verifyViaQr'])->name('attendance.qr')->middleware('signed:relative');
 });
 
 require __DIR__.'/settings.php';
