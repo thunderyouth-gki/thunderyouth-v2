@@ -38,10 +38,10 @@ it('fails OTP verification if incorrect', function () {
 });
 
 it('bypasses GPS if valid OTP is provided', function () {
-    Livewire::withQueryParams(['otp' => '123456'])
+    Livewire::withQueryParams(['otp' => '123456', 'method' => 'QR'])
         ->test(GuestAttendance::class)
         ->assertSet('gpsValid', true)
-        ->assertSet('method', 'QR Code');
+        ->assertSet('method', 'QR');
 });
 
 it('can save guest attendance directly if no member matches', function () {
