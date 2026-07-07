@@ -124,6 +124,12 @@
             <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.services.*') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
                 <i class="fa-solid fa-calendar-days w-5 text-center"></i> Services
             </a>
+            <a href="{{ route('admin.members') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.members') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <i class="fa-solid fa-address-book w-5 text-center"></i> Members
+            </a>
+            <a href="{{ route('admin.attendances') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.attendances') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <i class="fa-solid fa-clipboard-user w-5 text-center"></i> Attendances
+            </a>
             
             @canany(['users.view', 'roles.view', 'permissions.view'])
                 <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mt-6 mb-2 px-2">Access Control</div>
@@ -176,10 +182,10 @@
             <!-- User Button -->
             <div @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-3 mb-4 cursor-pointer hover:bg-accent/20 p-2 rounded-xl transition group">
                 <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-soft group-hover:scale-105 transition-transform">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                    {{ strtoupper(substr(auth()->user()->member?->name ?? auth()->user()->name, 0, 2)) }}
                 </div>
                 <div class="overflow-hidden flex-1">
-                    <div class="text-sm font-bold text-text truncate group-hover:text-primary transition-colors">{{ auth()->user()->name }}</div>
+                    <div class="text-sm font-bold text-text truncate group-hover:text-primary transition-colors">{{ auth()->user()->member?->name ?? auth()->user()->name }}</div>
                     <div class="text-[10px] text-primary font-bold uppercase truncate">{{ auth()->user()->roles->first()?->name ?? 'Jemaat' }}</div>
                 </div>
                 <i class="fa-solid fa-chevron-up text-textlight text-xs transition-transform duration-200" :class="{'rotate-180': userMenuOpen}"></i>

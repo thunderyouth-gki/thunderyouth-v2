@@ -196,6 +196,14 @@ class UserAccessManager extends Component
         }
 
         $user->save();
+        
+        // Sync to Member if exists
+        if ($user->member) {
+            $user->member->update([
+                'name' => $this->editName,
+                'email' => $this->editEmail,
+            ]);
+        }
 
         $this->reset(['editUserId', 'editName', 'editEmail', 'editPassword']);
         \Flux::modal('edit-user-modal')->close();

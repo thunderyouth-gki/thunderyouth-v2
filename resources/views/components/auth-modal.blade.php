@@ -83,8 +83,13 @@
             </button>
             
             
-            <div class="mt-6 text-center text-xs text-textlight">
-                Belum memiliki akun? <button @click="view = 'register'" class="text-primary font-bold hover:underline focus:outline-none">Daftarkan Sekarang</button>
+            <div class="mt-6 text-center text-xs text-textlight flex flex-col gap-2">
+                <div>
+                    Belum memiliki akun? <button @click="view = 'register'" class="text-primary font-bold hover:underline focus:outline-none">Daftarkan Sekarang</button>
+                </div>
+                <div class="pt-2 border-t border-accent mt-2">
+                    Bukan anggota? <a href="{{ route('guest.attendance') }}" class="text-primary font-bold hover:underline">Klik Disini</a>
+                </div>
             </div>
         </div>
 

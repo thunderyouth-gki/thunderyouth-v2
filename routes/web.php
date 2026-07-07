@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PublicController;
+use App\Livewire\Admin\AttendanceManager;
+use App\Livewire\Admin\MemberManager;
 use App\Livewire\Admin\PermissionManager;
 use App\Livewire\Admin\RoleManager;
 use App\Livewire\Admin\UserAccessManager;
@@ -14,11 +16,15 @@ Route::get('/services', [PublicController::class, 'services'])->name('services')
 Route::view('/events', 'events')->name('events');
 Route::view('/prayer-tree', 'prayer')->name('prayer');
 
+// Guest Attendance Route
+Route::get('/guest/attendance', \App\Livewire\Jemaat\GuestAttendance::class)->name('guest.attendance');
+
+// Attendance Verification Routes (Both routes will check auth inside the controller)
+Route::get('/attendance/nfc/current', [AttendanceController::class, 'verifyViaNfc'])->name('attendance.nfc');
+Route::get('/attendance/qr/{service}', [AttendanceController::class, 'verifyViaQr'])->name('attendance.qr')->middleware('signed:relative');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::underConstruction('dashboard', 'dashboard')->name('dashboard');
-
-    // Attendance Verification Routes
-    Route::get('/attendance/nfc/current', [AttendanceController::class, 'verifyViaNfc'])->name('attendance.nfc');
 
     // Debug route to see what ValidateSignature sees
     Route::get('/debug-signature', function (Request $request) {
@@ -34,8 +40,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'is_identical' => $webGeneratedUrl === 'http://localhost:8000/attendance/qr/2?signature='.$request->query('signature'),
         ];
     });
-
-    Route::get('/attendance/qr/{service}', [AttendanceController::class, 'verifyViaQr'])->name('attendance.qr')->middleware('signed:relative');
 });
 
 require __DIR__.'/settings.php';
@@ -50,6 +54,11 @@ Route::middleware(['auth', 'role:Root|Pengurus'])->prefix('admin')->name('admin.
     Route::livewire('/services', 'pages::admin.services.index')->name('services.index');
     Route::livewire('/services/create', 'pages::admin.services.form')->name('services.create');
     Route::livewire('/services/{service}/edit', 'pages::admin.services.form')->name('services.edit');
+
+    // Members & Attendances
+    Route::get('/members', MemberManager::class)->name('members');
+    Route::get('/attendances', AttendanceManager::class)->name('attendances');
+
     Route::livewire('/profile', 'pages::admin.profile')->name('profile');
     Route::livewire('/security', 'pages::admin.security')
         ->middleware(['password.confirm'])

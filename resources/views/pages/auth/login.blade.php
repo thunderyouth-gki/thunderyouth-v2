@@ -10,6 +10,15 @@
 
         <x-auth-session-status class="mb-4 text-center text-sm font-bold text-emerald-600 bg-emerald-50 py-2 rounded-lg" :status="session('status')" />
 
+        @if (session('message'))
+            <div class="mb-4 p-4 text-sm font-bold text-blue-800 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl flex items-start gap-3 border border-blue-200 dark:border-blue-800">
+                <i class="fa-solid fa-circle-info mt-0.5 text-blue-600 dark:text-blue-400 text-lg"></i>
+                <div>
+                    {{ session('message') }}
+                </div>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('login.store') }}" class="space-y-4">
             @csrf
 
@@ -89,8 +98,13 @@
             <p x-show="error" x-text="error" class="text-[10px] text-red-500 font-semibold mt-2 text-center" x-cloak></p>
         </div>
 
-        <div class="mt-6 text-center text-xs text-textlight">
-            {{ __('Don\'t have an account?') }} <a href="{{ route('register') }}" class="text-primary font-bold hover:underline" wire:navigate>{{ __('Sign up') }}</a>
+        <div class="mt-6 text-center text-xs text-textlight flex flex-col gap-2">
+            <div>
+                {{ __('Don\'t have an account?') }} <a href="{{ route('register') }}" class="text-primary font-bold hover:underline" wire:navigate>{{ __('Sign up') }}</a>
+            </div>
+            <div class="pt-2 border-t border-accent mt-2">
+                {{ __('Not a member?') }} <a href="{{ route('guest.attendance') }}" class="text-primary font-bold hover:underline" wire:navigate>{{ __('Click Here') }}</a>
+            </div>
         </div>
     </div>
 </x-layouts.auth>

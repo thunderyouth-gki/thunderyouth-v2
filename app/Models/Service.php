@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
@@ -13,8 +14,28 @@ use Illuminate\Support\Facades\URL;
  * @property string|null $parsed_start_time
  * @property string|null $parsed_end_time
  */
+/**
+ * @property int $id
+ * @property string|null $theme
+ * @property string|null $speaker
+ * @property string|null $place
+ * @property \Illuminate\Support\Carbon $service_date
+ * @property string $start_time
+ * @property string $end_time
+ * @property string $service_type
+ * @property string|null $custom_service_type
+ * @property string|null $description
+ * @property string|null $banner_image
+ * @property bool $is_live
+ * @property bool $is_finished
+ * @property string|null $attendance_otp
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class Service extends Model
 {
+    /** @use HasFactory<\Database\Factories\ServiceFactory> */
+    use HasFactory;
     protected $fillable = [
         'service_date',
         'service_type',
