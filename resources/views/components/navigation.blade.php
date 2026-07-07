@@ -41,12 +41,12 @@
                     @auth
                         <div class="flex items-center gap-3 cursor-pointer group" x-data="{ userMenuOpen: false }" @click.away="userMenuOpen = false">
                             <div class="text-right hidden md:block" @click="userMenuOpen = !userMenuOpen">
-                                <div class="text-sm font-bold text-text">{{ auth()->user()->name }}</div>
+                                <div class="text-sm font-bold text-text">{{ auth()->user()->member?->name ?? auth()->user()->name }}</div>
                                 <div class="text-[10px] text-textlight uppercase">{{ auth()->user()->roles->first()?->name ?? 'Jemaat' }}</div>
                             </div>
                             <div class="relative">
                                 <div @click="userMenuOpen = !userMenuOpen" class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-soft hover:opacity-90 transition">
-                                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                                    {{ strtoupper(substr(auth()->user()->member?->name ?? auth()->user()->name, 0, 2)) }}
                                 </div>
                                 
                                 <div x-show="userMenuOpen" x-cloak class="absolute top-12 right-0 bg-surface rounded-xl shadow-card border border-accent w-48 py-2 text-left z-50">

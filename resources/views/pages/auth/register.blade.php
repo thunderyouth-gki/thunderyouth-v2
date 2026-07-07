@@ -5,6 +5,15 @@
             <p class="text-xs text-textlight mt-1">{{ __('Please enter your details to sign up') }}</p>
         </div>
 
+        @if (session('message'))
+            <div class="mb-4 p-4 text-sm font-bold text-blue-800 bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 rounded-xl flex items-start gap-3 border border-blue-200 dark:border-blue-800">
+                <i class="fa-solid fa-circle-info mt-0.5 text-blue-600 dark:text-blue-400 text-lg"></i>
+                <div>
+                    {{ session('message') }}
+                </div>
+            </div>
+        @endif
+
         <form method="POST" action="{{ route('register.store') }}" class="space-y-4">
             @csrf
 

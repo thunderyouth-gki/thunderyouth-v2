@@ -71,6 +71,14 @@ class User extends Authenticatable implements PasskeyUser
     }
 
     /**
+     * Get the associated member profile.
+     */
+    public function member(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Member::class);
+    }
+
+    /**
      * Boot the model.
      */
     protected static function booted(): void

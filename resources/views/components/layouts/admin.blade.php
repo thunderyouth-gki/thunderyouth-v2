@@ -182,10 +182,10 @@
             <!-- User Button -->
             <div @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-3 mb-4 cursor-pointer hover:bg-accent/20 p-2 rounded-xl transition group">
                 <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-soft group-hover:scale-105 transition-transform">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                    {{ strtoupper(substr(auth()->user()->member?->name ?? auth()->user()->name, 0, 2)) }}
                 </div>
                 <div class="overflow-hidden flex-1">
-                    <div class="text-sm font-bold text-text truncate group-hover:text-primary transition-colors">{{ auth()->user()->name }}</div>
+                    <div class="text-sm font-bold text-text truncate group-hover:text-primary transition-colors">{{ auth()->user()->member?->name ?? auth()->user()->name }}</div>
                     <div class="text-[10px] text-primary font-bold uppercase truncate">{{ auth()->user()->roles->first()?->name ?? 'Jemaat' }}</div>
                 </div>
                 <i class="fa-solid fa-chevron-up text-textlight text-xs transition-transform duration-200" :class="{'rotate-180': userMenuOpen}"></i>
