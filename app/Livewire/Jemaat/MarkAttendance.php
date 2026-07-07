@@ -3,19 +3,27 @@
 namespace App\Livewire\Jemaat;
 
 use App\Models\Service;
-use Livewire\Component;
 use Livewire\Attributes\Locked;
+use Livewire\Component;
 
 class MarkAttendance extends Component
 {
     #[Locked]
     public ?int $serviceId = null;
+
     public bool $isLive = false;
+
     public bool $isFinished = false;
 
     public bool $isVerifying = false;
+
+    public bool $gpsValid = false;
+
     public bool $verificationSuccess = false;
+
     public ?string $errorMessage = null;
+
+    public string $otp = '';
 
     public function mount(?Service $service = null)
     {
@@ -39,9 +47,10 @@ class MarkAttendance extends Component
         $this->isVerifying = true;
         $this->errorMessage = null;
 
-        if (!$this->serviceId) {
+        if (! $this->serviceId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
             $this->isVerifying = false;
+
             return;
         }
 
@@ -52,7 +61,7 @@ class MarkAttendance extends Component
         $distance = $this->calculateDistance($latitude, $longitude, $churchLat, $churchLng);
 
         if ($distance <= $maxRadius) {
-            $this->verificationSuccess = true;
+            $this->gpsValid = true;
         } else {
             // Round to nearest integer for display
             $distanceFormatted = round($distance);
@@ -80,6 +89,31 @@ class MarkAttendance extends Component
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadius * $c;
+    }
+
+    public function submitOtp()
+    {
+        $this->errorMessage = null;
+
+        $service = Service::find($this->serviceId);
+
+        if (! $service || ! $service->is_live) {
+            $this->errorMessage = 'Ibadah tidak sedang berlangsung.';
+
+            return;
+        }
+
+        if (! $service->attendance_otp) {
+            $this->errorMessage = 'Sistem OTP belum dikonfigurasi untuk ibadah ini.';
+
+            return;
+        }
+
+        if (trim($this->otp) === $service->attendance_otp) {
+            $this->verificationSuccess = true;
+        } else {
+            $this->errorMessage = 'Kode OTP tidak valid.';
+        }
     }
 
     public function render()

@@ -8,12 +8,20 @@ use Livewire\Component;
 class HomePresenceButton extends Component
 {
     public ?int $serviceId = null;
+
     public bool $isLive = false;
+
     public bool $isFinished = false;
 
     public bool $isVerifying = false;
+
+    public bool $gpsValid = false;
+
     public bool $verificationSuccess = false;
+
     public ?string $errorMessage = null;
+
+    public string $otp = '';
 
     public function mount(?Service $service = null)
     {
@@ -36,10 +44,11 @@ class HomePresenceButton extends Component
         $this->isVerifying = true;
         $this->errorMessage = null;
 
-        if (!$this->serviceId) {
+        if (! $this->serviceId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
             $this->isVerifying = false;
             $this->dispatch('notify', message: $this->errorMessage, type: 'error');
+
             return;
         }
 
@@ -50,8 +59,8 @@ class HomePresenceButton extends Component
         $distance = $this->calculateDistance($latitude, $longitude, $churchLat, $churchLng);
 
         if ($distance <= $maxRadius) {
-            $this->verificationSuccess = true;
-            $this->dispatch('notify', message: 'Selamat! Kehadiran Anda berhasil diverifikasi.', type: 'success');
+            $this->gpsValid = true;
+            $this->dispatch('modal-show', name: 'otp-modal-'.$this->serviceId);
         } else {
             $distanceFormatted = round($distance);
             $this->errorMessage = "Lokasi terlalu jauh ({$distanceFormatted} m). Maksimal {$maxRadius} m.";
@@ -75,6 +84,31 @@ class HomePresenceButton extends Component
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadius * $c;
+    }
+
+    public function submitOtp()
+    {
+        $this->errorMessage = null;
+
+        $service = Service::find($this->serviceId);
+
+        if (! $service || ! $service->is_live) {
+            $this->dispatch('notify', message: 'Ibadah tidak sedang berlangsung.', type: 'error');
+            return;
+        }
+
+        if (! $service->attendance_otp) {
+            $this->dispatch('notify', message: 'Sistem OTP belum dikonfigurasi untuk ibadah ini.', type: 'error');
+            return;
+        }
+
+        if (trim($this->otp) === $service->attendance_otp) {
+            $this->verificationSuccess = true;
+            $this->dispatch('modal-close', name: 'otp-modal-'.$this->serviceId);
+            $this->dispatch('notify', message: 'Selamat! Kehadiran Anda berhasil diverifikasi.', type: 'success');
+        } else {
+            $this->dispatch('notify', message: 'Kode OTP tidak valid.', type: 'error');
+        }
     }
 
     public function render()

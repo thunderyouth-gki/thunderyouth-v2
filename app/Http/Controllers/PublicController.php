@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Service;
+use Illuminate\View\View;
 
 class PublicController extends Controller
 {
-    public function home(): \Illuminate\View\View
+    public function home(): View
     {
         $nearestService = Service::where('status', 'published')
             ->whereDate('service_date', '>=', now()->toDateString())
@@ -17,7 +17,7 @@ class PublicController extends Controller
         return view('home', compact('nearestService'));
     }
 
-    public function services(): \Illuminate\View\View
+    public function services(): View
     {
         $nearestService = Service::where('status', 'published')
             ->whereDate('service_date', '>=', now()->toDateString())
@@ -34,4 +34,3 @@ class PublicController extends Controller
         return view('services', compact('nearestService', 'pastServices'));
     }
 }
-

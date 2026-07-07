@@ -19,6 +19,26 @@
                     <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">Verifikasi Berhasil!</h4>
                     <p class="text-xs text-emerald-600 dark:text-emerald-500">Terima kasih, kehadiran Anda telah terverifikasi. Selamat beribadah!</p>
                 </div>
+            @elseif($gpsValid)
+                @if($errorMessage)
+                    <div class="p-4 mb-6 bg-red-50 dark:bg-red-500/10 rounded-2xl border border-red-200 dark:border-red-500/20 text-left flex items-start gap-3">
+                        <i class="fa-solid fa-triangle-exclamation text-red-500 mt-0.5"></i>
+                        <p class="text-sm text-red-700 dark:text-red-400">{{ $errorMessage }}</p>
+                    </div>
+                @endif
+                
+                <div class="p-5 bg-purple-50 dark:bg-purple-500/10 rounded-2xl border border-purple-200 dark:border-purple-500/20">
+                    <p class="text-sm text-purple-700 dark:text-purple-400 mb-4">Masukkan 6-digit kode OTP yang tertera di layar proyektor untuk mencatat kehadiran.</p>
+                    
+                    <form wire:submit.prevent="submitOtp" class="space-y-4">
+                        <div>
+                            <input type="text" wire:model="otp" maxlength="6" class="w-full text-center text-3xl font-black tracking-[0.5em] bg-white dark:bg-zinc-900 border border-purple-300 dark:border-purple-600 rounded-xl py-3 text-purple-900 dark:text-purple-100 focus:ring-4 focus:ring-purple-500/20 focus:border-purple-500 outline-none transition uppercase" placeholder="------" required>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-xl font-bold transition shadow-md shadow-purple-600/20 flex items-center justify-center gap-2">
+                            Konfirmasi Kehadiran
+                        </button>
+                    </form>
+                </div>
             @else
                 @if($errorMessage)
                     <div class="p-4 mb-6 bg-red-50 dark:bg-red-500/10 rounded-2xl border border-red-200 dark:border-red-500/20 text-left flex items-start gap-3">
