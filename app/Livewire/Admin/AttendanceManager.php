@@ -14,20 +14,30 @@ class AttendanceManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortField = 'id';
+
     public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     // Form state
     public ?int $manageAttendanceId = null;
+
     public ?int $deleteAttendanceId = null;
 
     public string $service_date = '';
+
     public bool $is_guest = false;
+
     public ?int $member_id = null;
+
     public string $memberSearch = '';
+
     public ?string $guest_name = null;
+
     public string $method = 'Manual';
+
     public ?string $check_in_time = null;
 
     public function updatingSearch(): void
@@ -45,6 +55,11 @@ class AttendanceManager extends Component
         }
     }
 
+    public function updatedServiceDate(): void
+    {
+        $this->resetValidation('service_date');
+    }
+
     public function updatedMemberSearch(): void
     {
         $this->member_id = null;
@@ -60,8 +75,8 @@ class AttendanceManager extends Component
     private function resetForm(): void
     {
         $this->reset([
-            'manageAttendanceId', 'member_id', 
-            'guest_name', 'check_in_time', 'is_guest', 'service_date'
+            'manageAttendanceId', 'member_id',
+            'guest_name', 'check_in_time', 'is_guest', 'service_date',
         ]);
         $this->memberSearch = '';
         $this->method = 'Manual';
@@ -77,15 +92,15 @@ class AttendanceManager extends Component
     {
         $this->resetForm();
         $attendance = Attendance::findOrFail($id);
-        
+
         $this->manageAttendanceId = $attendance->id;
         $this->service_date = $attendance->service->service_date->format('Y-m-d');
-        
-        $this->is_guest = empty($attendance->member_id) && !empty($attendance->guest_name);
+
+        $this->is_guest = empty($attendance->member_id) && ! empty($attendance->guest_name);
         $this->member_id = $attendance->member_id;
-        $this->memberSearch = $attendance->member ? $attendance->member->name . ' (' . $attendance->member->member_number . ')' : '';
+        $this->memberSearch = $attendance->member ? $attendance->member->name.' ('.$attendance->member->member_number.')' : '';
         $this->guest_name = $attendance->guest_name;
-        
+
         $this->method = $attendance->method;
         $this->check_in_time = $attendance->check_in_time->format('H:i');
 
@@ -112,15 +127,16 @@ class AttendanceManager extends Component
         $validated = $this->validate($rules);
 
         $service = Service::whereDate('service_date', $validated['service_date'])->first();
-        if (!$service) {
-            $this->addError('service_date', 'No service found for the selected date.');
+        if (! $service) {
+            $this->addError('service_date', 'Service not found. Please pick another date.');
+
             return;
         }
 
         $validated['service_id'] = $service->id;
-        $validated['check_in_time'] = $validated['service_date'] . ' ' . $validated['check_in_time'] . ':00';
+        $validated['check_in_time'] = $validated['service_date'].' '.$validated['check_in_time'].':00';
         unset($validated['service_date']);
-        
+
         $validated['member_id'] = $this->is_guest ? null : $this->member_id;
         $validated['guest_name'] = $this->is_guest ? $this->guest_name : null;
 
@@ -158,22 +174,22 @@ class AttendanceManager extends Component
         $attendances = Attendance::with(['service', 'member'])
             ->when($this->search, function ($query) {
                 $query->whereHas('member', function ($q) {
-                    $q->where('name', 'like', '%' . $this->search . '%')
-                      ->orWhere('member_number', 'like', '%' . $this->search . '%');
+                    $q->where('name', 'like', '%'.$this->search.'%')
+                        ->orWhere('member_number', 'like', '%'.$this->search.'%');
                 })
-                ->orWhere('guest_name', 'like', '%' . $this->search . '%')
-                ->orWhereHas('service', function ($q) {
-                    $q->where('theme', 'like', '%' . $this->search . '%')
-                      ->orWhere('service_type', 'like', '%' . $this->search . '%');
-                });
+                    ->orWhere('guest_name', 'like', '%'.$this->search.'%')
+                    ->orWhereHas('service', function ($q) {
+                        $q->where('theme', 'like', '%'.$this->search.'%')
+                            ->orWhere('service_type', 'like', '%'.$this->search.'%');
+                    });
             })
             ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         $members = collect();
         if (strlen($this->memberSearch) > 0 && empty($this->member_id)) {
-            $members = Member::where('name', 'like', '%' . $this->memberSearch . '%')
-                ->orWhere('member_number', 'like', '%' . $this->memberSearch . '%')
+            $members = Member::where('name', 'like', '%'.$this->memberSearch.'%')
+                ->orWhere('member_number', 'like', '%'.$this->memberSearch.'%')
                 ->take(5)
                 ->get();
         }

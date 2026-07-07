@@ -123,10 +123,12 @@
                             </div>
                         </div>
                     @else
-                        <div class="text-sm text-red-500 mt-2 flex items-center gap-2">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                            <span>No service found for this date.</span>
-                        </div>
+                        @if(!$errors->has('service_date'))
+                            <div class="mt-3 text-sm font-medium text-red-500 dark:text-red-400 flex items-center gap-1.5">
+                                <flux:icon name="exclamation-triangle" variant="mini" />
+                                <span>No service found for this date.</span>
+                            </div>
+                        @endif
                     @endif
                 @endif
             </flux:field>
