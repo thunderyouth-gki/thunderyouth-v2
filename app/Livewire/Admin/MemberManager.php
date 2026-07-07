@@ -58,6 +58,13 @@ class MemberManager extends Component
     {
         $this->user_id = (string) $id;
         $this->userSearch = $name;
+        
+        if ($id) {
+            $user = User::find($id);
+            if ($user) {
+                $this->email = $user->email;
+            }
+        }
     }
 
     private function resetForm(): void
@@ -134,6 +141,11 @@ class MemberManager extends Component
             $message = 'Member created successfully!';
         }
 
+        // Sync name to User table if a User is linked
+        if (!empty($this->user_id)) {
+            User::where('id', $this->user_id)->update(['name' => $this->name]);
+        }
+
         \Flux::modal('manage-member-modal')->close();
         $this->dispatch('notify', message: $message);
     }
@@ -147,10 +159,18 @@ class MemberManager extends Component
     public function deleteMember(): void
     {
         if ($this->deleteMemberId) {
-            Member::findOrFail($this->deleteMemberId)->delete();
+            $member = Member::findOrFail($this->deleteMemberId);
+            $userId = $member->user_id;
+            
+            $member->delete();
+            
+            if ($userId) {
+                User::find($userId)?->delete();
+            }
+            
             $this->deleteMemberId = null;
             \Flux::modal('delete-member-modal')->close();
-            $this->dispatch('notify', message: 'Member deleted successfully.');
+            $this->dispatch('notify', message: 'Member and linked user account deleted successfully.');
         }
     }
 

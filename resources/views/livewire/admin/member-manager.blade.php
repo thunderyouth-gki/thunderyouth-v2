@@ -151,7 +151,14 @@
 
                         <flux:field>
                             <flux:label>Email Address</flux:label>
-                            <flux:input wire:model="email" type="email" placeholder="e.g. john@example.com" />
+                            <div class="relative">
+                                <flux:input wire:model="email" type="email" placeholder="e.g. john@example.com" :readonly="!empty($user_id)" :class="!empty($user_id) ? 'bg-slate-50 dark:bg-slate-800 text-slate-500' : ''" />
+                                @if(!empty($user_id))
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none" title="Email is synced with User Account">
+                                        <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
+                                    </div>
+                                @endif
+                            </div>
                             <flux:error name="email" />
                         </flux:field>
 
