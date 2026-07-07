@@ -70,7 +70,6 @@ class AttendanceManager extends Component
     public function openNewAttendanceModal(): void
     {
         $this->resetForm();
-        $this->check_in_time = now()->format('H:i');
         \Flux::modal('manage-attendance-modal')->show();
     }
 
