@@ -124,6 +124,12 @@
             <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.services.*') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
                 <i class="fa-solid fa-calendar-days w-5 text-center"></i> Services
             </a>
+            <a href="{{ route('admin.members') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.members') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <i class="fa-solid fa-address-book w-5 text-center"></i> Members
+            </a>
+            <a href="{{ route('admin.attendances') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.attendances') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <i class="fa-solid fa-clipboard-user w-5 text-center"></i> Attendances
+            </a>
             
             @canany(['users.view', 'roles.view', 'permissions.view'])
                 <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mt-6 mb-2 px-2">Access Control</div>

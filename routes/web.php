@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\PublicController;
+use App\Livewire\Admin\AttendanceManager;
+use App\Livewire\Admin\MemberManager;
 use App\Livewire\Admin\PermissionManager;
 use App\Livewire\Admin\RoleManager;
 use App\Livewire\Admin\UserAccessManager;
@@ -50,6 +52,11 @@ Route::middleware(['auth', 'role:Root|Pengurus'])->prefix('admin')->name('admin.
     Route::livewire('/services', 'pages::admin.services.index')->name('services.index');
     Route::livewire('/services/create', 'pages::admin.services.form')->name('services.create');
     Route::livewire('/services/{service}/edit', 'pages::admin.services.form')->name('services.edit');
+
+    // Members & Attendances
+    Route::get('/members', MemberManager::class)->name('members');
+    Route::get('/attendances', AttendanceManager::class)->name('attendances');
+
     Route::livewire('/profile', 'pages::admin.profile')->name('profile');
     Route::livewire('/security', 'pages::admin.security')
         ->middleware(['password.confirm'])
