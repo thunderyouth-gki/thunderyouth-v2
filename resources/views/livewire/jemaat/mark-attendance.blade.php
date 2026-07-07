@@ -11,13 +11,13 @@
             <h3 class="font-heading font-bold text-2xl text-text mb-2">Verifikasi Kehadiran</h3>
             <p class="text-textlight text-sm mb-6 max-w-sm mx-auto">Kami perlu memverifikasi lokasi Anda untuk mencatat kehadiran di kebaktian hari ini.</p>
 
-            @if($verificationSuccess)
+            @if($verificationSuccess || $hasAttended)
                 <div class="p-5 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-200 dark:border-emerald-500/20">
                     <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500 mb-3">
                         <i class="fa-solid fa-check text-xl"></i>
                     </div>
-                    <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">Verifikasi Berhasil!</h4>
-                    <p class="text-xs text-emerald-600 dark:text-emerald-500">Terima kasih, kehadiran Anda telah terverifikasi. Selamat beribadah!</p>
+                    <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">Sudah Absen!</h4>
+                    <p class="text-xs text-emerald-600 dark:text-emerald-500">Terima kasih, kehadiran Anda telah terverifikasi untuk ibadah ini.</p>
                 </div>
             @elseif($gpsValid)
                 @if($errorMessage)

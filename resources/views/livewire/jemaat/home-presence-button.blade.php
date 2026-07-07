@@ -39,7 +39,7 @@
         @endif
     }
 }" class="flex-1 flex">
-    @if($verificationSuccess)
+    @if($verificationSuccess || $hasAttended)
         <button disabled class="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-semibold transition shadow-soft flex items-center justify-center gap-2 cursor-default w-full">
             <i class="fa-solid fa-check mr-1"></i> Kehadiran Tersimpan
         </button>

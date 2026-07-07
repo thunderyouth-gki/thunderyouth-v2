@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Jemaat;
 
+use App\Models\Attendance;
 use App\Models\Service;
 use Livewire\Component;
 
@@ -18,6 +19,8 @@ class HomePresenceButton extends Component
     public bool $gpsValid = false;
 
     public bool $verificationSuccess = false;
+    
+    public bool $hasAttended = false;
 
     public ?string $errorMessage = null;
 
@@ -37,12 +40,51 @@ class HomePresenceButton extends Component
                 $this->isFinished = $activeService->is_finished;
             }
         }
+        
+        $this->checkIfAttended();
+    }
+    
+    private function checkIfAttended(): void
+    {
+        if (!$this->serviceId) {
+            return;
+        }
+        
+        if (auth()->check()) {
+            $user = auth()->user();
+            $memberId = $user->member ? $user->member->id : null;
+            $guestName = $user->member ? null : $user->name;
+
+            $this->hasAttended = Attendance::where('service_id', $this->serviceId)
+                ->where(function ($q) use ($memberId, $guestName) {
+                    if ($memberId) {
+                        $q->where('member_id', $memberId);
+                    } else {
+                        $q->where('guest_name', $guestName);
+                    }
+                })
+                ->exists();
+        } else {
+            $deviceId = \Illuminate\Support\Facades\Cookie::get('attendance_device_id');
+            if ($deviceId) {
+                $this->hasAttended = Attendance::where('service_id', $this->serviceId)
+                    ->where('device_id', $deviceId)
+                    ->exists();
+            }
+        }
     }
 
     public function verifyCoordinates(float $latitude, float $longitude): void
     {
         $this->isVerifying = true;
         $this->errorMessage = null;
+
+        if ($this->hasAttended) {
+            $this->errorMessage = 'Anda sudah mencatat kehadiran untuk ibadah ini.';
+            $this->isVerifying = false;
+            $this->dispatch('notify', message: $this->errorMessage, type: 'error');
+            return;
+        }
 
         if (! $this->serviceId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
@@ -90,6 +132,11 @@ class HomePresenceButton extends Component
     {
         $this->errorMessage = null;
 
+        if ($this->hasAttended) {
+            $this->dispatch('notify', message: 'Anda sudah mencatat kehadiran untuk ibadah ini.', type: 'error');
+            return;
+        }
+
         $service = Service::find($this->serviceId);
 
         if (! $service || ! $service->is_live) {
@@ -103,11 +150,46 @@ class HomePresenceButton extends Component
         }
 
         if (trim($this->otp) === $service->attendance_otp) {
+            $this->recordAttendance('GPS');
             $this->verificationSuccess = true;
+            $this->hasAttended = true;
             $this->dispatch('modal-close', name: 'otp-modal-'.$this->serviceId);
             $this->dispatch('notify', message: 'Selamat! Kehadiran Anda berhasil diverifikasi.', type: 'success');
         } else {
             $this->dispatch('notify', message: 'Kode OTP tidak valid.', type: 'error');
+        }
+    }
+    
+    protected function recordAttendance(string $method): void
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return;
+        }
+
+        $member = $user->member;
+        $memberId = $member ? $member->id : null;
+        $guestName = $member ? null : $user->name;
+
+        // Check again to avoid race conditions
+        $alreadyAttended = Attendance::where('service_id', $this->serviceId)
+            ->where(function ($q) use ($memberId, $guestName) {
+                if ($memberId) {
+                    $q->where('member_id', $memberId);
+                } else {
+                    $q->where('guest_name', $guestName);
+                }
+            })
+            ->exists();
+
+        if (!$alreadyAttended) {
+            Attendance::create([
+                'service_id' => $this->serviceId,
+                'member_id' => $memberId,
+                'guest_name' => $guestName,
+                'method' => $method,
+                'check_in_time' => now(),
+            ]);
         }
     }
 

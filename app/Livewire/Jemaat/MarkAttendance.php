@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Jemaat;
 
+use App\Models\Attendance;
 use App\Models\Service;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -21,12 +22,17 @@ class MarkAttendance extends Component
 
     public bool $verificationSuccess = false;
 
+    public bool $hasAttended = false;
+
     public ?string $errorMessage = null;
 
     public string $otp = '';
 
-    public function mount(?Service $service = null): void
+    public string $method = 'GPS';
+
+    public function mount(?Service $service = null, string $method = 'GPS'): void
     {
+        $this->method = $method;
         if ($service) {
             $this->serviceId = $service->id;
             $this->isLive = $service->is_live;
@@ -40,12 +46,41 @@ class MarkAttendance extends Component
                 $this->isFinished = $activeService->is_finished;
             }
         }
+
+        $this->checkIfAttended();
+    }
+
+    private function checkIfAttended(): void
+    {
+        if (!$this->serviceId || !auth()->check()) {
+            return;
+        }
+
+        $user = auth()->user();
+        $memberId = $user->member ? $user->member->id : null;
+        $guestName = $user->member ? null : $user->name;
+
+        $this->hasAttended = Attendance::where('service_id', $this->serviceId)
+            ->where(function ($q) use ($memberId, $guestName) {
+                if ($memberId) {
+                    $q->where('member_id', $memberId);
+                } else {
+                    $q->where('guest_name', $guestName);
+                }
+            })
+            ->exists();
     }
 
     public function verifyCoordinates(float $latitude, float $longitude): void
     {
         $this->isVerifying = true;
         $this->errorMessage = null;
+
+        if ($this->hasAttended) {
+            $this->errorMessage = 'Anda sudah mencatat kehadiran untuk ibadah ini.';
+            $this->isVerifying = false;
+            return;
+        }
 
         if (! $this->serviceId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
@@ -62,6 +97,7 @@ class MarkAttendance extends Component
 
         if ($distance <= $maxRadius) {
             $this->gpsValid = true;
+            $this->recordAttendance($this->method);
         } else {
             // Round to nearest integer for display
             $distanceFormatted = round($distance);
@@ -95,6 +131,11 @@ class MarkAttendance extends Component
     {
         $this->errorMessage = null;
 
+        if ($this->hasAttended) {
+            $this->errorMessage = 'Anda sudah mencatat kehadiran untuk ibadah ini.';
+            return;
+        }
+
         $service = Service::find($this->serviceId);
 
         if (! $service || ! $service->is_live) {
@@ -110,9 +151,44 @@ class MarkAttendance extends Component
         }
 
         if (trim($this->otp) === $service->attendance_otp) {
+            $this->recordAttendance('Manual');
             $this->verificationSuccess = true;
+            $this->hasAttended = true;
         } else {
             $this->errorMessage = 'Kode OTP tidak valid.';
+        }
+    }
+
+    protected function recordAttendance(string $method): void
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return;
+        }
+
+        $member = $user->member;
+        $memberId = $member ? $member->id : null;
+        $guestName = $member ? null : $user->name;
+
+        // Check if attendance already recorded today
+        $alreadyAttended = Attendance::where('service_id', $this->serviceId)
+            ->where(function ($q) use ($memberId, $guestName) {
+                if ($memberId) {
+                    $q->where('member_id', $memberId);
+                } else {
+                    $q->where('guest_name', $guestName);
+                }
+            })
+            ->exists();
+
+        if (!$alreadyAttended) {
+            Attendance::create([
+                'service_id' => $this->serviceId,
+                'member_id' => $memberId,
+                'guest_name' => $guestName,
+                'method' => $method,
+                'check_in_time' => now(),
+            ]);
         }
     }
 
