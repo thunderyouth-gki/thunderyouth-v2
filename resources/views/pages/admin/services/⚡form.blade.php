@@ -138,13 +138,13 @@ new #[Layout('components.layouts.admin')] class extends Component
             $rules['form.theme'] = 'required|string|max:255';
             $rules['form.speaker'] = 'required|string|max:255';
             $rules['form.start_time'] = 'required|string|max:255';
-            $rules['form.end_time'] = 'required|string|max:255';
+            $rules['form.end_time'] = 'required|string|max:255|after:form.start_time';
             $rules['form.place'] = 'required|string|max:255';
         } else {
             $rules['form.theme'] = 'nullable|string|max:255';
             $rules['form.speaker'] = 'nullable|string|max:255';
             $rules['form.start_time'] = 'nullable|string|max:255';
-            $rules['form.end_time'] = 'nullable|string|max:255';
+            $rules['form.end_time'] = 'nullable|string|max:255|after:form.start_time';
             $rules['form.place'] = 'nullable|string|max:255';
         }
 
@@ -154,6 +154,7 @@ new #[Layout('components.layouts.admin')] class extends Component
             'form.speaker.required' => 'Nama pembicara harus diisi jika jadwal berstatus dipublikasikan.',
             'form.start_time.required' => 'Waktu mulai harus diisi jika jadwal berstatus dipublikasikan.',
             'form.end_time.required' => 'Waktu selesai harus diisi jika jadwal berstatus dipublikasikan.',
+            'form.end_time.after' => 'Waktu selesai tidak boleh lebih awal dari waktu mulai.',
             'form.place.required' => 'Tempat ibadah harus diisi jika jadwal berstatus dipublikasikan.',
         ]);
         
