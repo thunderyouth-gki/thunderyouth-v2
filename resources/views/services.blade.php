@@ -13,6 +13,18 @@
         </div>
         
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20 space-y-12 pb-20">
+            @auth
+                @php
+                    // Check if there is an active service right now
+                    $activeService = \App\Models\Service::whereDate('service_date', today())->first();
+                @endphp
+                @if($activeService && $activeService->is_live)
+                    <div class="mb-12">
+                        <livewire:jemaat.mark-attendance :service="$activeService" />
+                    </div>
+                @endif
+            @endauth
+
             <!-- Next Service Highlight -->
             @if($nearestService)
             <div class="bg-surface rounded-3xl shadow-card border border-accent overflow-hidden">
@@ -127,12 +139,12 @@
                 </div>
             </div>
 
-            <div class="bg-purple-50 border-l-4 border-primary p-5 rounded-2xl flex gap-3">
+            <div class="bg-primary/5 dark:bg-primary/10 border-l-4 border-primary p-5 rounded-2xl flex gap-3">
                 <i class="fa-solid fa-database text-primary text-xl mt-0.5 flex-shrink-0"></i>
                 <div>
-                    <h4 class="font-bold text-primary text-sm mb-1">Status Sinkronisasi Database (KF11)</h4>
-                    <p class="text-xs text-primary/80 leading-relaxed">
-                        Informasi keagamaan dan jadwal ibadah ini ditarik secara dinamis dari tabel <code class="bg-surface/60 px-1 rounded font-bold">kebaktian</code> yang berelasi dengan entitas <code class="bg-surface/60 px-1 rounded font-bold">kegiatan</code> di sistem PostgreSQL/MySQL Anda via Eloquent ORM di Laravel.
+                    <h4 class="font-bold text-primary dark:text-primary-light text-sm mb-1">Status Sinkronisasi Database (KF11)</h4>
+                    <p class="text-xs text-primary/80 dark:text-primary-light/80 leading-relaxed">
+                        Informasi keagamaan dan jadwal ibadah ini ditarik secara dinamis dari tabel <code class="bg-surface/60 dark:bg-surface/10 px-1 rounded font-bold">kebaktian</code> yang berelasi dengan entitas <code class="bg-surface/60 dark:bg-surface/10 px-1 rounded font-bold">kegiatan</code> di sistem PostgreSQL/MySQL Anda via Eloquent ORM di Laravel.
                     </p>
                 </div>
             </div>

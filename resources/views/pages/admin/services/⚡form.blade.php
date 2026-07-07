@@ -138,13 +138,13 @@ new #[Layout('components.layouts.admin')] class extends Component
             $rules['form.theme'] = 'required|string|max:255';
             $rules['form.speaker'] = 'required|string|max:255';
             $rules['form.start_time'] = 'required|string|max:255';
-            $rules['form.end_time'] = 'required|string|max:255';
+            $rules['form.end_time'] = 'required|string|max:255|after:form.start_time';
             $rules['form.place'] = 'required|string|max:255';
         } else {
             $rules['form.theme'] = 'nullable|string|max:255';
             $rules['form.speaker'] = 'nullable|string|max:255';
             $rules['form.start_time'] = 'nullable|string|max:255';
-            $rules['form.end_time'] = 'nullable|string|max:255';
+            $rules['form.end_time'] = 'nullable|string|max:255|after:form.start_time';
             $rules['form.place'] = 'nullable|string|max:255';
         }
 
@@ -154,6 +154,7 @@ new #[Layout('components.layouts.admin')] class extends Component
             'form.speaker.required' => 'Nama pembicara harus diisi jika jadwal berstatus dipublikasikan.',
             'form.start_time.required' => 'Waktu mulai harus diisi jika jadwal berstatus dipublikasikan.',
             'form.end_time.required' => 'Waktu selesai harus diisi jika jadwal berstatus dipublikasikan.',
+            'form.end_time.after' => 'Waktu selesai tidak boleh lebih awal dari waktu mulai.',
             'form.place.required' => 'Tempat ibadah harus diisi jika jadwal berstatus dipublikasikan.',
         ]);
         
@@ -221,6 +222,14 @@ new #[Layout('components.layouts.admin')] class extends Component
             return redirect()->route('admin.services.index');
         }
     }
+
+    public function generateOtp()
+    {
+        if ($this->service) {
+            $this->service->generateOtp();
+            $this->service->refresh();
+        }
+    }
 };
 ?>
 
@@ -269,6 +278,82 @@ new #[Layout('components.layouts.admin')] class extends Component
 
     <form wire:submit.prevent="save('{{ $form['status'] }}')" class="space-y-8">
         
+        @if($service && $service->is_today)
+        <!-- Presensi & QR Code -->
+        <flux:card class="bg-purple-50 dark:bg-purple-900/10 border-purple-200 dark:border-purple-800/30">
+            <div class="flex flex-col sm:flex-row items-center gap-6">
+                <!-- QR Code Image -->
+                <div class="shrink-0 bg-white p-2 rounded-xl shadow-sm border border-zinc-200">
+                    @php
+                        // Jika belum ada OTP, generate otomatis pertama kali saat dilihat
+                        if (!$service->attendance_otp) {
+                            $service->generateOtp();
+                        }
+                        
+                        $qrUrl = $service->qrVerificationUrl(true);
+                        $logoPath = public_path('storage/tyouth-logo.png');
+                        
+                        $builderArgs = [
+                            'writer' => new \Endroid\QrCode\Writer\PngWriter(),
+                            'writerOptions' => [],
+                            'data' => $qrUrl,
+                            'encoding' => new \Endroid\QrCode\Encoding\Encoding('UTF-8'),
+                            'errorCorrectionLevel' => \Endroid\QrCode\ErrorCorrectionLevel::High,
+                            'size' => 200,
+                            'margin' => 5,
+                            'roundBlockSizeMode' => \Endroid\QrCode\RoundBlockSizeMode::Margin,
+                            'foregroundColor' => new \Endroid\QrCode\Color\Color(107, 33, 168),
+                            'backgroundColor' => new \Endroid\QrCode\Color\Color(255, 255, 255),
+                        ];
+                        
+                        if (file_exists($logoPath)) {
+                            $builderArgs['logoPath'] = $logoPath;
+                            $builderArgs['logoResizeToWidth'] = 70;
+                            $builderArgs['logoPunchoutBackground'] = false;
+                        }
+                        
+                        $builder = new \Endroid\QrCode\Builder\Builder(...$builderArgs);
+                        $result = $builder->build();
+                        $qrBase64 = $result->getDataUri();
+                    @endphp
+                    <img src="{{ $qrBase64 }}" alt="QR Code Absensi" class="w-40 h-40 object-contain">
+                </div>
+                
+                <!-- Info & Actions -->
+                <div class="flex-1 text-center sm:text-left">
+                    <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400 text-xs font-medium mb-3">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                        Ibadah Hari Ini
+                    </div>
+                    <flux:heading size="lg" class="!font-bold mb-1">Presensi Kehadiran QR Code</flux:heading>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400 mb-4 max-w-lg">
+                        Download gambar QR Code ini dan tampilkan di layar proyektor. Jemaat dapat melakukan scan untuk mencatat kehadiran secara langsung, atau memasukkan kode OTP di bawah melalui website.
+                    </p>
+                    
+                    <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                        <div>
+                            <span class="block text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-1">Kode OTP</span>
+                            <span class="text-4xl font-black tracking-widest text-purple-700 dark:text-purple-400 font-mono">
+                                {{ $service->attendance_otp }}
+                            </span>
+                        </div>
+                        
+                        <div class="h-10 w-px bg-zinc-200 dark:bg-zinc-700 hidden sm:block"></div>
+                        
+                        <div class="flex gap-2">
+                            <flux:button wire:click="generateOtp" icon="arrow-path" variant="outline" class="!text-purple-600 !border-purple-200 hover:!bg-purple-50 dark:!text-purple-400 dark:!border-purple-800/50 dark:hover:!bg-purple-900/20">
+                                Regenerate
+                            </flux:button>
+                            <flux:button href="{{ $qrBase64 }}" download="QR_Absensi_{{ $service->service_date->format('Y-m-d') }}.png" variant="primary" icon="arrow-down-tray" class="!bg-purple-600 hover:!bg-purple-700 text-white !border-purple-700">
+                                Download
+                            </flux:button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </flux:card>
+        @endif
+
         <!-- Informasi Umum -->
         <flux:card>
             <div class="flex justify-between items-center mb-4 border-b border-zinc-200 dark:border-zinc-700 pb-2">

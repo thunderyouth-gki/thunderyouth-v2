@@ -66,25 +66,7 @@
 
         <!-- Today's Sunday Service Section -->
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20 space-y-16 pb-20">
-            <div x-data="{
-                handlePresence() {
-                    @if(auth()->guest())
-                        $dispatch('open-auth-modal', { view: 'login' });
-                        showNotification('Mohon Sign In terlebih dahulu untuk mencatat presensi!', 'error');
-                    @else
-                        const btn = this.$refs.btnMainPresence;
-                        btn.innerHTML = '<i class=\'fa-solid fa-spinner fa-spin mr-1\'></i> Memeriksa Lokasi GPS...';
-                        btn.disabled = true;
-
-                        setTimeout(() => {
-                            btn.innerHTML = '<i class=\'fa-solid fa-check mr-1\'></i> Kehadiran Tersimpan';
-                            btn.className = 'flex-1 bg-emerald-500 text-white py-3 rounded-xl font-semibold transition shadow-soft flex items-center justify-center gap-2 cursor-default';
-                            
-                            showNotification('Selamat! Kehadiran Anda berhasil diverifikasi & dicatat (KF05)', 'success');
-                        }, 1500);
-                    @endif
-                }
-            }">
+            <div>
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-2 mb-6">
                     <div>
                         <span class="text-secondary font-bold tracking-wider text-sm uppercase">
@@ -175,13 +157,11 @@
                         </div>
                         
                         <!-- Actions -->
-                        <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-accent">
+                        <div class="flex flex-col sm:flex-row gap-3 pt-4 border-t border-accent w-full">
                             <a href="#" class="flex-1 bg-surface border border-accent text-text hover:bg-slate-50 dark:hover:bg-accent/50 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2">
                                 <i class="fa-solid fa-book-open"></i> Unduh Warta
                             </a>
-                            <button x-ref="btnMainPresence" @click="handlePresence" class="flex-1 bg-primary hover:bg-primary/80 text-white py-3 rounded-xl font-semibold transition shadow-soft hover:shadow-glow flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-location-crosshairs animate-pulse text-secondary"></i> Catat Kehadiran Saya
-                            </button>
+                            <livewire:jemaat.home-presence-button :service="$nearestService" />
                         </div>
                     </div>
                 </div>

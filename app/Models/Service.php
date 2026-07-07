@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\URL;
 
 /**
- * @property \Illuminate\Support\Carbon $service_date
+ * @property Carbon $service_date
  * @property bool $is_today
  * @property string|null $parsed_start_time
  * @property string|null $parsed_end_time
@@ -32,6 +35,7 @@ class Service extends Model
         'attendance_male',
         'attendance_female',
         'offering_amount',
+        'attendance_otp',
     ];
 
     protected function casts(): array
@@ -48,78 +52,123 @@ class Service extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<bool, never>
+     * @return Attribute<bool, never>
      */
-    protected function isToday(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function isToday(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: fn () => $this->service_date->isToday());
+        return Attribute::make(get: fn () => $this->service_date->isToday());
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<string|null, never>
+     * @return Attribute<string|null, never>
      */
-    protected function parsedStartTime(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function parsedStartTime(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
-            if (!$this->start_time) return null;
+        return Attribute::make(get: function () {
+            if (! $this->start_time) {
+                return null;
+            }
             preg_match('/(\d{1,2})[:.](\d{2})/', $this->start_time, $matches);
             if (count($matches) >= 3) {
-                return $matches[1] . ':' . $matches[2];
+                return $matches[1].':'.$matches[2];
             }
+
             return null;
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<string|null, never>
+     * @return Attribute<string|null, never>
      */
-    protected function parsedEndTime(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function parsedEndTime(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
-            if (!$this->end_time) return null;
+        return Attribute::make(get: function () {
+            if (! $this->end_time) {
+                return null;
+            }
             preg_match('/(\d{1,2})[:.](\d{2})/', $this->end_time, $matches);
             if (count($matches) >= 3) {
-                return $matches[1] . ':' . $matches[2];
+                return $matches[1].':'.$matches[2];
             }
+
             return null;
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<bool, never>
+     * @return Attribute<bool, never>
      */
-    protected function isLive(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function isLive(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
-            if (!$this->is_today) return false;
+        return Attribute::make(get: function () {
+            if (! $this->is_today) {
+                return false;
+            }
             $start = $this->parsed_start_time;
             $end = $this->parsed_end_time;
-            if (!$start || !$end) return false;
+            if (! $start || ! $end) {
+                return false;
+            }
 
             $now = now();
-            $startTime = \Illuminate\Support\Carbon::parse($this->service_date->format('Y-m-d') . ' ' . $start);
-            $endTime = \Illuminate\Support\Carbon::parse($this->service_date->format('Y-m-d') . ' ' . $end);
+            $startTime = Carbon::parse($this->service_date->format('Y-m-d').' '.$start);
+            $endTime = Carbon::parse($this->service_date->format('Y-m-d').' '.$end);
 
             return $now->between($startTime, $endTime);
         });
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Casts\Attribute<bool, never>
+     * @return Attribute<bool, never>
      */
-    protected function isFinished(): \Illuminate\Database\Eloquent\Casts\Attribute
+    protected function isFinished(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(get: function () {
+        return Attribute::make(get: function () {
             if (now()->startOfDay()->isAfter($this->service_date)) {
                 return true;
             }
             if ($this->is_today) {
                 $end = $this->parsed_end_time;
-                if (!$end) return false;
-                $endTime = \Illuminate\Support\Carbon::parse($this->service_date->format('Y-m-d') . ' ' . $end);
+                if (! $end) {
+                    return false;
+                }
+                $endTime = Carbon::parse($this->service_date->format('Y-m-d').' '.$end);
+
                 return now()->isAfter($endTime);
             }
+
             return false;
         });
+    }
+
+    /**
+     * Generate a new 6-digit OTP for attendance.
+     */
+    public function generateOtp(): string
+    {
+        $otp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $this->update(['attendance_otp' => $otp]);
+
+        return $otp;
+    }
+
+    /**
+     * Get the signed URL for QR code verification.
+     *
+     * @param  bool  $withOtp  Whether to include the OTP in the URL (for Admin PPT QR)
+     */
+    public function qrVerificationUrl(bool $withOtp = true): string
+    {
+        $params = ['service' => $this->id];
+
+        if ($withOtp && $this->attendance_otp) {
+            $params['otp'] = $this->attendance_otp;
+        }
+
+        // Use relative URL for the signature so that host/port mismatches
+        // between CLI (Tinker) and Web (Browser) are ignored.
+        $relativeUrl = URL::signedRoute('attendance.qr', $params, null, false);
+
+        return url($relativeUrl);
     }
 }

@@ -12,8 +12,8 @@ test('authenticated users can visit the dashboard', function () {
     $this->actingAs($user);
 
     $response = $this->get(route('dashboard'));
-    
-    // Validasi otomatis: Terima 200 (OK) jika rute sudah siap, 
+
+    // Validasi otomatis: Terima 200 (OK) jika rute sudah siap,
     // atau terima 503 jika rute masih memakai macro underConstruction()
     $this->assertContains($response->status(), [200, 503]);
 });
