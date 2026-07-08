@@ -37,6 +37,9 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::findOrCreate($permission);
         }
 
+        // Clear cache again because WithoutModelEvents in DatabaseSeeder prevents Permission models from automatically clearing it upon creation.
+        app()[PermissionRegistrar::class]->forgetCachedPermissions();
+
         // Create roles and assign permissions
         $rootRole = Role::findOrCreate('Root');
         // Root bypasses all permission checks via Gate::before, no need to assign explicitly.
