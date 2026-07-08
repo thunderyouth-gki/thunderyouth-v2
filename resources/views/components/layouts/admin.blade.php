@@ -53,12 +53,12 @@
     
     @livewireStyles
 </head>
-<body class="bg-background text-text font-sans antialiased h-screen overflow-hidden flex dark:[color-scheme:dark]">
+<body class="bg-gradient-to-br from-brandlight/50 to-background dark:from-primary/10 dark:to-background text-text font-sans antialiased h-screen overflow-hidden flex dark:[color-scheme:dark]">
     
     <!-- Sidebar -->
-    <aside class="w-64 bg-surface border-r border-accent flex-shrink-0 flex flex-col h-full hidden md:flex transition-all duration-300 relative z-20 shadow-sm">
+    <aside class="w-64 bg-surface border-r border-primary/10 dark:border-primary/20 flex-shrink-0 flex flex-col h-full hidden md:flex transition-all duration-300 relative z-20 shadow-sm">
         <!-- Logo -->
-        <div class="h-16 flex items-center px-6 border-b border-accent">
+        <div class="h-16 flex items-center px-6 border-b border-primary/10 dark:border-primary/20">
             <a href="{{ route('admin.dashboard') }}" class="font-bold text-xl flex items-center gap-2 text-primary">
                 <img src="{{ asset('storage/thunder-logo.png') }}" alt="Thunder Youth Logo" class="w-8 h-8 object-contain">
                 Admin Panel
@@ -68,18 +68,18 @@
         <!-- Navigation -->
         <nav class="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-1">
             <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mb-2 px-2">Overview</div>
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                 <i class="fa-solid fa-gauge w-5 text-center"></i> Dashboard
             </a>
             
             <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mt-6 mb-2 px-2">Church Management</div>
-            <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.services.*') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+            <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.services.*') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                 <i class="fa-solid fa-calendar-days w-5 text-center"></i> Services
             </a>
-            <a href="{{ route('admin.members') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.members') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+            <a href="{{ route('admin.members') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.members') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                 <i class="fa-solid fa-address-book w-5 text-center"></i> Members
             </a>
-            <a href="{{ route('admin.attendances') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.attendances') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+            <a href="{{ route('admin.attendances') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.attendances') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                 <i class="fa-solid fa-clipboard-user w-5 text-center"></i> Attendances
             </a>
             
@@ -88,26 +88,26 @@
             @endcanany
             
             @can('users.view')
-                <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.users') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <a href="{{ route('admin.users') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.users') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                     <i class="fa-solid fa-users w-5 text-center"></i> User Access
                 </a>
             @endcan
             
             @can('roles.view')
-                <a href="{{ route('admin.roles') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.roles') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <a href="{{ route('admin.roles') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.roles') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                     <i class="fa-solid fa-user-shield w-5 text-center"></i> Roles
                 </a>
             @endcan
             
             @can('permissions.view')
-                <a href="{{ route('admin.permissions') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.permissions') ? 'bg-primary/10 text-primary font-bold shadow-sm' : 'text-textlight hover:bg-accent/30 hover:text-text' }}">
+                <a href="{{ route('admin.permissions') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.permissions') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                     <i class="fa-solid fa-key w-5 text-center"></i> Permissions
                 </a>
             @endcan
         </nav>
         
         <!-- Bottom User Info -->
-        <div class="p-4 border-t border-accent bg-surface mt-auto relative" x-data="{ userMenuOpen: false }" @click.away="userMenuOpen = false">
+        <div class="p-4 border-t border-primary/10 dark:border-primary/20 bg-surface mt-auto relative" x-data="{ userMenuOpen: false }" @click.away="userMenuOpen = false">
             
             <!-- Popup Menu -->
             <div x-show="userMenuOpen" 
@@ -117,12 +117,12 @@
                  x-transition:leave="transition ease-in duration-75" 
                  x-transition:leave-start="transform opacity-100 scale-100 translate-y-0" 
                  x-transition:leave-end="transform opacity-0 scale-95 translate-y-2" 
-                 class="absolute bottom-full mb-3 left-4 right-4 bg-surface rounded-xl shadow-card border border-accent overflow-hidden z-50 py-2" x-cloak style="display: none;">
+                 class="absolute bottom-full mb-3 left-4 right-4 bg-surface rounded-xl shadow-card border border-primary/10 dark:border-primary/20 overflow-hidden z-50 py-2" x-cloak style="display: none;">
                 
-                <a href="{{ route('admin.profile') }}" class="block px-4 py-2.5 text-sm font-medium text-text hover:bg-accent/30 hover:text-primary transition">
+                <a href="{{ route('admin.profile') }}" class="block px-4 py-2.5 text-sm font-medium text-text hover:bg-primary/10 hover:text-primary transition">
                     <i class="fa-regular fa-user mr-2 w-4"></i> My Profile
                 </a>
-                <hr class="border-accent my-1">
+                <hr class="border-primary/10 dark:border-primary/20 my-1">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="w-full text-left px-4 py-2.5 text-sm font-bold text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition">
@@ -132,7 +132,7 @@
             </div>
 
             <!-- User Button -->
-            <div @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-3 mb-4 cursor-pointer hover:bg-accent/20 p-2 rounded-xl transition group">
+            <div @click="userMenuOpen = !userMenuOpen" class="flex items-center gap-3 mb-4 cursor-pointer hover:bg-primary/10 p-2 rounded-xl transition group">
                 <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-soft group-hover:scale-105 transition-transform">
                     {{ strtoupper(substr(auth()->user()->member?->name ?? auth()->user()->name, 0, 2)) }}
                 </div>
@@ -143,17 +143,17 @@
                 <i class="fa-solid fa-chevron-up text-textlight text-xs transition-transform duration-200" :class="{'rotate-180': userMenuOpen}"></i>
             </div>
             
-            <a href="{{ route('home') }}" class="flex justify-center items-center gap-2 w-full py-2.5 rounded-xl text-xs font-semibold text-text bg-accent/30 hover:bg-accent/50 transition-colors">
+            <a href="{{ route('home') }}" class="flex justify-center items-center gap-2 w-full py-2.5 rounded-xl text-xs font-semibold text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white transition-colors">
                 <i class="fa-solid fa-arrow-left"></i> Back to Website
             </a>
         </div>
     </aside>
     
     <!-- Main Content Wrapper -->
-    <div class="flex-1 flex flex-col h-full overflow-hidden">
+    <div class="flex-1 flex flex-col h-full overflow-hidden relative">
         
         <!-- Top Navbar -->
-        <header class="h-16 bg-surface border-b border-accent flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 shadow-sm relative z-10">
+        <header class="h-16 bg-surface/80 backdrop-blur-md border-b border-primary/10 dark:border-primary/20 flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 shadow-sm relative z-10">
             <div class="flex items-center">
                 <!-- Mobile Brand (hidden on desktop) -->
                 <a href="{{ route('admin.dashboard') }}" class="md:hidden font-bold text-lg flex items-center gap-2 text-primary mr-4">
