@@ -201,7 +201,7 @@
                                 <div class="text-xs text-textlight"><i class="fa-regular fa-calendar mr-1"></i> 09 Jun 2026</div>
                             </div>
                         </div>
-                        <a href="{{ route('events') }}" class="mt-4 text-center block w-full bg-brandlight hover:bg-primary hover:text-white text-primary text-xs font-semibold py-2 rounded-xl transition">
+                        <a href="{{ route('events') }}" class="mt-4 text-center block w-full text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white text-xs font-semibold py-2 rounded-xl transition">
                             Lihat Detail
                         </a>
                     </div>
@@ -217,7 +217,7 @@
                                 <div class="text-xs text-textlight"><i class="fa-regular fa-calendar mr-1"></i> 13 Jun 2026</div>
                             </div>
                         </div>
-                        <a href="{{ route('events') }}" class="mt-4 text-center block w-full bg-brandlight hover:bg-primary hover:text-white text-primary text-xs font-semibold py-2 rounded-xl transition">
+                        <a href="{{ route('events') }}" class="mt-4 text-center block w-full text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white text-xs font-semibold py-2 rounded-xl transition">
                             Lihat Detail
                         </a>
                     </div>
@@ -233,7 +233,7 @@
                                 <div class="text-xs text-textlight"><i class="fa-regular fa-calendar mr-1"></i> 20 Jun 2026</div>
                             </div>
                         </div>
-                        <a href="{{ route('events') }}" class="mt-4 text-center block w-full bg-brandlight hover:bg-primary hover:text-white text-primary text-xs font-semibold py-2 rounded-xl transition">
+                        <a href="{{ route('events') }}" class="mt-4 text-center block w-full text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white text-xs font-semibold py-2 rounded-xl transition">
                             Lihat Detail
                         </a>
                     </div>

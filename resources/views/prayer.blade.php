@@ -42,7 +42,7 @@
                             </div>
                             Kirim secara Anonim (Sembunyikan Identitas)
                         </label>
-                        <button type="submit" class="w-full sm:w-auto bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-bold transition shadow-soft flex items-center justify-center gap-2 text-sm">
+                        <button type="submit" class="w-full sm:w-auto text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white px-8 py-3 rounded-full font-bold transition shadow-soft flex items-center justify-center gap-2 text-sm">
                             <i class="fa-solid fa-paper-plane text-xs"></i> Gantung Doa di Pohon
                         </button>
                     </div>

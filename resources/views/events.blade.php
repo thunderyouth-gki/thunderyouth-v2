@@ -57,7 +57,7 @@
                                     registered = true;
                                     showNotification('Berhasil! Anda terdaftar pada kegiatan: Badminton Club (KF07)', 'success');
                                 @endif
-                            " class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
+                            " class="w-full text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-user-plus text-xs"></i> Gabung Sekarang
                             </button>
                         </template>
@@ -96,7 +96,7 @@
                                     registered = true;
                                     showNotification('Berhasil! Anda terdaftar pada kegiatan: Seminar: Kasih Aba-Aba (KF07)', 'success');
                                 @endif
-                            " class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
+                            " class="w-full text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-user-plus text-xs"></i> Gabung Sekarang
                             </button>
                         </template>
@@ -135,7 +135,7 @@
                                     registered = true;
                                     showNotification('Berhasil! Anda terdaftar pada kegiatan: Fellowship: Now You See Me (KF07)', 'success');
                                 @endif
-                            " class="w-full bg-primary hover:bg-primary/90 text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
+                            " class="w-full text-primary dark:text-white bg-brandlight dark:bg-primary hover:bg-primary/90 dark:hover:bg-primary/80 hover:text-white py-2.5 rounded-xl font-bold text-sm transition shadow-soft flex items-center justify-center gap-1.5">
                                 <i class="fa-solid fa-user-plus text-xs"></i> Gabung Sekarang
                             </button>
                         </template>
