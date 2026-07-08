@@ -36,9 +36,9 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: #262626;
-    --color-accent-content: #262626;
-    --color-accent-foreground: #ffffff;
+    --color-accent: var(--color-zinc-200);
+    --color-accent-content: var(--color-zinc-700);
+    --color-accent-foreground: var(--color-zinc-900);
 }
 
 @layer theme {
@@ -51,9 +51,9 @@
         --color-textlight: #94a3b8;
         --color-brandlight: #1e1b4b;
 
-        --color-accent: #ffffff;
-        --color-accent-content: #ffffff;
-        --color-accent-foreground: #262626;
+        --color-accent: var(--color-zinc-800);
+        --color-accent-content: var(--color-zinc-300);
+        --color-accent-foreground: var(--color-white);
     }
 }
 
