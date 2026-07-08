@@ -7,7 +7,7 @@
     <title>{{ $title ?? 'Admin Panel - Thunder Youth' }}</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('storage/thunder-logo.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -23,58 +23,10 @@
         applyTheme();
         document.addEventListener('livewire:navigated', applyTheme);
     </script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: 'rgb(var(--color-primary) / <alpha-value>)',
-                        secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
-                        background: 'rgb(var(--color-background) / <alpha-value>)',
-                        surface: 'rgb(var(--color-surface) / <alpha-value>)',
-                        text: 'rgb(var(--color-text) / <alpha-value>)',
-                        textlight: 'rgb(var(--color-textlight) / <alpha-value>)',
-                        accent: 'rgb(var(--color-accent) / <alpha-value>)',
-                        brandlight: 'rgb(var(--color-brandlight) / <alpha-value>)'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(74, 59, 140, 0.05)',
-                        'card': '0 10px 30px -5px rgba(74, 59, 140, 0.08)',
-                        'glow': '0 0 25px rgba(74, 59, 140, 0.25)',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        :root {
-            --color-primary: 74 59 140;
-            --color-secondary: 255 184 0;
-            --color-background: 248 249 250;
-            --color-surface: 255 255 255;
-            --color-text: 31 41 55;
-            --color-textlight: 107 114 128;
-            --color-accent: 229 231 235;
-            --color-brandlight: 240 238 253;
-        }
-
         .dark {
-            --color-primary: 124 104 217;
-            --color-secondary: 255 193 7;
-            --color-background: 15 23 42;
-            --color-surface: 30 41 59;
-            --color-text: 248 250 252;
-            --color-textlight: 148 163 184;
-            --color-accent: 51 65 85;
-            --color-brandlight: 30 27 75;
             color-scheme: dark;
         }
-
 
         .fade-in {
             animation: fadeIn 0.4s ease-out forwards;

@@ -7,14 +7,13 @@
     <title>{{ $title ?? 'Thunder Youth - GKI Guntur' }}</title>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('storage/thunder-logo.png') }}">
-    <!-- Tailwind CSS (Using CDN for this design mock to preserve Exact config, but ideally should use Vite) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS (Using Vite plugin) -->
     <!-- FontAwesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Plus Jakarta Sans & Inter Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    @vite(['resources/js/passkeys.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/passkeys.js'])
     
     <script>
         // Initialize dark mode before page render to prevent flicker
@@ -31,57 +30,7 @@
         applyTheme();
         document.addEventListener('livewire:navigated', applyTheme);
     </script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        primary: 'rgb(var(--color-primary) / <alpha-value>)',
-                        secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
-                        background: 'rgb(var(--color-background) / <alpha-value>)',
-                        surface: 'rgb(var(--color-surface) / <alpha-value>)',
-                        text: 'rgb(var(--color-text) / <alpha-value>)',
-                        textlight: 'rgb(var(--color-textlight) / <alpha-value>)',
-                        accent: 'rgb(var(--color-accent) / <alpha-value>)',
-                        brandlight: 'rgb(var(--color-brandlight) / <alpha-value>)'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(74, 59, 140, 0.05)',
-                        'card': '0 10px 30px -5px rgba(74, 59, 140, 0.08)',
-                        'glow': '0 0 25px rgba(74, 59, 140, 0.25)',
-                    }
-                }
-            }
-        }
-    </script>
     <style>
-        :root {
-            /* #4A3B8C */ --color-primary: 74 59 140;
-            /* #FFB800 */ --color-secondary: 255 184 0;
-            /* #F8F9FA */ --color-background: 248 249 250;
-            /* #FFFFFF */ --color-surface: 255 255 255;
-            /* #1F2937 */ --color-text: 31 41 55;
-            /* #6B7280 */ --color-textlight: 107 114 128;
-            /* #E5E7EB */ --color-accent: 229 231 235;
-            /* #F0EEFD */ --color-brandlight: 240 238 253;
-        }
-
-        .dark {
-            /* #7c68d9 */ --color-primary: 124 104 217;
-            /* #FFC107 */ --color-secondary: 255 193 7;
-            /* #0f172a */ --color-background: 15 23 42;
-            /* #1e293b */ --color-surface: 30 41 59;
-            /* #f8fafc */ --color-text: 248 250 252;
-            /* #94a3b8 */ --color-textlight: 148 163 184;
-            /* #334155 */ --color-accent: 51 65 85;
-            /* #1e1b4b */ --color-brandlight: 30 27 75;
-        }
-
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
