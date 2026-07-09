@@ -170,7 +170,7 @@
 
                         <flux:field>
                             <flux:label>Gender</flux:label>
-                            <flux:select wire:model="gender" placeholder="-- Choose Gender --" required>
+                            <flux:select wire:model="gender" placeholder="-- Choose Gender --">
                                 <flux:select.option value="L">Laki-laki (L)</flux:select.option>
                                 <flux:select.option value="P">Perempuan (P)</flux:select.option>
                             </flux:select>
@@ -179,7 +179,7 @@
 
                         <flux:field>
                             <flux:label>Blood Type</flux:label>
-                            <flux:select wire:model="blood_type" placeholder="-- Choose Blood Type --" required>
+                            <flux:select wire:model="blood_type" placeholder="-- Choose Blood Type --">
                                 <flux:select.option value="A">A</flux:select.option>
                                 <flux:select.option value="B">B</flux:select.option>
                                 <flux:select.option value="AB">AB</flux:select.option>

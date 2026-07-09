@@ -119,8 +119,8 @@ class MemberManager extends Component
             'address' => 'nullable|string',
             'email' => 'nullable|email|max:255',
             'phone_number' => 'nullable|string|max:50',
-            'gender' => 'required|in:L,P',
-            'blood_type' => 'required|in:A,B,AB,O',
+            'gender' => 'nullable|in:L,P',
+            'blood_type' => 'nullable|in:A,B,AB,O',
             'status' => 'required|in:Active,Abroad,Deceased',
             'user_id' => 'nullable|exists:users,id',
         ];
@@ -131,6 +131,10 @@ class MemberManager extends Component
         }
 
         $validated = $this->validate($rules);
+
+        // Convert empty strings to null
+        $validated['gender'] = $validated['gender'] === '' ? null : $validated['gender'];
+        $validated['blood_type'] = $validated['blood_type'] === '' ? null : $validated['blood_type'];
 
         if ($this->manageMemberId) {
             $member = Member::findOrFail($this->manageMemberId);
