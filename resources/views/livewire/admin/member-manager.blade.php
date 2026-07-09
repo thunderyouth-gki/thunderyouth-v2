@@ -55,7 +55,14 @@
                             <td class="px-6 py-4 whitespace-nowrap">{{ $member->member_number ?? '-' }}</td>
                             <td class="px-6 py-4 font-medium text-slate-900 dark:text-white">
                                 {{ $member->name }}
-                                <div class="text-xs text-slate-500 font-normal">{{ $member->gender === 'L' ? 'Male' : 'Female' }} | {{ $member->blood_type }}</div>
+                                @php
+                                    $genderText = $member->gender ? ($member->gender === 'L' ? 'Male' : 'Female') : null;
+                                    $bloodText = $member->blood_type;
+                                    $personalInfo = collect([$genderText, $bloodText])->filter()->implode(' | ');
+                                @endphp
+                                @if($personalInfo)
+                                    <div class="text-xs text-slate-500 font-normal">{{ $personalInfo }}</div>
+                                @endif
                             </td>
                             <td class="px-6 py-4">
                                 @if(empty($member->email) && empty($member->phone_number))
@@ -178,7 +185,8 @@
 
                         <flux:field>
                             <flux:label>Gender</flux:label>
-                            <flux:select wire:model="gender" placeholder="-- Choose Gender --">
+                            <flux:select wire:model="gender">
+                                <flux:select.option value="">-- Choose Gender --</flux:select.option>
                                 <flux:select.option value="L">Laki-laki (L)</flux:select.option>
                                 <flux:select.option value="P">Perempuan (P)</flux:select.option>
                             </flux:select>
@@ -187,7 +195,8 @@
 
                         <flux:field>
                             <flux:label>Blood Type</flux:label>
-                            <flux:select wire:model="blood_type" placeholder="-- Choose Blood Type --">
+                            <flux:select wire:model="blood_type">
+                                <flux:select.option value="">-- Choose Blood Type --</flux:select.option>
                                 <flux:select.option value="A">A</flux:select.option>
                                 <flux:select.option value="B">B</flux:select.option>
                                 <flux:select.option value="AB">AB</flux:select.option>
@@ -198,7 +207,8 @@
 
                         <flux:field>
                             <flux:label>Status</flux:label>
-                            <flux:select wire:model="status" placeholder="-- Choose Status --" required>
+                            <flux:select wire:model="status" required>
+                                <flux:select.option value="">-- Choose Status --</flux:select.option>
                                 <flux:select.option value="Active">Active</flux:select.option>
                                 <flux:select.option value="Abroad">Abroad</flux:select.option>
                                 <flux:select.option value="Deceased">Deceased</flux:select.option>

@@ -100,9 +100,9 @@ class MemberManager extends Component
         $this->address = $member->address ?? '';
         $this->email = $member->email ?? '';
         $this->phone_number = $member->phone_number ?? '';
-        $this->gender = $member->gender ?? 'L';
-        $this->blood_type = $member->blood_type ?? 'O';
-        $this->status = $member->status ?? 'Active';
+        $this->gender = $member->gender ?? '';
+        $this->blood_type = $member->blood_type ?? '';
+        $this->status = $member->status ?? '';
         $this->user_id = (string) $member->user_id;
         $this->userSearch = $member->user ? $member->user->name . ' (' . $member->user->email . ')' : '';
 
