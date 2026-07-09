@@ -58,8 +58,16 @@
                                 <div class="text-xs text-slate-500 font-normal">{{ $member->gender === 'L' ? 'Male' : 'Female' }} | {{ $member->blood_type }}</div>
                             </td>
                             <td class="px-6 py-4">
-                                <div>{{ $member->email ?? '-' }}</div>
-                                <div class="text-xs text-slate-500">{{ $member->phone_number ?? '-' }}</div>
+                                @if(empty($member->email) && empty($member->phone_number))
+                                    <div>-</div>
+                                @else
+                                    @if(!empty($member->email))
+                                        <div>{{ $member->email }}</div>
+                                    @endif
+                                    @if(!empty($member->phone_number))
+                                        <div class="text-xs text-slate-500">{{ $member->phone_number }}</div>
+                                    @endif
+                                @endif
                             </td>
                             <td class="px-6 py-4">
                                 @if($member->user)
