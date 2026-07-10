@@ -2,14 +2,16 @@
 
 namespace Database\Factories;
 
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Service>
+ * @extends Factory<Event>
  */
-class ServiceFactory extends Factory
+class EventFactory extends Factory
 {
+    protected $model = Event::class;
+
     /**
      * Define the model's default state.
      *
@@ -18,8 +20,11 @@ class ServiceFactory extends Factory
     public function definition(): array
     {
         return [
-            'service_date' => $this->faker->date(),
-            'service_type' => 'Youth',
+            'event_date' => $this->faker->date(),
+            'event_type_id' => \App\Models\EventType::firstOrCreate(
+                ['id' => 1],
+                ['name' => 'Service (Kebaktian/Ibadah)']
+            )->id,
             'theme' => $this->faker->sentence(),
             'start_time' => '10:00:00',
             'end_time' => '12:00:00',

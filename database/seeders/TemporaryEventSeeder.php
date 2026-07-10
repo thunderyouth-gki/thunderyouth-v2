@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Service;
+use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
-class TemporaryServiceSeeder extends Seeder
+class TemporaryEventSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -18,7 +18,8 @@ class TemporaryServiceSeeder extends Seeder
 
         $services = [
             [
-                'service_date' => Carbon::now()->subWeeks(3)->startOfWeek()->addDays(6), // Minggu 3 minggu lalu
+                'event_date' => Carbon::now()->subWeeks(3)->startOfWeek()->addDays(6), // Minggu 3 minggu lalu
+                'event_type_id' => 1,
                 'service_type' => 'back_to_the_bible',
                 'theme' => 'Mengasihi Sesama',
                 'description' => 'Ibadah pemuda dengan tema mengasihi sesama.',
@@ -29,7 +30,8 @@ class TemporaryServiceSeeder extends Seeder
                 'status' => 'published',
             ],
             [
-                'service_date' => Carbon::now()->subWeeks(2)->startOfWeek()->addDays(6), // Minggu 2 minggu lalu
+                'event_date' => Carbon::now()->subWeeks(2)->startOfWeek()->addDays(6), // Minggu 2 minggu lalu
+                'event_type_id' => 1,
                 'service_type' => 'sharing_sunday',
                 'theme' => 'Berani Melangkah',
                 'description' => 'Memiliki keberanian di dalam Tuhan.',
@@ -40,7 +42,8 @@ class TemporaryServiceSeeder extends Seeder
                 'status' => 'published',
             ],
             [
-                'service_date' => Carbon::now()->subWeeks(1)->startOfWeek()->addDays(6), // Minggu lalu
+                'event_date' => Carbon::now()->subWeeks(1)->startOfWeek()->addDays(6), // Minggu lalu
+                'event_type_id' => 1,
                 'service_type' => 'kebaktian_gabungan',
                 'theme' => 'Kasih yang Memulihkan',
                 'description' => 'Merenungkan kasih tanpa syarat Kristus.',
@@ -51,7 +54,8 @@ class TemporaryServiceSeeder extends Seeder
                 'status' => 'published',
             ],
             [
-                'service_date' => $nextSunday, // Minggu terdekat ke depan
+                'event_date' => $nextSunday, // Minggu terdekat ke depan
+                'event_type_id' => 1,
                 'service_type' => 'celebration_week',
                 'theme' => 'Berakar dan Bertumbuh',
                 'description' => 'Membahas pentingnya dasar firman yang kokoh agar kehidupan rohani kita tidak goyah.',
@@ -62,7 +66,8 @@ class TemporaryServiceSeeder extends Seeder
                 'status' => 'published',
             ],
             [
-                'service_date' => $nextSunday->copy()->addWeek(), // Minggu depannya lagi
+                'event_date' => $nextSunday->copy()->addWeek(), // Minggu depannya lagi
+                'event_type_id' => 1,
                 'service_type' => 'back_to_the_bible',
                 'theme' => 'Menjadi Terang',
                 'description' => 'Bagaimana peran pemuda membawa damai sejahtera.',
@@ -75,7 +80,7 @@ class TemporaryServiceSeeder extends Seeder
         ];
 
         foreach ($services as $service) {
-            Service::create($service);
+            Event::create($service);
         }
     }
 }

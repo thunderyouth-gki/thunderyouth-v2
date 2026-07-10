@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\URL;
 
 /**
- * @property Carbon $service_date
+ * @property Carbon $event_date
  * @property bool $is_today
  * @property string|null $parsed_start_time
  * @property string|null $parsed_end_time
@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\URL;
  * @property string|null $theme
  * @property string|null $speaker
  * @property string|null $place
- * @property Carbon $service_date
+ * @property Carbon $event_date
  * @property string $start_time
  * @property string $end_time
  * @property string $service_type
@@ -33,13 +33,15 @@ use Illuminate\Support\Facades\URL;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-class Service extends Model
+class Event extends Model
 {
     /** @use HasFactory<ServiceFactory> */
     use HasFactory;
 
     protected $fillable = [
-        'service_date',
+        'event_date',
+        'event_type_id',
+        'custom_event_type',
         'service_type',
         'banner_image',
         'custom_service_type',
@@ -64,7 +66,7 @@ class Service extends Model
     protected function casts(): array
     {
         return [
-            'service_date' => 'date',
+            'event_date' => 'date',
             'liturgy_verses' => 'array',
             'liturgy_songs' => 'array',
             'duties' => 'array',
@@ -79,7 +81,7 @@ class Service extends Model
      */
     protected function isToday(): Attribute
     {
-        return Attribute::make(get: fn () => $this->service_date->isToday());
+        return Attribute::make(get: fn () => $this->event_date->isToday());
     }
 
     /**
@@ -134,8 +136,8 @@ class Service extends Model
             }
 
             $now = now();
-            $startTime = Carbon::parse($this->service_date->format('Y-m-d').' '.$start);
-            $endTime = Carbon::parse($this->service_date->format('Y-m-d').' '.$end);
+            $startTime = Carbon::parse($this->event_date->format('Y-m-d').' '.$start);
+            $endTime = Carbon::parse($this->event_date->format('Y-m-d').' '.$end);
 
             return $now->between($startTime, $endTime);
         });
@@ -147,7 +149,7 @@ class Service extends Model
     protected function isFinished(): Attribute
     {
         return Attribute::make(get: function () {
-            if (now()->startOfDay()->isAfter($this->service_date)) {
+            if (now()->startOfDay()->isAfter($this->event_date)) {
                 return true;
             }
             if ($this->is_today) {
@@ -155,7 +157,7 @@ class Service extends Model
                 if (! $end) {
                     return false;
                 }
-                $endTime = Carbon::parse($this->service_date->format('Y-m-d').' '.$end);
+                $endTime = Carbon::parse($this->event_date->format('Y-m-d').' '.$end);
 
                 return now()->isAfter($endTime);
             }
@@ -182,7 +184,7 @@ class Service extends Model
      */
     public function qrVerificationUrl(bool $withOtp = true): string
     {
-        $params = ['service' => $this->id];
+        $params = ['event' => $this->id];
 
         if ($withOtp && $this->attendance_otp) {
             $params['otp'] = $this->attendance_otp;
@@ -193,5 +195,20 @@ class Service extends Model
         $relativeUrl = URL::signedRoute('attendance.qr', $params, null, false);
 
         return url($relativeUrl);
+    }
+
+    public function eventType()
+    {
+        return $this->belongsTo(EventType::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function registrations()
+    {
+        return $this->hasMany(EventRegistration::class);
     }
 }

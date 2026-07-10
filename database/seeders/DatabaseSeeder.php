@@ -17,7 +17,8 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             RolesAndPermissionsSeeder::class,
-            TemporaryServiceSeeder::class,
+            EventTypeSeeder::class,
+            TemporaryEventSeeder::class,
         ]);
 
         User::factory()->create([
