@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\DutyGroup;
-use App\Models\Service;
+use App\Models\Event;
 use App\Models\User;
 use Livewire\Livewire;
 use Spatie\Permission\Models\Role;
@@ -14,36 +14,39 @@ beforeEach(function () {
     $this->admin->assignRole('Root');
 });
 
-it('can render the service index page', function () {
+it('can render the event index page', function () {
     $this->actingAs($this->admin)
-        ->get(route('admin.services.index'))
+        ->get(route('admin.events.index'))
         ->assertOk();
 });
 
-it('can render the service create page', function () {
+it('can render the event create page', function () {
     $this->actingAs($this->admin)
-        ->get(route('admin.services.create'))
+        ->get(route('admin.events.create'))
         ->assertOk();
 });
 
-it('can save a new service as draft', function () {
+it('can save a new event as draft', function () {
     Livewire::actingAs($this->admin)
-        ->test('pages::admin.services.form')
-        ->set('form.service_date', '2026-07-26')
+        ->test('pages::admin.events.form')
+        ->set('form.event_date', '2026-07-26')
+        ->set('form.event_type_id', 1)
         ->set('form.service_type', 'back_to_the_bible')
         ->set('form.theme', 'Tetap Berdiri Teguh')
-        ->set('form.time', '09.30 - selesai')
+        ->set('form.start_time', '09:30:00')
+        ->set('form.end_time', '11:00:00')
         ->set('form.place', 'Ruang Remaja Pemuda Lt. 1')
         ->set('form.duties.WL 1', 'Pipin')
-        ->call('save', 'draft');
+        ->call('save', 'draft')
+        ->assertHasNoErrors();
 
-    $this->assertDatabaseHas('services', [
+    $this->assertDatabaseHas('events', [
         'theme' => 'Tetap Berdiri Teguh',
         'status' => 'draft',
     ]);
 
-    $service = Service::first();
-    expect($service->duties['WL 1'])->toBe('Pipin');
+    $event = Event::first();
+    expect($event->duties['WL 1'])->toBe('Pipin');
 });
 
 it('can load duty group template', function () {
@@ -57,7 +60,7 @@ it('can load duty group template', function () {
     ]);
 
     Livewire::actingAs($this->admin)
-        ->test('pages::admin.services.form')
+        ->test('pages::admin.events.form')
         ->set('selectedGroup', $group->id)
         ->call('loadGroup')
         ->assertSet('form.duties.WL 1', 'Pipin')

@@ -1,7 +1,7 @@
 <?php
 
 use App\Livewire\Jemaat\MarkAttendance;
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\Support\Facades\Config;
 use Livewire\Livewire;
 
@@ -12,11 +12,11 @@ beforeEach(function () {
 });
 
 it('can verify location within allowed radius', function () {
-    $service = Service::create([
-        'service_date' => today(),
+    $service = Event::create([
+        'event_date' => today(),
         'start_time' => now()->subHour()->format('H:i'),
         'end_time' => now()->addHour()->format('H:i'),
-        'service_type' => 'Morning Service',
+        'event_type_id' => 1,
     ]);
 
     // Same coordinates as church
@@ -28,11 +28,11 @@ it('can verify location within allowed radius', function () {
 });
 
 it('rejects location outside allowed radius', function () {
-    $service = Service::create([
-        'service_date' => today(),
+    $service = Event::create([
+        'event_date' => today(),
         'start_time' => now()->subHour()->format('H:i'),
         'end_time' => now()->addHour()->format('H:i'),
-        'service_type' => 'Morning Service',
+        'event_type_id' => 1,
     ]);
 
     // Jakarta coordinates (far away from Bandung)
@@ -52,11 +52,11 @@ it('shows error when no service is active', function () {
 });
 
 it('can submit correct OTP', function () {
-    $service = Service::create([
-        'service_date' => today(),
+    $service = Event::create([
+        'event_date' => today(),
         'start_time' => now()->subHour()->format('H:i'),
         'end_time' => now()->addHour()->format('H:i'),
-        'service_type' => 'Morning Service',
+        'event_type_id' => 1,
         'attendance_otp' => '123456',
     ]);
 
@@ -68,11 +68,11 @@ it('can submit correct OTP', function () {
 });
 
 it('rejects incorrect OTP', function () {
-    $service = Service::create([
-        'service_date' => today(),
+    $service = Event::create([
+        'event_date' => today(),
         'start_time' => now()->subHour()->format('H:i'),
         'end_time' => now()->addHour()->format('H:i'),
-        'service_type' => 'Morning Service',
+        'event_type_id' => 1,
         'attendance_otp' => '123456',
     ]);
 

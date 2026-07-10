@@ -3,13 +3,13 @@
 use App\Livewire\Jemaat\GuestAttendance;
 use App\Models\Attendance;
 use App\Models\Member;
-use App\Models\Service;
+use App\Models\Event;
 use App\Models\User;
 use Livewire\Livewire;
 
 beforeEach(function () {
-    $this->service = Service::factory()->create([
-        'service_date' => today(),
+    $this->event = Event::factory()->create([
+        'event_date' => today(),
         'start_time' => now()->subHour()->format('H:i:s'),
         'end_time' => now()->addHour()->format('H:i:s'),
         'attendance_otp' => '123456',
@@ -53,7 +53,7 @@ it('can save guest attendance directly if no member matches', function () {
         ->assertSet('showMatches', false);
 
     $this->assertDatabaseHas('attendances', [
-        'service_id' => $this->service->id,
+        'event_id' => $this->event->id,
         'guest_name' => 'John Doe Guest',
     ]);
 });
