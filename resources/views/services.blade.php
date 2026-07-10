@@ -16,7 +16,7 @@
             @auth
                 @php
                     // Check if there is an active service right now
-                    $activeService = \App\Models\Service::whereDate('service_date', today())->first();
+                    $activeService = \App\Models\Event::whereDate('event_date', today())->first();
                 @endphp
                 @if($activeService && $activeService->is_live)
                     <div class="mb-12">
@@ -60,16 +60,7 @@
                         </div>
                         <div class="w-full md:flex-1 flex flex-col justify-center py-2 md:py-4">
                             <div>
-                                @php
-                                    $typeLabels = [
-                                        'back_to_the_bible' => 'Back To The Bible',
-                                        'sharing_sunday' => 'Sharing Sunday',
-                                        'kebaktian_gabungan' => 'Kebaktian Gabungan',
-                                        'celebration_week' => 'Celebration Week',
-                                        'other' => $nearestService->custom_service_type ?? 'Lainnya',
-                                    ];
-                                @endphp
-                                <span class="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-full inline-block mb-3">{{ $typeLabels[$nearestService->service_type] ?? 'Youth Service' }}</span>
+                                <span class="bg-primary/10 text-primary text-xs font-bold px-2.5 py-1 rounded-full inline-block mb-3">{{ $nearestService->eventType?->name ?? 'Youth Service' }}</span>
                                 <h3 class="font-heading font-bold text-2xl text-text mb-2">{{ $nearestService->theme ?: 'Belum Ada Tema' }}</h3>
                                 <p class="text-textlight text-sm mb-4 leading-relaxed">
                                     {{ $nearestService->description ?: 'Mari hadir dan bergabung bersama dalam ibadah pemuda minggu ini.' }}
@@ -82,7 +73,7 @@
                                 </div>
                                 <div>
                                     <p class="text-xs text-textlight mb-1">Tanggal</p>
-                                    <p class="text-sm font-semibold text-text">{{ $nearestService->service_date->format('d F Y') }}</p>
+                                    <p class="text-sm font-semibold text-text">{{ $nearestService->event_date->format('d F Y') }}</p>
                                 </div>
                                 <div>
                                     <p class="text-xs text-textlight mb-1">Waktu</p>
@@ -115,7 +106,7 @@
                         <div>
                             <div class="flex justify-between items-start mb-4">
                                 <span class="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full">Ibadah Selesai</span>
-                                <span class="text-xs text-textlight font-medium">{{ $service->service_date->format('d M Y') }}</span>
+                                <span class="text-xs text-textlight font-medium">{{ $service->event_date->format('d M Y') }}</span>
                             </div>
                             <h3 class="font-bold text-lg text-text mb-2">{{ $service->theme ?: 'Ibadah Pemuda' }}</h3>
                             <p class="text-xs text-textlight mb-4 line-clamp-2">{{ $service->description ?: '-' }}</p>

@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
- * @property int $service_id
+ * @property int $event_id
  * @property int|null $member_id
  * @property string|null $guest_name
  * @property string $method
@@ -18,7 +18,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $check_in_time
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Service|null $service
+ * @property-read Event|null $event
  * @property-read Member|null $member
  */
 class Attendance extends Model
@@ -27,7 +27,7 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'service_id',
+        'event_id',
         'member_id',
         'guest_name',
         'device_id',
@@ -40,11 +40,11 @@ class Attendance extends Model
     ];
 
     /**
-     * @return BelongsTo<Service, $this>
+     * @return BelongsTo<Event, $this>
      */
-    public function service(): BelongsTo
+    public function event(): BelongsTo
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Event::class);
     }
 
     /**

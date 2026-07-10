@@ -23,80 +23,140 @@
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
                 <i class="fa-solid fa-search text-xs"></i>
             </div>
-            <input wire:model.live.debounce.300ms="search" type="text" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2" placeholder="Search by name or service...">
+            <input wire:model.live.debounce.300ms="search" type="text" class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full pl-10 p-2" placeholder="Search by name or event...">
         </div>
     </div>
 
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left text-slate-500 dark:text-slate-400">
-                <thead class="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-700/50 dark:text-slate-300">
-                    <tr>
-                        <th scope="col" class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors" wire:click="sortBy('check_in_time')">
-                            Time
-                            @if($sortField === 'check_in_time') <i class="fa-solid fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i> @endif
-                        </th>
-                        <th scope="col" class="px-6 py-4 font-semibold">Service</th>
-                        <th scope="col" class="px-6 py-4 font-semibold">Name (Member / Guest)</th>
-                        <th scope="col" class="px-6 py-4 font-semibold">Method</th>
-                        <th scope="col" class="px-6 py-4 font-semibold text-right">Options</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                    @forelse($attendances as $attendance)
-                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                {{ $attendance->check_in_time->format('d M Y') }}
-                                <div class="text-xs text-slate-500 font-normal">{{ $attendance->check_in_time->format('H:i:s') }}</div>
-                            </td>
-                            <td class="px-6 py-4 font-medium text-slate-900 dark:text-white">
-                                {{ $attendance->service->theme ?: str($attendance->service->service_type)->replace('_', ' ')->title() }}
-                            </td>
-                            <td class="px-6 py-4">
-                                @if($attendance->member)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
-                                        <i class="fa-solid fa-id-card"></i> {{ $attendance->member->name }}
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200">
-                                        <i class="fa-solid fa-user-tag"></i> {{ $attendance->guest_name }} (Guest)
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4">
-                                @php
-                                    $methodColor = match($attendance->method) {
-                                        'QR' => 'blue',
-                                        'NFC' => 'purple',
-                                        'GPS' => 'green',
-                                        'Manual' => 'amber',
-                                        default => 'zinc',
-                                    };
-                                @endphp
-                                <flux:badge size="sm" color="{{ $methodColor }}">{{ $attendance->method }}</flux:badge>
-                            </td>
-                            <td class="px-6 py-4 text-right">
-                                <flux:dropdown>
-                                    <flux:button size="sm" variant="filled" class="bg-amber-500 hover:bg-amber-600 text-white border-transparent cursor-pointer">Actions <i class="fa-solid fa-chevron-down ml-1 text-xs"></i></flux:button>
-                                    <flux:navmenu>
-                                        <flux:navmenu.item wire:click="openEditAttendanceModal({{ $attendance->id }})">Edit Record</flux:navmenu.item>
-                                        <flux:navmenu.item wire:click="confirmDelete({{ $attendance->id }})" class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/50">Delete Record</flux:navmenu.item>
-                                    </flux:navmenu>
-                                </flux:dropdown>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-8 text-center text-slate-500">No attendance records found.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        @if($attendances->hasPages())
-            <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
-                {{ $attendances->links(data: ['scrollTo' => false]) }}
+        @if($selectedEventId)
+            <div class="p-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-700/50 flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800 dark:text-slate-100">
+                        {{ $selectedEvent->theme ?: ($selectedEvent->eventType->name == 'Other (Lainnya)' ? $selectedEvent->custom_event_type : str($selectedEvent->service_type)->replace('_', ' ')->title()) }}
+                    </h3>
+                    <p class="text-sm text-slate-500">{{ $selectedEvent->event_date->format('d M Y') }}</p>
+                </div>
+                <flux:button wire:click="backToEvents" size="sm" variant="subtle">
+                    <i class="fa-solid fa-arrow-left mr-1"></i> Back to Events
+                </flux:button>
             </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-500 dark:text-slate-400">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-700/50 dark:text-slate-300">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors" wire:click="sortBy('check_in_time')">
+                                Time
+                                @if($sortField === 'check_in_time') <i class="fa-solid fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i> @endif
+                            </th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Name (Member / Guest)</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Method</th>
+                            <th scope="col" class="px-6 py-4 font-semibold text-right">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                        @forelse($attendances as $attendance)
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {{ $attendance->check_in_time->format('H:i:s') }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    @if($attendance->member)
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+                                            <i class="fa-solid fa-id-card"></i> {{ $attendance->member->name }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200">
+                                            <i class="fa-solid fa-user-tag"></i> {{ $attendance->guest_name }} (Guest)
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-6 py-4">
+                                    @php
+                                        $methodColor = match($attendance->method) {
+                                            'QR' => 'blue',
+                                            'NFC' => 'purple',
+                                            'GPS' => 'green',
+                                            'Manual' => 'amber',
+                                            default => 'zinc',
+                                        };
+                                    @endphp
+                                    <flux:badge size="sm" color="{{ $methodColor }}">{{ $attendance->method }}</flux:badge>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <flux:dropdown>
+                                        <flux:button size="sm" variant="filled" class="bg-amber-500 hover:bg-amber-600 text-white border-transparent cursor-pointer">Actions <i class="fa-solid fa-chevron-down ml-1 text-xs"></i></flux:button>
+                                        <flux:navmenu>
+                                            <flux:navmenu.item wire:click="openEditAttendanceModal({{ $attendance->id }})">Edit Record</flux:navmenu.item>
+                                            <flux:navmenu.item wire:click="confirmDelete({{ $attendance->id }})" class="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/50">Delete Record</flux:navmenu.item>
+                                        </flux:navmenu>
+                                    </flux:dropdown>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-slate-500">No attendance records found for this event.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if($attendances->hasPages())
+                <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+                    {{ $attendances->links(data: ['scrollTo' => false]) }}
+                </div>
+            @endif
+        @else
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-slate-500 dark:text-slate-400">
+                    <thead class="text-xs text-slate-700 uppercase bg-slate-50 dark:bg-slate-700/50 dark:text-slate-300">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 font-semibold cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-600 transition-colors" wire:click="sortBy('event_date')">
+                                Date
+                                @if($sortField === 'event_date') <i class="fa-solid fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }} ml-1"></i> @endif
+                            </th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Event</th>
+                            <th scope="col" class="px-6 py-4 font-semibold">Total Attendance</th>
+                            <th scope="col" class="px-6 py-4 font-semibold text-right">Options</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                        @forelse($eventsList as $event)
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap font-medium text-slate-900 dark:text-white">
+                                    {{ $event->event_date->format('d M Y') }}
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 dark:text-slate-100">
+                                        {{ $event->theme ?: ($event->eventType->name == 'Other (Lainnya)' ? $event->custom_event_type : str($event->service_type)->replace('_', ' ')->title()) }}
+                                    </div>
+                                    <div class="text-xs text-slate-500">
+                                        {{ $event->eventType->name }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200">
+                                        {{ $event->attendances_count }} Attendees
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <flux:button wire:click="viewEventAttendances({{ $event->id }})" size="sm" variant="filled" class="bg-primary hover:bg-primary/90 text-white border-transparent cursor-pointer">
+                                        View Records <i class="fa-solid fa-arrow-right ml-1 text-xs"></i>
+                                    </flux:button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-slate-500">No events found.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+            @if($eventsList->hasPages())
+                <div class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+                    {{ $eventsList->links(data: ['scrollTo' => false]) }}
+                </div>
+            @endif
         @endif
     </div>
 
@@ -109,24 +169,24 @@
         
         <form wire:submit.prevent="saveAttendance" class="space-y-6">
             <flux:field>
-                <flux:label>Service Date</flux:label>
-                <flux:input wire:model.live="service_date" type="date" required />
-                <flux:error name="service_date" />
-                @if($service_date)
-                    @if($services->isNotEmpty())
+                <flux:label>Event Date</flux:label>
+                <flux:input wire:model.live="event_date" type="date" required />
+                <flux:error name="event_date" />
+                @if($event_date)
+                    @if($events->isNotEmpty())
                         <div class="mt-2">
                             <div class="flex items-center gap-1.5 text-sm text-green-600 dark:text-green-400 font-medium">
-                                <i class="fa-solid fa-check-circle"></i> Service found!
+                                <i class="fa-solid fa-check-circle"></i> Event found!
                             </div>
                             <div class="mt-0.5 text-sm font-semibold text-slate-900 dark:text-slate-100">
-                                {{ $services->first()->theme ?: str($services->first()->service_type)->replace('_', ' ')->title() }}
+                                {{ $events->first()->theme ?: ($events->first()->eventType->name == 'Other (Lainnya)' ? $events->first()->custom_event_type : str($events->first()->service_type)->replace('_', ' ')->title()) }}
                             </div>
                         </div>
                     @else
-                        @if(!$errors->has('service_date'))
+                        @if(!$errors->has('event_date'))
                             <div class="mt-3 text-sm font-medium text-red-500 dark:text-red-400 flex items-center gap-1.5">
                                 <flux:icon name="exclamation-triangle" variant="mini" />
-                                <span>No service found for this date.</span>
+                                <span>No event found for this date.</span>
                             </div>
                         @endif
                     @endif

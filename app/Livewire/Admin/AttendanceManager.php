@@ -4,7 +4,7 @@ namespace App\Livewire\Admin;
 
 use App\Models\Attendance;
 use App\Models\Member;
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -26,7 +26,7 @@ class AttendanceManager extends Component
 
     public ?int $deleteAttendanceId = null;
 
-    public string $service_date = '';
+    public string $event_date = '';
 
     public bool $is_guest = false;
 
@@ -39,6 +39,8 @@ class AttendanceManager extends Component
     public string $method = 'Manual';
 
     public ?string $check_in_time = null;
+
+    public ?int $selectedEventId = null;
 
     public function updatingSearch(): void
     {
@@ -55,9 +57,23 @@ class AttendanceManager extends Component
         }
     }
 
-    public function updatedServiceDate(): void
+    public function viewEventAttendances(int $eventId): void
     {
-        $this->resetValidation('service_date');
+        $this->selectedEventId = $eventId;
+        $this->resetPage();
+        $this->search = '';
+    }
+
+    public function backToEvents(): void
+    {
+        $this->selectedEventId = null;
+        $this->resetPage();
+        $this->search = '';
+    }
+
+    public function updatedEventDate(): void
+    {
+        $this->resetValidation('event_date');
     }
 
     public function updatedMemberSearch(): void
@@ -76,10 +92,17 @@ class AttendanceManager extends Component
     {
         $this->reset([
             'manageAttendanceId', 'member_id',
-            'guest_name', 'check_in_time', 'is_guest', 'service_date',
+            'guest_name', 'check_in_time', 'is_guest', 'event_date',
         ]);
         $this->memberSearch = '';
         $this->method = 'Manual';
+
+        if ($this->selectedEventId) {
+            $event = Event::find($this->selectedEventId);
+            if ($event) {
+                $this->event_date = $event->event_date->format('Y-m-d');
+            }
+        }
     }
 
     public function openNewAttendanceModal(): void
@@ -94,7 +117,7 @@ class AttendanceManager extends Component
         $attendance = Attendance::findOrFail($id);
 
         $this->manageAttendanceId = $attendance->id;
-        $this->service_date = $attendance->service->service_date->format('Y-m-d');
+        $this->event_date = $attendance->event->event_date->format('Y-m-d');
 
         $this->is_guest = empty($attendance->member_id) && ! empty($attendance->guest_name);
         $this->member_id = $attendance->member_id;
@@ -110,7 +133,7 @@ class AttendanceManager extends Component
     public function saveAttendance(): void
     {
         $rules = [
-            'service_date' => 'required|date',
+            'event_date' => 'required|date',
             'method' => 'required|in:GPS,NFC,QR,Manual',
             'check_in_time' => 'required|date_format:H:i',
         ];
@@ -126,16 +149,15 @@ class AttendanceManager extends Component
 
         $validated = $this->validate($rules);
 
-        $service = Service::whereDate('service_date', $validated['service_date'])->first();
-        if (! $service) {
-            $this->addError('service_date', 'Service not found. Please pick another date.');
-
+        $event = Event::whereDate('event_date', $validated['event_date'])->first();
+        if (! $event) {
+            $this->addError('event_date', 'Event not found. Please pick another date.');
             return;
         }
 
-        $validated['service_id'] = $service->id;
-        $validated['check_in_time'] = $validated['service_date'].' '.$validated['check_in_time'].':00';
-        unset($validated['service_date']);
+        $validated['event_id'] = $event->id;
+        $validated['check_in_time'] = $validated['event_date'].' '.$validated['check_in_time'].':00';
+        unset($validated['event_date']);
 
         $validated['member_id'] = $this->is_guest ? null : $this->member_id;
         $validated['guest_name'] = $this->is_guest ? $this->guest_name : null;
@@ -171,21 +193,6 @@ class AttendanceManager extends Component
 
     public function render(): View
     {
-        $attendances = Attendance::with(['service', 'member'])
-            ->when($this->search, function ($query) {
-                $query->whereHas('member', function ($q) {
-                    $q->where('name', 'like', '%'.$this->search.'%')
-                        ->orWhere('member_number', 'like', '%'.$this->search.'%');
-                })
-                    ->orWhere('guest_name', 'like', '%'.$this->search.'%')
-                    ->orWhereHas('service', function ($q) {
-                        $q->where('theme', 'like', '%'.$this->search.'%')
-                            ->orWhere('service_type', 'like', '%'.$this->search.'%');
-                    });
-            })
-            ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
-            ->paginate($this->perPage);
-
         $members = collect();
         if (strlen($this->memberSearch) > 0 && empty($this->member_id)) {
             $members = Member::where('name', 'like', '%'.$this->memberSearch.'%')
@@ -194,14 +201,44 @@ class AttendanceManager extends Component
                 ->get();
         }
 
-        $services = Service::whereDate('service_date', $this->service_date)
-            ->orderBy('service_date', 'desc')
-            ->get();
+        if ($this->selectedEventId) {
+            $selectedEvent = Event::with('eventType')->findOrFail($this->selectedEventId);
+            $attendances = Attendance::with(['member'])
+                ->where('event_id', $this->selectedEventId)
+                ->when($this->search, function ($query) {
+                    $query->where(function($q) {
+                        $q->whereHas('member', function ($subq) {
+                            $subq->where('name', 'like', '%'.$this->search.'%')
+                                ->orWhere('member_number', 'like', '%'.$this->search.'%');
+                        })
+                        ->orWhere('guest_name', 'like', '%'.$this->search.'%');
+                    });
+                })
+                ->orderBy($this->sortField === 'id' ? 'check_in_time' : $this->sortField, $this->sortDirection)
+                ->paginate($this->perPage);
+
+            return view('livewire.admin.attendance-manager', [
+                'attendances' => $attendances,
+                'selectedEvent' => $selectedEvent,
+                'members' => $members,
+                'events' => Event::whereDate('event_date', $this->event_date)->get(),
+            ])->layout('components.layouts.admin');
+        }
+
+        $eventsList = Event::with('eventType')
+            ->withCount('attendances')
+            ->when($this->search, function ($query) {
+                $query->where('theme', 'like', '%'.$this->search.'%')
+                    ->orWhere('service_type', 'like', '%'.$this->search.'%')
+                    ->orWhere('custom_event_type', 'like', '%'.$this->search.'%');
+            })
+            ->orderBy($this->sortField === 'id' ? 'event_date' : $this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
+            ->paginate($this->perPage);
 
         return view('livewire.admin.attendance-manager', [
-            'attendances' => $attendances,
-            'services' => $services,
+            'eventsList' => $eventsList,
             'members' => $members,
+            'events' => collect(), // Just for form
         ])->layout('components.layouts.admin');
     }
 }

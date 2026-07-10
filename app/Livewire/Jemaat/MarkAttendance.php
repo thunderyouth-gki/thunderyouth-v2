@@ -3,7 +3,7 @@
 namespace App\Livewire\Jemaat;
 
 use App\Models\Attendance;
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
@@ -11,7 +11,7 @@ use Livewire\Component;
 class MarkAttendance extends Component
 {
     #[Locked]
-    public ?int $serviceId = null;
+    public ?int $eventId = null;
 
     public bool $isLive = false;
 
@@ -31,18 +31,18 @@ class MarkAttendance extends Component
 
     public string $method = 'GPS';
 
-    public function mount(?Service $service = null, string $method = 'GPS'): void
+    public function mount(?Event $event = null, string $method = 'GPS'): void
     {
         $this->method = $method;
-        if ($service) {
-            $this->serviceId = $service->id;
-            $this->isLive = $service->is_live;
-            $this->isFinished = $service->is_finished;
+        if ($event) {
+            $this->eventId = $event->id;
+            $this->isLive = $event->is_live;
+            $this->isFinished = $event->is_finished;
         } else {
             // Find the active service for today if not provided (e.g. for GPS method directly from dashboard)
-            $activeService = Service::whereDate('service_date', today())->first();
+            $activeService = Event::whereDate('event_date', today())->first();
             if ($activeService) {
-                $this->serviceId = $activeService->id;
+                $this->eventId = $activeService->id;
                 $this->isLive = $activeService->is_live;
                 $this->isFinished = $activeService->is_finished;
             }
@@ -53,7 +53,7 @@ class MarkAttendance extends Component
 
     private function checkIfAttended(): void
     {
-        if (! $this->serviceId || ! auth()->check()) {
+        if (! $this->eventId || ! auth()->check()) {
             return;
         }
 
@@ -61,7 +61,7 @@ class MarkAttendance extends Component
         $memberId = $user->member ? $user->member->id : null;
         $guestName = $user->member ? null : $user->name;
 
-        $this->hasAttended = Attendance::where('service_id', $this->serviceId)
+        $this->hasAttended = Attendance::where('event_id', $this->eventId)
             ->where(function ($q) use ($memberId, $guestName) {
                 if ($memberId) {
                     $q->where('member_id', $memberId);
@@ -84,7 +84,7 @@ class MarkAttendance extends Component
             return;
         }
 
-        if (! $this->serviceId) {
+        if (! $this->eventId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
             $this->isVerifying = false;
 
@@ -138,21 +138,21 @@ class MarkAttendance extends Component
             return;
         }
 
-        $service = Service::find($this->serviceId);
+        $event = Event::find($this->eventId);
 
-        if (! $service || ! $service->is_live) {
+        if (! $event || ! $event->is_live) {
             $this->errorMessage = 'Ibadah tidak sedang berlangsung.';
 
             return;
         }
 
-        if (! $service->attendance_otp) {
+        if (! $event->attendance_otp) {
             $this->errorMessage = 'Sistem OTP belum dikonfigurasi untuk ibadah ini.';
 
             return;
         }
 
-        if (trim($this->otp) === $service->attendance_otp) {
+        if (trim($this->otp) === $event->attendance_otp) {
             $this->recordAttendance($this->method);
             $this->verificationSuccess = true;
             $this->hasAttended = true;
@@ -173,7 +173,7 @@ class MarkAttendance extends Component
         $guestName = $member ? null : $user->name;
 
         // Check if attendance already recorded today
-        $alreadyAttended = Attendance::where('service_id', $this->serviceId)
+        $alreadyAttended = Attendance::where('event_id', $this->eventId)
             ->where(function ($q) use ($memberId, $guestName) {
                 if ($memberId) {
                     $q->where('member_id', $memberId);
@@ -185,7 +185,7 @@ class MarkAttendance extends Component
 
         if (! $alreadyAttended) {
             Attendance::create([
-                'service_id' => $this->serviceId,
+                'event_id' => $this->eventId,
                 'member_id' => $memberId,
                 'guest_name' => $guestName,
                 'method' => $method,

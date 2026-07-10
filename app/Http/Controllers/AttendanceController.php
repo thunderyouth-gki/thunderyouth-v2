@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,17 +13,17 @@ class AttendanceController extends Controller
     /**
      * Verify attendance via QR Code (Signed URL)
      */
-    public function verifyViaQr(Request $request, Service $service): View|RedirectResponse
+    public function verifyViaQr(Request $request, Event $event): View|RedirectResponse
     {
         // Route middleware 'signed:relative' already ensures the signature is valid.
 
-        if (! $service->is_live) {
+        if (! $event->is_live) {
             abort(403, 'Ibadah tidak sedang berlangsung atau QR Code ini sudah tidak berlaku.');
         }
 
         $otp = $request->query('otp');
 
-        if (! $otp || $otp !== $service->attendance_otp) {
+        if (! $otp || $otp !== $event->attendance_otp) {
             abort(403, 'Kode OTP pada QR Code ini tidak valid atau sudah kadaluarsa.');
         }
 
@@ -36,7 +36,7 @@ class AttendanceController extends Controller
         $memberId = $member ? $member->id : null;
         $guestName = $member ? null : $user->name;
 
-        $existing = Attendance::where('service_id', $service->id)
+        $existing = Attendance::where('event_id', $event->id)
             ->where(function ($q) use ($memberId, $guestName) {
                 if ($memberId) {
                     $q->where('member_id', $memberId);
@@ -47,7 +47,7 @@ class AttendanceController extends Controller
 
         if (! $existing) {
             Attendance::create([
-                'service_id' => $service->id,
+                'event_id' => $event->id,
                 'member_id' => $memberId,
                 'guest_name' => $guestName,
                 'method' => 'QR',
@@ -56,7 +56,7 @@ class AttendanceController extends Controller
         }
 
         return view('attendance.success', [
-            'service' => $service,
+            'event' => $event,
             'method' => 'QR Code',
         ]);
     }
@@ -69,7 +69,7 @@ class AttendanceController extends Controller
         // NFC tags use a static URL that redirects here.
         // We find the active service and render the Livewire component
         // to do the final GPS validation.
-        $activeService = Service::whereDate('service_date', today())->first();
+        $activeService = Event::whereDate('event_date', today())->first();
 
         if (! $activeService) {
             abort(404, 'Tidak ada ibadah yang sedang berlangsung hari ini.');
@@ -82,7 +82,7 @@ class AttendanceController extends Controller
 
         // We render a view that includes the MarkAttendance Livewire component
         return view('attendance.nfc', [
-            'service' => $activeService,
+            'event' => $activeService,
         ]);
     }
 }

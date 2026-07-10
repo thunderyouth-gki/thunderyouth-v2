@@ -4,7 +4,7 @@ namespace App\Livewire\Jemaat;
 
 use App\Models\Attendance;
 use App\Models\Member;
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;
@@ -15,7 +15,7 @@ use Livewire\Component;
 class GuestAttendance extends Component
 {
     #[Locked]
-    public ?int $serviceId = null;
+    public ?int $eventId = null;
 
     public bool $isLive = false;
 
@@ -46,7 +46,7 @@ class GuestAttendance extends Component
 
     public string $deviceId = '';
 
-    public function mount(?Service $service = null): void
+    public function mount(?Event $event = null): void
     {
         $this->otp = request()->query('otp');
         $this->method = request()->query('method', 'Manual');
@@ -56,14 +56,14 @@ class GuestAttendance extends Component
             Cookie::queue('attendance_device_id', $this->deviceId, 60 * 24 * 365); // 1 year
         }
 
-        if ($service) {
-            $this->serviceId = $service->id;
-            $this->isLive = $service->is_live;
-            $this->isFinished = $service->is_finished;
+        if ($event) {
+            $this->eventId = $event->id;
+            $this->isLive = $event->is_live;
+            $this->isFinished = $event->is_finished;
         } else {
-            $activeService = Service::whereDate('service_date', today())->first();
+            $activeService = Event::whereDate('event_date', today())->first();
             if ($activeService) {
-                $this->serviceId = $activeService->id;
+                $this->eventId = $activeService->id;
                 $this->isLive = $activeService->is_live;
                 $this->isFinished = $activeService->is_finished;
 
@@ -80,11 +80,11 @@ class GuestAttendance extends Component
 
     private function checkIfAttended(): void
     {
-        if (! $this->serviceId || ! $this->deviceId) {
+        if (! $this->eventId || ! $this->deviceId) {
             return;
         }
 
-        $this->hasAttended = Attendance::where('service_id', $this->serviceId)
+        $this->hasAttended = Attendance::where('event_id', $this->eventId)
             ->where('device_id', $this->deviceId)
             ->exists();
     }
@@ -104,14 +104,14 @@ class GuestAttendance extends Component
         $this->isVerifying = true;
         $this->errorMessage = null;
 
-        if (! $this->serviceId) {
+        if (! $this->eventId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
             $this->isVerifying = false;
 
             return;
         }
 
-        $activeService = Service::find($this->serviceId);
+        $activeService = Event::find($this->eventId);
 
         if (! $activeService || ! $activeService->is_live) {
             $this->errorMessage = 'Ibadah sudah selesai atau tidak aktif.';
@@ -144,11 +144,11 @@ class GuestAttendance extends Component
             return;
         }
 
-        if (! $this->gpsValid || ! $this->serviceId) {
+        if (! $this->gpsValid || ! $this->eventId) {
             return;
         }
 
-        $activeService = Service::find($this->serviceId);
+        $activeService = Event::find($this->eventId);
         if (! $activeService || ! $activeService->is_live) {
             $this->errorMessage = 'Ibadah sudah selesai atau tidak aktif.';
 
@@ -156,7 +156,7 @@ class GuestAttendance extends Component
         }
 
         // Check if device already attended
-        $deviceAttended = Attendance::where('service_id', $this->serviceId)
+        $deviceAttended = Attendance::where('event_id', $this->eventId)
             ->where('device_id', $this->deviceId)
             ->exists();
 
@@ -203,7 +203,7 @@ class GuestAttendance extends Component
     private function saveAttendance(): void
     {
         // Check again to avoid race conditions
-        $deviceAttended = Attendance::where('service_id', $this->serviceId)
+        $deviceAttended = Attendance::where('event_id', $this->eventId)
             ->where('device_id', $this->deviceId)
             ->exists();
 
@@ -214,7 +214,7 @@ class GuestAttendance extends Component
         }
 
         Attendance::create([
-            'service_id' => $this->serviceId,
+            'event_id' => $this->eventId,
             'guest_name' => $this->guestName,
             'device_id' => $this->deviceId,
             'method' => $this->method,

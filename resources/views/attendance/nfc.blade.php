@@ -1,3 +1,3 @@
 <x-layouts.app>
-    <livewire:jemaat.mark-attendance :service="$service" method="NFC" />
+    <livewire:jemaat.mark-attendance :event="$event" method="NFC" />
 </x-layouts.app>

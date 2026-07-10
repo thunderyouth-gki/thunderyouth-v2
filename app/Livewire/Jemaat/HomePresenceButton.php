@@ -3,14 +3,14 @@
 namespace App\Livewire\Jemaat;
 
 use App\Models\Attendance;
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\View\View;
 use Livewire\Component;
 
 class HomePresenceButton extends Component
 {
-    public ?int $serviceId = null;
+    public ?int $eventId = null;
 
     public bool $isLive = false;
 
@@ -28,16 +28,16 @@ class HomePresenceButton extends Component
 
     public string $otp = '';
 
-    public function mount(?Service $service = null): void
+    public function mount(?Event $event = null): void
     {
-        if ($service) {
-            $this->serviceId = $service->id;
-            $this->isLive = $service->is_live;
-            $this->isFinished = $service->is_finished;
+        if ($event) {
+            $this->eventId = $event->id;
+            $this->isLive = $event->is_live;
+            $this->isFinished = $event->is_finished;
         } else {
-            $activeService = Service::whereDate('service_date', today())->first();
+            $activeService = Event::whereDate('event_date', today())->first();
             if ($activeService) {
-                $this->serviceId = $activeService->id;
+                $this->eventId = $activeService->id;
                 $this->isLive = $activeService->is_live;
                 $this->isFinished = $activeService->is_finished;
             }
@@ -48,7 +48,7 @@ class HomePresenceButton extends Component
 
     private function checkIfAttended(): void
     {
-        if (! $this->serviceId) {
+        if (! $this->eventId) {
             return;
         }
 
@@ -57,7 +57,7 @@ class HomePresenceButton extends Component
             $memberId = $user->member ? $user->member->id : null;
             $guestName = $user->member ? null : $user->name;
 
-            $this->hasAttended = Attendance::where('service_id', $this->serviceId)
+            $this->hasAttended = Attendance::where('event_id', $this->eventId)
                 ->where(function ($q) use ($memberId, $guestName) {
                     if ($memberId) {
                         $q->where('member_id', $memberId);
@@ -69,7 +69,7 @@ class HomePresenceButton extends Component
         } else {
             $deviceId = Cookie::get('attendance_device_id');
             if ($deviceId) {
-                $this->hasAttended = Attendance::where('service_id', $this->serviceId)
+                $this->hasAttended = Attendance::where('event_id', $this->eventId)
                     ->where('device_id', $deviceId)
                     ->exists();
             }
@@ -89,7 +89,7 @@ class HomePresenceButton extends Component
             return;
         }
 
-        if (! $this->serviceId) {
+        if (! $this->eventId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
             $this->isVerifying = false;
             $this->dispatch('notify', message: $this->errorMessage, type: 'error');
@@ -105,7 +105,7 @@ class HomePresenceButton extends Component
 
         if ($distance <= $maxRadius) {
             $this->gpsValid = true;
-            $this->dispatch('modal-show', name: 'otp-modal-'.$this->serviceId);
+            $this->dispatch('modal-show', name: 'otp-modal-'.$this->eventId);
         } else {
             $distanceFormatted = round($distance);
             $this->errorMessage = "Lokasi terlalu jauh ({$distanceFormatted} m). Maksimal {$maxRadius} m.";
@@ -141,25 +141,25 @@ class HomePresenceButton extends Component
             return;
         }
 
-        $service = Service::find($this->serviceId);
+        $event = Event::find($this->eventId);
 
-        if (! $service || ! $service->is_live) {
+        if (! $event || ! $event->is_live) {
             $this->dispatch('notify', message: 'Ibadah tidak sedang berlangsung.', type: 'error');
 
             return;
         }
 
-        if (! $service->attendance_otp) {
+        if (! $event->attendance_otp) {
             $this->dispatch('notify', message: 'Sistem OTP belum dikonfigurasi untuk ibadah ini.', type: 'error');
 
             return;
         }
 
-        if (trim($this->otp) === $service->attendance_otp) {
+        if (trim($this->otp) === $event->attendance_otp) {
             $this->recordAttendance('GPS');
             $this->verificationSuccess = true;
             $this->hasAttended = true;
-            $this->dispatch('modal-close', name: 'otp-modal-'.$this->serviceId);
+            $this->dispatch('modal-close', name: 'otp-modal-'.$this->eventId);
             $this->dispatch('notify', message: 'Selamat! Kehadiran Anda berhasil diverifikasi.', type: 'success');
         } else {
             $this->dispatch('notify', message: 'Kode OTP tidak valid.', type: 'error');
@@ -178,7 +178,7 @@ class HomePresenceButton extends Component
         $guestName = $member ? null : $user->name;
 
         // Check again to avoid race conditions
-        $alreadyAttended = Attendance::where('service_id', $this->serviceId)
+        $alreadyAttended = Attendance::where('event_id', $this->eventId)
             ->where(function ($q) use ($memberId, $guestName) {
                 if ($memberId) {
                     $q->where('member_id', $memberId);
@@ -190,7 +190,7 @@ class HomePresenceButton extends Component
 
         if (! $alreadyAttended) {
             Attendance::create([
-                'service_id' => $this->serviceId,
+                'event_id' => $this->eventId,
                 'member_id' => $memberId,
                 'guest_name' => $guestName,
                 'method' => $method,

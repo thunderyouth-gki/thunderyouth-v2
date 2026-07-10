@@ -2,16 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Service;
+use App\Models\Event;
 use Illuminate\View\View;
 
 class PublicController extends Controller
 {
     public function home(): View
     {
-        $nearestService = Service::where('status', 'published')
-            ->whereDate('service_date', '>=', now()->toDateString())
-            ->orderBy('service_date', 'asc')
+        $nearestService = Event::where('status', 'published')
+            ->whereDate('event_date', '>=', now()->toDateString())
+            ->orderBy('event_date', 'asc')
             ->first();
 
         return view('home', compact('nearestService'));
@@ -19,16 +19,16 @@ class PublicController extends Controller
 
     public function services(): View
     {
-        $nearestService = Service::where('status', 'published')
-            ->whereDate('service_date', '>=', now()->toDateString())
-            ->orderBy('service_date', 'asc')
+        $nearestService = Event::where('status', 'published')
+            ->whereDate('event_date', '>=', now()->toDateString())
+            ->orderBy('event_date', 'asc')
             ->first();
 
-        $pastServices = Service::where('status', 'published')
-            ->whereDate('service_date', '<', now()->toDateString())
-            ->whereMonth('service_date', now()->month)
-            ->whereYear('service_date', now()->year)
-            ->orderBy('service_date', 'desc')
+        $pastServices = Event::where('status', 'published')
+            ->whereDate('event_date', '<', now()->toDateString())
+            ->whereMonth('event_date', now()->month)
+            ->whereYear('event_date', now()->year)
+            ->orderBy('event_date', 'desc')
             ->get();
 
         return view('services', compact('nearestService', 'pastServices'));

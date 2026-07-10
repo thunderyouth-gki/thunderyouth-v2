@@ -75,7 +75,7 @@
                     </div>
                 @endif
 
-                @if(!$serviceId)
+                @if(!$eventId)
                     <button disabled class="w-full bg-slate-100 text-slate-400 py-3 rounded-xl font-semibold cursor-not-allowed border border-slate-200 dark:border-slate-700">Tidak ada ibadah aktif</button>
                 @elseif($isFinished)
                     <button disabled class="w-full bg-slate-100 dark:bg-slate-800 text-slate-400 py-3 rounded-xl font-semibold transition flex items-center justify-center gap-2 cursor-not-allowed border border-slate-200 dark:border-slate-700">

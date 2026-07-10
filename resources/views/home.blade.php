@@ -82,7 +82,7 @@
                     </div>
                     @if($nearestService)
                     <div class="text-left sm:text-right text-textlight font-medium bg-surface px-4 py-2 rounded-2xl border border-accent">
-                        <div class="text-lg text-primary font-bold"><i class="fa-regular fa-calendar-check mr-1 text-secondary"></i> {{ $nearestService->service_date->format('d M Y') }}</div>
+                        <div class="text-lg text-primary font-bold"><i class="fa-regular fa-calendar-check mr-1 text-secondary"></i> {{ $nearestService->event_date->format('d M Y') }}</div>
                         <div class="text-sm">{{ $nearestService->start_time }} (WIB)</div>
                     </div>
                     @endif

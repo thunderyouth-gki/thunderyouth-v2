@@ -73,8 +73,8 @@
             </a>
             
             <div class="text-[10px] font-bold text-textlight uppercase tracking-wider mt-6 mb-2 px-2">Church Management</div>
-            <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.services.*') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
-                <i class="fa-solid fa-calendar-days w-5 text-center"></i> Services
+            <a href="{{ route('admin.events.index') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.events.*') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
+                <i class="fa-solid fa-calendar-days w-5 text-center"></i> Events & Services
             </a>
             <a href="{{ route('admin.members') }}" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all {{ request()->routeIs('admin.members') ? 'bg-primary text-white font-bold shadow-md shadow-primary/20' : 'text-textlight hover:bg-primary/10 hover:text-primary' }}">
                 <i class="fa-solid fa-address-book w-5 text-center"></i> Members
