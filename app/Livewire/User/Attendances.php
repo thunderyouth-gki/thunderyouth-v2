@@ -12,8 +12,11 @@ class Attendances extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortField = 'check_in_time';
+
     public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     public function updatingSearch(): void

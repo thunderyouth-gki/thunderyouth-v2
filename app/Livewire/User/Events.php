@@ -13,8 +13,11 @@ class Events extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortField = 'event_date';
+
     public string $sortDirection = 'asc';
+
     public int $perPage = 10;
 
     public function updatingSearch(): void

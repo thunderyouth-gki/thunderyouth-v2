@@ -9,7 +9,9 @@ use Livewire\Component;
 class RegisterEventModal extends Component
 {
     public ?Event $event = null;
+
     public bool $show = false;
+
     public ?int $eventId = null;
 
     protected $listeners = ['openModal' => 'open'];
@@ -25,12 +27,14 @@ class RegisterEventModal extends Component
 
     public function register()
     {
-        if (!$this->event) return;
+        if (! $this->event) {
+            return;
+        }
 
         $user = auth()->user();
         $memberId = $user->member?->id;
 
-        if (!$memberId) {
+        if (! $memberId) {
             // Cannot register guests to events for now, or maybe can? The DB needs member_id or guest_name.
             // Let's check event_registrations table schema.
             // Earlier we created event_registrations with member_id nullable and guest_name nullable.
@@ -45,10 +49,10 @@ class RegisterEventModal extends Component
         ]);
 
         $this->show = false;
-        
+
         // Dispatch to refresh dashboard
         $this->dispatch('registrationCompleted');
-        
+
         $this->redirectRoute('dashboard');
     }
 

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Event;
+use App\Models\EventType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +22,7 @@ class EventFactory extends Factory
     {
         return [
             'event_date' => $this->faker->date(),
-            'event_type_id' => \App\Models\EventType::firstOrCreate(
+            'event_type_id' => EventType::firstOrCreate(
                 ['id' => 1],
                 ['name' => 'Service (Kebaktian/Ibadah)']
             )->id,

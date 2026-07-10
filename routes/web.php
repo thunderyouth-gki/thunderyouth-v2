@@ -8,6 +8,9 @@ use App\Livewire\Admin\PermissionManager;
 use App\Livewire\Admin\RoleManager;
 use App\Livewire\Admin\UserAccessManager;
 use App\Livewire\Jemaat\GuestAttendance;
+use App\Livewire\User\Attendances;
+use App\Livewire\User\Dashboard;
+use App\Livewire\User\Events;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -25,9 +28,9 @@ Route::get('/attendance/nfc/current', [AttendanceController::class, 'verifyViaNf
 Route::get('/attendance/qr/{event}', [AttendanceController::class, 'verifyViaQr'])->name('attendance.qr')->middleware('signed:relative');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', \App\Livewire\User\Dashboard::class)->name('dashboard');
-    Route::get('/my-attendances', \App\Livewire\User\Attendances::class)->name('user.attendances');
-    Route::get('/upcoming-events', \App\Livewire\User\Events::class)->name('user.events');
+    Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/my-attendances', Attendances::class)->name('user.attendances');
+    Route::get('/upcoming-events', Events::class)->name('user.events');
 
     // Debug route to see what ValidateSignature sees
     Route::get('/debug-signature', function (Request $request) {

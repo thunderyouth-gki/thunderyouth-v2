@@ -2,8 +2,8 @@
 
 use App\Livewire\Jemaat\GuestAttendance;
 use App\Models\Attendance;
-use App\Models\Member;
 use App\Models\Event;
+use App\Models\Member;
 use App\Models\User;
 use Livewire\Livewire;
 

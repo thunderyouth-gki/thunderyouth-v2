@@ -3,8 +3,8 @@
 namespace App\Livewire\Jemaat;
 
 use App\Models\Attendance;
-use App\Models\Member;
 use App\Models\Event;
+use App\Models\Member;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Str;

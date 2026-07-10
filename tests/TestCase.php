@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Database\Seeders\EventTypeSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Laravel\Fortify\Features;
 
@@ -10,7 +11,7 @@ abstract class TestCase extends BaseTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed(\Database\Seeders\EventTypeSeeder::class);
+        $this->seed(EventTypeSeeder::class);
     }
 
     protected function skipUnlessFortifyHas(string $feature, ?string $message = null): void

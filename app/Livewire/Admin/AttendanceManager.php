@@ -3,8 +3,8 @@
 namespace App\Livewire\Admin;
 
 use App\Models\Attendance;
-use App\Models\Member;
 use App\Models\Event;
+use App\Models\Member;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -152,6 +152,7 @@ class AttendanceManager extends Component
         $event = Event::whereDate('event_date', $validated['event_date'])->first();
         if (! $event) {
             $this->addError('event_date', 'Event not found. Please pick another date.');
+
             return;
         }
 
@@ -206,12 +207,12 @@ class AttendanceManager extends Component
             $attendances = Attendance::with(['member'])
                 ->where('event_id', $this->selectedEventId)
                 ->when($this->search, function ($query) {
-                    $query->where(function($q) {
+                    $query->where(function ($q) {
                         $q->whereHas('member', function ($subq) {
                             $subq->where('name', 'like', '%'.$this->search.'%')
                                 ->orWhere('member_number', 'like', '%'.$this->search.'%');
                         })
-                        ->orWhere('guest_name', 'like', '%'.$this->search.'%');
+                            ->orWhere('guest_name', 'like', '%'.$this->search.'%');
                     });
                 })
                 ->orderBy($this->sortField === 'id' ? 'check_in_time' : $this->sortField, $this->sortDirection)

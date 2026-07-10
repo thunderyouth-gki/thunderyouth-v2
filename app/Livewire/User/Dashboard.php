@@ -2,9 +2,9 @@
 
 namespace App\Livewire\User;
 
+use App\Models\Attendance;
 use App\Models\Event;
 use App\Models\EventRegistration;
-use App\Models\Attendance;
 use Livewire\Component;
 
 class Dashboard extends Component
