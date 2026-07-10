@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ServiceFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\URL;
  * @property string|null $theme
  * @property string|null $speaker
  * @property string|null $place
- * @property \Illuminate\Support\Carbon $service_date
+ * @property Carbon $service_date
  * @property string $start_time
  * @property string $end_time
  * @property string $service_type
@@ -29,13 +30,14 @@ use Illuminate\Support\Facades\URL;
  * @property bool $is_live
  * @property bool $is_finished
  * @property string|null $attendance_otp
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class Service extends Model
 {
-    /** @use HasFactory<\Database\Factories\ServiceFactory> */
+    /** @use HasFactory<ServiceFactory> */
     use HasFactory;
+
     protected $fillable = [
         'service_date',
         'service_type',

@@ -2,8 +2,13 @@
 
 namespace App\Livewire\Jemaat;
 
-use App\Models\Service;
 use App\Models\Attendance;
+use App\Models\Member;
+use App\Models\Service;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -13,31 +18,42 @@ class GuestAttendance extends Component
     public ?int $serviceId = null;
 
     public bool $isLive = false;
+
     public bool $isFinished = false;
+
     public bool $isVerifying = false;
+
     public bool $gpsValid = false;
+
     public bool $verificationSuccess = false;
+
     public bool $hasAttended = false;
+
     public ?string $errorMessage = null;
 
     public string $guestName = '';
+
     public string $method = 'Manual';
+
     public ?string $otp = null;
+
     public string $otpInput = '';
 
-    /** @var \Illuminate\Database\Eloquent\Collection<int, \App\Models\Member>|array<int, \App\Models\Member> */
+    /** @var Collection<int, Member>|array<int, Member> */
     public $matchedMembers = [];
+
     public bool $showMatches = false;
+
     public string $deviceId = '';
 
     public function mount(?Service $service = null): void
     {
         $this->otp = request()->query('otp');
         $this->method = request()->query('method', 'Manual');
-        
-        $this->deviceId = \Illuminate\Support\Facades\Cookie::get('attendance_device_id') ?? (string) \Illuminate\Support\Str::uuid();
-        if (!\Illuminate\Support\Facades\Cookie::has('attendance_device_id')) {
-            \Illuminate\Support\Facades\Cookie::queue('attendance_device_id', $this->deviceId, 60 * 24 * 365); // 1 year
+
+        $this->deviceId = Cookie::get('attendance_device_id') ?? (string) Str::uuid();
+        if (! Cookie::has('attendance_device_id')) {
+            Cookie::queue('attendance_device_id', $this->deviceId, 60 * 24 * 365); // 1 year
         }
 
         if ($service) {
@@ -50,7 +66,7 @@ class GuestAttendance extends Component
                 $this->serviceId = $activeService->id;
                 $this->isLive = $activeService->is_live;
                 $this->isFinished = $activeService->is_finished;
-                
+
                 // If OTP is provided, verify it immediately
                 if ($this->otp && $this->otp === $activeService->attendance_otp) {
                     $this->gpsValid = true;
@@ -58,13 +74,13 @@ class GuestAttendance extends Component
                 }
             }
         }
-        
+
         $this->checkIfAttended();
     }
-    
+
     private function checkIfAttended(): void
     {
-        if (!$this->serviceId || !$this->deviceId) {
+        if (! $this->serviceId || ! $this->deviceId) {
             return;
         }
 
@@ -81,6 +97,7 @@ class GuestAttendance extends Component
 
         if ($this->hasAttended) {
             $this->errorMessage = 'Perangkat ini sudah mencatat kehadiran untuk ibadah ini.';
+
             return;
         }
 
@@ -90,20 +107,22 @@ class GuestAttendance extends Component
         if (! $this->serviceId) {
             $this->errorMessage = 'Tidak ada ibadah yang sedang berlangsung saat ini.';
             $this->isVerifying = false;
+
             return;
         }
 
         $activeService = Service::find($this->serviceId);
-        
+
         if (! $activeService || ! $activeService->is_live) {
             $this->errorMessage = 'Ibadah sudah selesai atau tidak aktif.';
             $this->isVerifying = false;
+
             return;
         }
-        
+
         if ($this->otpInput === $activeService->attendance_otp) {
             $this->gpsValid = true;
-            if (!in_array($this->method, ['QR', 'NFC'])) {
+            if (! in_array($this->method, ['QR', 'NFC'])) {
                 $this->method = 'Manual';
             }
         } else {
@@ -121,16 +140,18 @@ class GuestAttendance extends Component
 
         if ($this->hasAttended) {
             $this->errorMessage = 'Perangkat ini sudah mencatat kehadiran untuk ibadah ini.';
+
             return;
         }
 
-        if (!$this->gpsValid || !$this->serviceId) {
+        if (! $this->gpsValid || ! $this->serviceId) {
             return;
         }
 
         $activeService = Service::find($this->serviceId);
         if (! $activeService || ! $activeService->is_live) {
             $this->errorMessage = 'Ibadah sudah selesai atau tidak aktif.';
+
             return;
         }
 
@@ -141,26 +162,28 @@ class GuestAttendance extends Component
 
         if ($deviceAttended) {
             $this->errorMessage = 'Perangkat ini sudah mencatat kehadiran untuk ibadah ini.';
+
             return;
         }
 
         // Search for matching members
-        $matches = \App\Models\Member::where('name', 'like', "%{$this->guestName}%")
+        $matches = Member::where('name', 'like', "%{$this->guestName}%")
             ->get();
 
         if ($matches->count() > 0) {
             $this->matchedMembers = $matches;
             $this->showMatches = true;
+
             return;
         }
 
         $this->saveAttendance();
     }
-    
+
     public function selectMember(int|string $memberId): mixed
     {
-        /** @var \App\Models\Member|null $member */
-        $member = \App\Models\Member::find($memberId);
+        /** @var Member|null $member */
+        $member = Member::find($memberId);
         if ($member) {
             if ($member->user_id) {
                 return redirect()->route('login')->with('message', 'Akun Anda sudah terdaftar. Silakan Sign In untuk mencatat kehadiran.');
@@ -168,15 +191,15 @@ class GuestAttendance extends Component
                 return redirect()->route('register')->with('message', 'Nama Anda sudah terdata sebagai jemaat, namun belum memiliki akun portal. Silakan buat akun terlebih dahulu.');
             }
         }
-        
+
         return null;
     }
-    
+
     public function notMyName(): void
     {
         $this->saveAttendance();
     }
-    
+
     private function saveAttendance(): void
     {
         // Check again to avoid race conditions
@@ -186,6 +209,7 @@ class GuestAttendance extends Component
 
         if ($deviceAttended) {
             $this->errorMessage = 'Perangkat ini sudah mencatat kehadiran untuk ibadah ini.';
+
             return;
         }
 
@@ -202,7 +226,7 @@ class GuestAttendance extends Component
         $this->showMatches = false;
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.jemaat.guest-attendance')->layout('components.layouts.app');
     }

@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\MemberFactory;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -19,14 +21,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string|null $birth_place
  * @property string|null $birth_date
  * @property int|null $user_id
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\User|null $user
- * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Attendance> $attendances
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read User|null $user
+ * @property-read Collection<int, Attendance> $attendances
  */
 class Member extends Model
 {
-    /** @use HasFactory<\Database\Factories\MemberFactory> */
+    /** @use HasFactory<MemberFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -48,7 +50,7 @@ class Member extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
+     * @return BelongsTo<User, $this>
      */
     public function user(): BelongsTo
     {
@@ -56,7 +58,7 @@ class Member extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\Attendance, $this>
+     * @return HasMany<Attendance, $this>
      */
     public function attendances(): HasMany
     {

@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\Service;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class AttendanceController extends Controller
 {
     /**
      * Verify attendance via QR Code (Signed URL)
      */
-    public function verifyViaQr(Request $request, Service $service): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    public function verifyViaQr(Request $request, Service $service): View|RedirectResponse
     {
         // Route middleware 'signed:relative' already ensures the signature is valid.
 
@@ -25,31 +28,31 @@ class AttendanceController extends Controller
         }
 
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('guest.attendance', ['otp' => $otp, 'method' => 'QR']);
         }
 
         $member = $user->member;
-            $memberId = $member ? $member->id : null;
-            $guestName = $member ? null : $user->name;
+        $memberId = $member ? $member->id : null;
+        $guestName = $member ? null : $user->name;
 
-            $existing = \App\Models\Attendance::where('service_id', $service->id)
-                ->where(function ($q) use ($memberId, $guestName) {
-                    if ($memberId) {
-                        $q->where('member_id', $memberId);
-                    } else {
-                        $q->where('guest_name', $guestName);
-                    }
-                })->first();
+        $existing = Attendance::where('service_id', $service->id)
+            ->where(function ($q) use ($memberId, $guestName) {
+                if ($memberId) {
+                    $q->where('member_id', $memberId);
+                } else {
+                    $q->where('guest_name', $guestName);
+                }
+            })->first();
 
-            if (!$existing) {
-                \App\Models\Attendance::create([
-                    'service_id' => $service->id,
-                    'member_id' => $memberId,
-                    'guest_name' => $guestName,
-                    'method' => 'QR',
-                    'check_in_time' => now(),
-                ]);
+        if (! $existing) {
+            Attendance::create([
+                'service_id' => $service->id,
+                'member_id' => $memberId,
+                'guest_name' => $guestName,
+                'method' => 'QR',
+                'check_in_time' => now(),
+            ]);
         }
 
         return view('attendance.success', [
@@ -61,7 +64,7 @@ class AttendanceController extends Controller
     /**
      * Verify attendance via NFC (Static URL -> GPS Validation)
      */
-    public function verifyViaNfc(Request $request): \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+    public function verifyViaNfc(Request $request): View|RedirectResponse
     {
         // NFC tags use a static URL that redirects here.
         // We find the active service and render the Livewire component
@@ -73,7 +76,7 @@ class AttendanceController extends Controller
         }
 
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('guest.attendance', ['method' => 'NFC']);
         }
 

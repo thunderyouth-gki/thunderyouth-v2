@@ -13,25 +13,40 @@ class MemberManager extends Component
     use WithPagination;
 
     public string $search = '';
+
     public string $sortField = 'id';
+
     public string $sortDirection = 'desc';
+
     public int $perPage = 10;
 
     // Form state
     public ?int $manageMemberId = null;
+
     public ?int $deleteMemberId = null;
 
     public string $member_number = '';
+
     public string $name = '';
+
     public string $place_of_birth = '';
+
     public string $date_of_birth = '';
+
     public string $address = '';
+
     public string $email = '';
+
     public string $phone_number = '';
+
     public string $gender = '';
+
     public string $blood_type = '';
+
     public string $status = '';
+
     public ?string $user_id = '';
+
     public string $userSearch = '';
 
     public function updatingSearch(): void
@@ -58,7 +73,7 @@ class MemberManager extends Component
     {
         $this->user_id = (string) $id;
         $this->userSearch = $name;
-        
+
         if ($id) {
             $user = User::find($id);
             if ($user) {
@@ -70,9 +85,9 @@ class MemberManager extends Component
     private function resetForm(): void
     {
         $this->reset([
-            'manageMemberId', 'member_number', 'name', 'place_of_birth', 
-            'date_of_birth', 'address', 'email', 'phone_number', 
-            'gender', 'blood_type', 'status', 'user_id'
+            'manageMemberId', 'member_number', 'name', 'place_of_birth',
+            'date_of_birth', 'address', 'email', 'phone_number',
+            'gender', 'blood_type', 'status', 'user_id',
         ]);
         $this->gender = '';
         $this->blood_type = '';
@@ -91,7 +106,7 @@ class MemberManager extends Component
     {
         $this->resetForm();
         $member = Member::findOrFail($id);
-        
+
         $this->manageMemberId = $member->id;
         $this->member_number = $member->member_number ?? '';
         $this->name = $member->name;
@@ -104,7 +119,7 @@ class MemberManager extends Component
         $this->blood_type = $member->blood_type ?? '';
         $this->status = $member->status ?? '';
         $this->user_id = (string) $member->user_id;
-        $this->userSearch = $member->user ? $member->user->name . ' (' . $member->user->email . ')' : '';
+        $this->userSearch = $member->user ? $member->user->name.' ('.$member->user->email.')' : '';
 
         \Flux::modal('manage-member-modal')->show();
     }
@@ -146,7 +161,7 @@ class MemberManager extends Component
         }
 
         // Sync name to User table if a User is linked
-        if (!empty($this->user_id)) {
+        if (! empty($this->user_id)) {
             User::where('id', $this->user_id)->update(['name' => $this->name]);
         }
 
@@ -165,13 +180,13 @@ class MemberManager extends Component
         if ($this->deleteMemberId) {
             $member = Member::findOrFail($this->deleteMemberId);
             $userId = $member->user_id;
-            
+
             $member->delete();
-            
+
             if ($userId) {
                 User::find($userId)?->delete();
             }
-            
+
             $this->deleteMemberId = null;
             \Flux::modal('delete-member-modal')->close();
             $this->dispatch('notify', message: 'Member and linked user account deleted successfully.');
@@ -182,17 +197,17 @@ class MemberManager extends Component
     {
         $members = Member::with('user')
             ->when($this->search, function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orWhere('member_number', 'like', '%' . $this->search . '%')
-                    ->orWhere('email', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%')
+                    ->orWhere('member_number', 'like', '%'.$this->search.'%')
+                    ->orWhere('email', 'like', '%'.$this->search.'%');
             })
             ->orderBy($this->sortField, $this->sortDirection === 'asc' ? 'asc' : 'desc')
             ->paginate($this->perPage);
 
         $users = collect();
         if (strlen($this->userSearch) > 0 && empty($this->user_id)) {
-            $users = User::where('name', 'like', '%' . $this->userSearch . '%')
-                ->orWhere('email', 'like', '%' . $this->userSearch . '%')
+            $users = User::where('name', 'like', '%'.$this->userSearch.'%')
+                ->orWhere('email', 'like', '%'.$this->userSearch.'%')
                 ->take(5)
                 ->get();
         }

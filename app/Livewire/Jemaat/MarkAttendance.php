@@ -4,6 +4,7 @@ namespace App\Livewire\Jemaat;
 
 use App\Models\Attendance;
 use App\Models\Service;
+use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -52,7 +53,7 @@ class MarkAttendance extends Component
 
     private function checkIfAttended(): void
     {
-        if (!$this->serviceId || !auth()->check()) {
+        if (! $this->serviceId || ! auth()->check()) {
             return;
         }
 
@@ -79,6 +80,7 @@ class MarkAttendance extends Component
         if ($this->hasAttended) {
             $this->errorMessage = 'Anda sudah mencatat kehadiran untuk ibadah ini.';
             $this->isVerifying = false;
+
             return;
         }
 
@@ -97,7 +99,6 @@ class MarkAttendance extends Component
 
         if ($distance <= $maxRadius) {
             $this->gpsValid = true;
-            $this->recordAttendance($this->method);
         } else {
             // Round to nearest integer for display
             $distanceFormatted = round($distance);
@@ -133,6 +134,7 @@ class MarkAttendance extends Component
 
         if ($this->hasAttended) {
             $this->errorMessage = 'Anda sudah mencatat kehadiran untuk ibadah ini.';
+
             return;
         }
 
@@ -151,7 +153,7 @@ class MarkAttendance extends Component
         }
 
         if (trim($this->otp) === $service->attendance_otp) {
-            $this->recordAttendance('Manual');
+            $this->recordAttendance($this->method);
             $this->verificationSuccess = true;
             $this->hasAttended = true;
         } else {
@@ -162,7 +164,7 @@ class MarkAttendance extends Component
     protected function recordAttendance(string $method): void
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -181,7 +183,7 @@ class MarkAttendance extends Component
             })
             ->exists();
 
-        if (!$alreadyAttended) {
+        if (! $alreadyAttended) {
             Attendance::create([
                 'service_id' => $this->serviceId,
                 'member_id' => $memberId,
@@ -192,7 +194,7 @@ class MarkAttendance extends Component
         }
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.jemaat.mark-attendance');
     }

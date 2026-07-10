@@ -196,7 +196,7 @@ class UserAccessManager extends Component
         }
 
         $user->save();
-        
+
         // Sync to Member if exists
         if ($user->member) {
             $user->member->update([

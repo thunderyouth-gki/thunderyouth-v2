@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use Database\Factories\AttendanceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -13,15 +15,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $guest_name
  * @property string $method
  * @property string|null $device_id
- * @property \Illuminate\Support\Carbon $check_in_time
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\Service|null $service
- * @property-read \App\Models\Member|null $member
+ * @property Carbon $check_in_time
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Service|null $service
+ * @property-read Member|null $member
  */
 class Attendance extends Model
 {
-    /** @use HasFactory<\Database\Factories\AttendanceFactory> */
+    /** @use HasFactory<AttendanceFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -38,7 +40,7 @@ class Attendance extends Model
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Service, $this>
+     * @return BelongsTo<Service, $this>
      */
     public function service(): BelongsTo
     {
@@ -46,7 +48,7 @@ class Attendance extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\Member, $this>
+     * @return BelongsTo<Member, $this>
      */
     public function member(): BelongsTo
     {

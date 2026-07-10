@@ -1,10 +1,10 @@
 <?php
 
 use App\Livewire\Jemaat\GuestAttendance;
-use App\Models\Service;
-use App\Models\Member;
-use App\Models\User;
 use App\Models\Attendance;
+use App\Models\Member;
+use App\Models\Service;
+use App\Models\User;
 use Livewire\Livewire;
 
 beforeEach(function () {

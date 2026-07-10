@@ -19,7 +19,7 @@ it('displays the 403 error page', function () {
 });
 
 it('displays the 404 error page', function () {
-    $response = $this->get('/a-route-that-does-not-exist-' . uniqid());
+    $response = $this->get('/a-route-that-does-not-exist-'.uniqid());
 
     $response->assertStatus(404);
 });

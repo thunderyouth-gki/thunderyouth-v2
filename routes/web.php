@@ -7,6 +7,7 @@ use App\Livewire\Admin\MemberManager;
 use App\Livewire\Admin\PermissionManager;
 use App\Livewire\Admin\RoleManager;
 use App\Livewire\Admin\UserAccessManager;
+use App\Livewire\Jemaat\GuestAttendance;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,7 @@ Route::view('/events', 'events')->name('events');
 Route::view('/prayer-tree', 'prayer')->name('prayer');
 
 // Guest Attendance Route
-Route::get('/guest/attendance', \App\Livewire\Jemaat\GuestAttendance::class)->name('guest.attendance');
+Route::get('/guest/attendance', GuestAttendance::class)->name('guest.attendance');
 
 // Attendance Verification Routes (Both routes will check auth inside the controller)
 Route::get('/attendance/nfc/current', [AttendanceController::class, 'verifyViaNfc'])->name('attendance.nfc');

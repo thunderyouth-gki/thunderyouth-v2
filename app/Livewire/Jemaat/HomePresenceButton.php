@@ -4,6 +4,8 @@ namespace App\Livewire\Jemaat;
 
 use App\Models\Attendance;
 use App\Models\Service;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class HomePresenceButton extends Component
@@ -19,7 +21,7 @@ class HomePresenceButton extends Component
     public bool $gpsValid = false;
 
     public bool $verificationSuccess = false;
-    
+
     public bool $hasAttended = false;
 
     public ?string $errorMessage = null;
@@ -40,16 +42,16 @@ class HomePresenceButton extends Component
                 $this->isFinished = $activeService->is_finished;
             }
         }
-        
+
         $this->checkIfAttended();
     }
-    
+
     private function checkIfAttended(): void
     {
-        if (!$this->serviceId) {
+        if (! $this->serviceId) {
             return;
         }
-        
+
         if (auth()->check()) {
             $user = auth()->user();
             $memberId = $user->member ? $user->member->id : null;
@@ -65,7 +67,7 @@ class HomePresenceButton extends Component
                 })
                 ->exists();
         } else {
-            $deviceId = \Illuminate\Support\Facades\Cookie::get('attendance_device_id');
+            $deviceId = Cookie::get('attendance_device_id');
             if ($deviceId) {
                 $this->hasAttended = Attendance::where('service_id', $this->serviceId)
                     ->where('device_id', $deviceId)
@@ -83,6 +85,7 @@ class HomePresenceButton extends Component
             $this->errorMessage = 'Anda sudah mencatat kehadiran untuk ibadah ini.';
             $this->isVerifying = false;
             $this->dispatch('notify', message: $this->errorMessage, type: 'error');
+
             return;
         }
 
@@ -134,6 +137,7 @@ class HomePresenceButton extends Component
 
         if ($this->hasAttended) {
             $this->dispatch('notify', message: 'Anda sudah mencatat kehadiran untuk ibadah ini.', type: 'error');
+
             return;
         }
 
@@ -141,11 +145,13 @@ class HomePresenceButton extends Component
 
         if (! $service || ! $service->is_live) {
             $this->dispatch('notify', message: 'Ibadah tidak sedang berlangsung.', type: 'error');
+
             return;
         }
 
         if (! $service->attendance_otp) {
             $this->dispatch('notify', message: 'Sistem OTP belum dikonfigurasi untuk ibadah ini.', type: 'error');
+
             return;
         }
 
@@ -159,11 +165,11 @@ class HomePresenceButton extends Component
             $this->dispatch('notify', message: 'Kode OTP tidak valid.', type: 'error');
         }
     }
-    
+
     protected function recordAttendance(string $method): void
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return;
         }
 
@@ -182,7 +188,7 @@ class HomePresenceButton extends Component
             })
             ->exists();
 
-        if (!$alreadyAttended) {
+        if (! $alreadyAttended) {
             Attendance::create([
                 'service_id' => $this->serviceId,
                 'member_id' => $memberId,
@@ -193,7 +199,7 @@ class HomePresenceButton extends Component
         }
     }
 
-    public function render(): \Illuminate\View\View
+    public function render(): View
     {
         return view('livewire.jemaat.home-presence-button');
     }
